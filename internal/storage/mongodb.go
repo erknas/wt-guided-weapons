@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/erknas/wt-guided-weapons/internal/config"
+	"github.com/erknas/wt-guided-weapons/internal/types"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
 )
@@ -16,7 +17,7 @@ type MongoDB struct {
 	coll   *mongo.Collection
 }
 
-func NewMongoDB(ctx context.Context, cfg *config.Config) (*MongoDB, error) {
+func New(ctx context.Context, cfg *config.Config) (*MongoDB, error) {
 	ctx, cancel := context.WithTimeout(ctx, time.Second*10)
 	defer cancel()
 
@@ -24,11 +25,11 @@ func NewMongoDB(ctx context.Context, cfg *config.Config) (*MongoDB, error) {
 
 	client, err := mongo.Connect(opts)
 	if err != nil {
-		return nil, fmt.Errorf("failed to connect to mongodb: %w", err)
+		return nil, err
 	}
 
 	if err := client.Ping(ctx, nil); err != nil {
-		return nil, fmt.Errorf("ping failed: %w", err)
+		return nil, err
 	}
 
 	coll := client.Database(cfg.ConfigMongoDB.DBName).Collection(cfg.ConfigMongoDB.CollName)
@@ -37,6 +38,18 @@ func NewMongoDB(ctx context.Context, cfg *config.Config) (*MongoDB, error) {
 		client: client,
 		coll:   coll,
 	}, nil
+}
+
+func (m *MongoDB) Insert(ctx context.Context, params *types.WeaponParams) error {
+	return nil
+}
+
+func (m *MongoDB) Update(ctx context.Context, params *types.WeaponParams) error {
+	return nil
+}
+
+func (m *MongoDB) Provide(ctx context.Context, category string) ([]*types.WeaponParams, error) {
+	return nil, nil
 }
 
 func (m *MongoDB) Close(ctx context.Context) error {
