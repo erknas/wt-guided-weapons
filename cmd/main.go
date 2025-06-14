@@ -41,5 +41,8 @@ func main() {
 	service := service.New(storage, storage, storage, log)
 
 	server := server.New(service)
-	server.Run(ctx, cfg)
+	if err := server.Run(ctx, cfg); err != nil {
+		log.Error("server failed", "error", err)
+		os.Exit(1)
+	}
 }
