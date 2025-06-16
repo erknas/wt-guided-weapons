@@ -1,35 +1,40 @@
 package types
 
-type WeaponParams struct {
-	Name                                  string `csv:"Name" json:"name"`
-	Mass                                  string `csv:"Mass" json:"mass_kg"`
-	MassAtEndOfBoosterBurn                string `csv:"Mass at end of booster burn" json:"mass_end_booster_burn_kg"`
-	MassAtEndOfSustainerBurn              string `csv:"Mass at end of sustainer burn" json:"mass_end_sustainer_burn_kg"`
-	Caliber                               string `csv:"Calibre" json:"caliber_mm"`
-	Length                                string `csv:"Length" json:"length_m"`
-	ForceExertedByBooster                 string `csv:"Force exerted by booster" json:"force_exerted_by_booster_N"`
-	BurnTimeOfBooster                     string `csv:"Burn time of booster" json:"burn_time_of_booster_s"`
-	RawAccelerationAtIgnition             string `csv:"Raw acceleration at ignition" json:"raw_acceleration_at_ignition_ms2"`
-	SpecificImpulseOfBooster              string `csv:"Specific impulse of booster" json:"specific_impulse_of_booster_s"`
-	DeltaVOfBooster                       string `csv:"ΔV of booster" json:"delta_v_of_booster_ms"`
-	BoosterStartDelay                     string `csv:"Booster start delay" json:"booster_start_delay_s"`
-	ForceExertedBySustainer               string `csv:"Force exerted by sustainer" json:"force_exerted_by_sustainer_N"`
-	BurnTimeOfSustainer                   string `csv:"Burn time of sustainer" json:"burn_time_of_sustainer_s"`
-	SpecificImpulseOfSustainer            string `csv:"Specific impulse of sustainer" json:"specific_impulse_of_sustainer_s"`
-	DeltaVOfSustainer                     string `csv:"ΔV of sustainer" json:"delta_v_of_sustainer_ms"`
-	TotalDeltaV                           string `csv:"Total ΔV" json:"total_delta_v_ms"`
-	ExplosiveMass                         string `csv:"Explosive mass" json:"explosive_mass_kg_tnt"`
-	Warhead                               string `csv:"Warhead:" json:"warhead"`
-	Penetration                           string `csv:"Penetration" json:"penetration_mm"`
-	ProximityFuse                         string `csv:"Proximity fuse:" json:"proximity_fuse"`
-	ProximityFuseArmingDistance           string `csv:"Proximity fuse arming distance" json:"proximity_fuse_arming_distance"`
-	ProximityFuseArmingDistanceFromTarget string `csv:"Proximity fuse arming distance from target" json:"proximity_fuse_arming_distance_from_target"`
-	ProximityFuseRange                    string `csv:"Proximity fuse range" json:"proximity_fuse_range_m"`
-	ProximityFuseShellDetection           string `csv:"Proximity fuse shell detection (80-200 mm):" json:"proximity_fuse_shell_detection"`
-	ProximityFuseMinimumAltitude          string `csv:"Proximity fuse minimum altitude" json:"proximity_fuse_minimum_atitude"`
-	ProximityFuseDelay                    string `csv:"Proximity fuse delay" json:"proximity_fuse_delay_s"`
-	ImpactFuseSensitivity                 string `csv:"Impact fuse sensitivity" json:"impact_fuse_sensitivity_mm"`
-	ImpactFuseDelay                       string `csv:"Impact fuse delay" json:"impact_fuse_delay_m"`
+type Weapons struct {
+	Weapons []*Weapon `json:"weapons"`
+}
+
+type Weapon struct {
+	Category                              string `json:"category,omitempty"`
+	Name                                  string `csv:"Name" json:"name,omitempty"`
+	Mass                                  string `csv:"Mass" json:"mass_kg,omitempty"`
+	MassAtEndOfBoosterBurn                string `csv:"Mass at end of booster burn" json:"mass_end_booster_burn_kg,omitempty"`
+	MassAtEndOfSustainerBurn              string `csv:"Mass at end of sustainer burn" json:"mass_end_sustainer_burn_kg,omitempty"`
+	Caliber                               string `csv:"Calibre" json:"caliber_mm,omitempty"`
+	Length                                string `csv:"Length" json:"length_m,omitempty"`
+	ForceExertedByBooster                 string `csv:"Force exerted by booster" json:"force_exerted_by_booster_N,omitempty"`
+	BurnTimeOfBooster                     string `csv:"Burn time of booster" json:"burn_time_of_booster_s,omitempty"`
+	RawAccelerationAtIgnition             string `csv:"Raw acceleration at ignition" json:"raw_acceleration_at_ignition_ms2,omitempty"`
+	SpecificImpulseOfBooster              string `csv:"Specific impulse of booster" json:"specific_impulse_of_booster_s,omitempty"`
+	DeltaVOfBooster                       string `csv:"ΔV of booster" json:"delta_v_of_booster_ms,omitempty"`
+	BoosterStartDelay                     string `csv:"Booster start delay" json:"booster_start_delay_s,omitempty"`
+	ForceExertedBySustainer               string `csv:"Force exerted by sustainer" json:"force_exerted_by_sustainer_N,omitempty"`
+	BurnTimeOfSustainer                   string `csv:"Burn time of sustainer" json:"burn_time_of_sustainer_s,omitempty"`
+	SpecificImpulseOfSustainer            string `csv:"Specific impulse of sustainer" json:"specific_impulse_of_sustainer_s,omitempty"`
+	DeltaVOfSustainer                     string `csv:"ΔV of sustainer" json:"delta_v_of_sustainer_ms,omitempty"`
+	TotalDeltaV                           string `csv:"Total ΔV" json:"total_delta_v_ms,omitempty"`
+	ExplosiveMass                         string `csv:"Explosive mass" json:"explosive_mass_kg_tnt,omitempty"`
+	Warhead                               string `csv:"Warhead:" json:"warhead,omitempty"`
+	Penetration                           string `csv:"Penetration" json:"penetration_mm,omitempty"`
+	ProximityFuse                         string `csv:"Proximity fuse:" json:"proximity_fuse,omitempty"`
+	ProximityFuseArmingDistance           string `csv:"Proximity fuse arming distance" json:"proximity_fuse_arming_distance,omitempty"`
+	ProximityFuseArmingDistanceFromTarget string `csv:"Proximity fuse arming distance from target" json:"proximity_fuse_arming_distance_from_target,omitempty"`
+	ProximityFuseRange                    string `csv:"Proximity fuse range" json:"proximity_fuse_range_m,omitempty"`
+	ProximityFuseShellDetection           string `csv:"Proximity fuse shell detection (80-200 mm):" json:"proximity_fuse_shell_detection,omitempty"`
+	ProximityFuseMinimumAltitude          string `csv:"Proximity fuse minimum altitude" json:"proximity_fuse_minimum_atitude,omitempty"`
+	ProximityFuseDelay                    string `csv:"Proximity fuse delay" json:"proximity_fuse_delay_s,omitempty"`
+	ImpactFuseSensitivity                 string `csv:"Impact fuse sensitivity" json:"impact_fuse_sensitivity_mm,omitempty"`
+	ImpactFuseDelay                       string `csv:"Impact fuse delay" json:"impact_fuse_delay_m,omitempty"`
 	GuidanceType                          string `csv:"Guidance type" json:"guidance_type,omitempty"`
 	GuidanceStartDelay                    string `csv:"Guidance start delay" json:"guidance_start_delay_s,omitempty"`
 	GuidanceDuration                      string `csv:"Guidance duration" json:"guidance_duration_s,omitempty"`
@@ -136,5 +141,5 @@ type WeaponParams struct {
 	SeaSkimming                           string `csv:"Sea skimming" json:"sea_skimming,omitempty"`
 	SkimAltitude                          string `csv:"Skim altitude" json:"skim_altitude,omitempty"`
 	AttackAltitude                        string `csv:"Attack altitude" json:"attack_altitude,omitempty"`
-	AdditionalNotes                       string `csv:"Additional Notes:" json:"additional_notes"`
+	AdditionalNotes                       string `csv:"Additional Notes:" json:"additional_notes,omitempty"`
 }
