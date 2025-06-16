@@ -2,14 +2,12 @@ package storage
 
 import (
 	"context"
-	"fmt"
-	"net/url"
 	"time"
 
 	"github.com/erknas/wt-guided-weapons/internal/config"
 	"github.com/erknas/wt-guided-weapons/internal/types"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
-	"go.mongodb.org/mongo-driver/v2/mongo/options"
 )
 
 type MongoDB struct {
@@ -40,34 +38,42 @@ func New(ctx context.Context, cfg *config.Config) (*MongoDB, error) {
 	}, nil
 }
 
-func (m *MongoDB) Insert(ctx context.Context, params *types.WeaponParams) error {
+func (m *MongoDB) Insert(ctx context.Context, weapons []*types.Weapon) error {
+	_, err := m.coll.InsertMany(ctx, weapons)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
-func (m *MongoDB) Update(ctx context.Context, params *types.WeaponParams) error {
+func (m *MongoDB) Update(ctx context.Context, weapons []*types.Weapon) error {
 	return nil
 }
 
-func (m *MongoDB) Provide(ctx context.Context, category string) ([]*types.WeaponParams, error) {
+func (m *MongoDB) WeaponsByCategory(ctx context.Context, category string) ([]*types.Weapon, error) {
 	return nil, nil
+}
+
+func (m *MongoDB) Weapons(ctx context.Context) ([]*types.Weapon, error) {
+	cursor, err := m.coll.Find(ctx, bson.M{})
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	var weapons []*types.Weapon
+	if err := cursor.All(ctx, &weapons); err != nil {
+		return nil, err
+	}
+
+	if err := cursor.Err(); err != nil {
+		return nil, err
+	}
+
+	return weapons, nil
 }
 
 func (m *MongoDB) Close(ctx context.Context) error {
 	return m.client.Disconnect(ctx)
-}
-
-func clientOpts(cfg *config.Config) *options.ClientOptions {
-	uri := fmt.Sprintf("mongodb://%s:%s@%s:%s",
-		url.QueryEscape(cfg.ConfigMongoDB.Username),
-		url.QueryEscape(cfg.ConfigMongoDB.Password),
-		cfg.ConfigMongoDB.Host,
-		cfg.ConfigMongoDB.Port,
-	)
-
-	opts := options.Client().
-		ApplyURI(uri).
-		SetConnectTimeout(5 * time.Second).
-		SetServerSelectionTimeout(10 * time.Second)
-
-	return opts
 }
