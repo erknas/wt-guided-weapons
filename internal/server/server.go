@@ -2,7 +2,7 @@ package server
 
 import (
 	"context"
-	"fmt"
+	"encoding/json"
 	"log"
 	"net/http"
 	"os"
@@ -16,9 +16,10 @@ import (
 )
 
 type Servicer interface {
-	InsertWeapons(context.Context, *types.WeaponParams) error
-	UpdateWeapons(context.Context, *types.WeaponParams) error
-	GetWeaponsByCategory(context.Context, string) ([]*types.WeaponParams, error)
+	InsertWeapons(context.Context) error
+	UpdateWeapons(context.Context) error
+	GetWeaponsByCategory(context.Context, string) ([]*types.Weapon, error)
+	GetWeapons(context.Context) ([]*types.Weapon, error)
 }
 
 type Server struct {
@@ -33,6 +34,9 @@ func New(svc Servicer) *Server {
 
 func (s *Server) Run(ctx context.Context, cfg *config.Config) error {
 	router := chi.NewRouter()
+
+	router.Get("/insert", makeHTTPFunc(s.handleInsertWeapon))
+	router.Get("/weapons", makeHTTPFunc(s.handleGetWeapons))
 
 	srv := &http.Server{
 		Addr:         cfg.ConfigServer.Port,
@@ -54,7 +58,7 @@ func (s *Server) Run(ctx context.Context, cfg *config.Config) error {
 		errCh <- nil
 	}()
 
-	log.Printf("server starting on [http://localhost:%s\n]", cfg.ConfigServer.Port)
+	log.Printf("server starting on http://localhost%s\n", cfg.ConfigServer.Port)
 
 	select {
 	case <-quitCh:
@@ -62,7 +66,7 @@ func (s *Server) Run(ctx context.Context, cfg *config.Config) error {
 		defer cancel()
 
 		if err := srv.Shutdown(shutdownCtx); err != nil {
-			return fmt.Errorf("shutdown error: %w", err)
+			return err
 		}
 		log.Println("server shutdown")
 	case err := <-errCh:
@@ -72,4 +76,20 @@ func (s *Server) Run(ctx context.Context, cfg *config.Config) error {
 	}
 
 	return nil
+}
+
+type httpFunc func(w http.ResponseWriter, r *http.Request) error
+
+func makeHTTPFunc(fn httpFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if err := fn(w, r); err != nil {
+			writeJSON(w, http.StatusBadRequest, map[string]any{"error": err.Error()})
+		}
+	}
+}
+
+func writeJSON(w http.ResponseWriter, status int, v any) error {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	return json.NewEncoder(w).Encode(v)
 }
