@@ -9,7 +9,7 @@ import (
 
 const csvTag = "csv"
 
-func MapToWeapon(data [][]string, weaponIdx int) (*types.Weapon, error) {
+func mapToWeapon(data [][]string, weaponIdx int) (*types.Weapon, error) {
 	headers := make([]string, len(data))
 
 	for i, row := range data {

@@ -19,7 +19,7 @@ func ParseTable(ctx context.Context, url string) ([]*types.Weapon, error) {
 	var weapons []*types.Weapon
 
 	for i := range data[0][1:] {
-		weapon, err := MapToWeapon(data, i+1)
+		weapon, err := mapToWeapon(data, i+1)
 		if err != nil {
 			return nil, err
 		}
