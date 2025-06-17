@@ -52,7 +52,25 @@ func (m *MongoDB) Update(ctx context.Context, weapons []*types.Weapon) error {
 }
 
 func (m *MongoDB) WeaponsByCategory(ctx context.Context, category string) ([]*types.Weapon, error) {
-	return nil, nil
+	filter := bson.M{"category": category}
+
+	cursor, err := m.coll.Find(ctx, filter)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	var weapons []*types.Weapon
+
+	if err := cursor.All(ctx, &weapons); err != nil {
+		return nil, err
+	}
+
+	if err := cursor.Err(); err != nil {
+		return nil, err
+	}
+
+	return weapons, nil
 }
 
 func (m *MongoDB) Weapons(ctx context.Context) ([]*types.Weapon, error) {
