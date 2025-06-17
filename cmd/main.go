@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"log"
 	"os"
 	"os/signal"
 	"syscall"
@@ -12,20 +13,24 @@ import (
 	"github.com/erknas/wt-guided-weapons/internal/server"
 	"github.com/erknas/wt-guided-weapons/internal/service"
 	"github.com/erknas/wt-guided-weapons/internal/storage"
+	"go.uber.org/zap"
 )
 
 func main() {
-	var (
-		cfg = config.Load()
-		log = logger.New(cfg.Env)
-	)
+	cfg := config.Load()
+
+	logger, err := logger.New(cfg.Env)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer logger.Sync()
 
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer cancel()
 
 	storage, err := storage.New(ctx, cfg)
 	if err != nil {
-		log.Error("failed to init storage", "error", err)
+		logger.Error("failed to init storage", zap.Error(err))
 		os.Exit(1)
 	}
 
@@ -34,15 +39,16 @@ func main() {
 		defer cancel()
 
 		if err := storage.Close(closeCtx); err != nil {
-			log.Error("failed to disconnect from storage", "error", err)
+			logger.Error("failed to disconnect from storage", zap.Error(err))
 		}
 	}()
 
-	service := service.New(storage, storage, storage, log)
+	service := service.New(storage, storage, storage, logger)
 
-	server := server.New(service)
+	server := server.New(service, logger)
+
 	if err := server.Run(ctx, cfg); err != nil {
-		log.Error("server failed", "error", err)
+		logger.Error("server failed", zap.Error(err))
 		os.Exit(1)
 	}
 }
