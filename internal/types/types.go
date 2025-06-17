@@ -6,140 +6,140 @@ type Weapons struct {
 
 type Weapon struct {
 	Category                              string `json:"category,omitempty"`
-	Name                                  string `csv:"Name" json:"name,omitempty"`
-	Mass                                  string `csv:"Mass" json:"mass_kg,omitempty"`
-	MassAtEndOfBoosterBurn                string `csv:"Mass at end of booster burn" json:"mass_end_booster_burn_kg,omitempty"`
-	MassAtEndOfSustainerBurn              string `csv:"Mass at end of sustainer burn" json:"mass_end_sustainer_burn_kg,omitempty"`
-	Caliber                               string `csv:"Calibre" json:"caliber_mm,omitempty"`
-	Length                                string `csv:"Length" json:"length_m,omitempty"`
-	ForceExertedByBooster                 string `csv:"Force exerted by booster" json:"force_exerted_by_booster_N,omitempty"`
-	BurnTimeOfBooster                     string `csv:"Burn time of booster" json:"burn_time_of_booster_s,omitempty"`
-	RawAccelerationAtIgnition             string `csv:"Raw acceleration at ignition" json:"raw_acceleration_at_ignition_ms2,omitempty"`
-	SpecificImpulseOfBooster              string `csv:"Specific impulse of booster" json:"specific_impulse_of_booster_s,omitempty"`
-	DeltaVOfBooster                       string `csv:"ΔV of booster" json:"delta_v_of_booster_ms,omitempty"`
-	BoosterStartDelay                     string `csv:"Booster start delay" json:"booster_start_delay_s,omitempty"`
-	ForceExertedBySustainer               string `csv:"Force exerted by sustainer" json:"force_exerted_by_sustainer_N,omitempty"`
-	BurnTimeOfSustainer                   string `csv:"Burn time of sustainer" json:"burn_time_of_sustainer_s,omitempty"`
-	SpecificImpulseOfSustainer            string `csv:"Specific impulse of sustainer" json:"specific_impulse_of_sustainer_s,omitempty"`
-	DeltaVOfSustainer                     string `csv:"ΔV of sustainer" json:"delta_v_of_sustainer_ms,omitempty"`
-	TotalDeltaV                           string `csv:"Total ΔV" json:"total_delta_v_ms,omitempty"`
-	ExplosiveMass                         string `csv:"Explosive mass" json:"explosive_mass_kg_tnt,omitempty"`
-	Warhead                               string `csv:"Warhead:" json:"warhead,omitempty"`
-	Penetration                           string `csv:"Penetration" json:"penetration_mm,omitempty"`
-	ProximityFuse                         string `csv:"Proximity fuse:" json:"proximity_fuse,omitempty"`
-	ProximityFuseArmingDistance           string `csv:"Proximity fuse arming distance" json:"proximity_fuse_arming_distance,omitempty"`
-	ProximityFuseArmingDistanceFromTarget string `csv:"Proximity fuse arming distance from target" json:"proximity_fuse_arming_distance_from_target,omitempty"`
-	ProximityFuseRange                    string `csv:"Proximity fuse range" json:"proximity_fuse_range_m,omitempty"`
-	ProximityFuseShellDetection           string `csv:"Proximity fuse shell detection (80-200 mm):" json:"proximity_fuse_shell_detection,omitempty"`
-	ProximityFuseMinimumAltitude          string `csv:"Proximity fuse minimum altitude" json:"proximity_fuse_minimum_atitude,omitempty"`
-	ProximityFuseDelay                    string `csv:"Proximity fuse delay" json:"proximity_fuse_delay_s,omitempty"`
-	ImpactFuseSensitivity                 string `csv:"Impact fuse sensitivity" json:"impact_fuse_sensitivity_mm,omitempty"`
-	ImpactFuseDelay                       string `csv:"Impact fuse delay" json:"impact_fuse_delay_m,omitempty"`
-	GuidanceType                          string `csv:"Guidance type" json:"guidance_type,omitempty"`
-	GuidanceStartDelay                    string `csv:"Guidance start delay" json:"guidance_start_delay_s,omitempty"`
-	GuidanceDuration                      string `csv:"Guidance duration" json:"guidance_duration_s,omitempty"`
-	GuidanceRange                         string `csv:"Guidance range" json:"guidance_range_km,omitempty"`
-	GuidanceFOV                           string `csv:"Guidance FOV" json:"guidance_fov_deg,omitempty"`
-	GuidanceMaxLead                       string `csv:"Guidance max lead" json:"guidance_max_lead_deg,omitempty"`
-	GuidanceLaunchSector                  string `csv:"Guidance launch sector" json:"guidance_launch_sector_deg,omitempty"`
-	AimTrackingSensitivity                string `csv:"Aim tracking sensitivity" json:"aim_tracking_sensitivity,omitempty"`
-	SeekerWarmUpTime                      string `csv:"Seeker warm up time" json:"seeker_warm_up_time_s,omitempty"`
-	SeekerSearchDuration                  string `csv:"Seeker search duration" json:"seeker_search_duration_s,omitempty"`
-	SeekerRange                           string `csv:"Seeker range" json:"seeker_range_km,omitempty"`
-	FieldOfView                           string `csv:"Field of view" json:"field_of_view_deg,omitempty"`
-	GimbalLimit                           string `csv:"Gimbal limit" json:"gimbal_limit_deg,omitempty"`
-	TrackRate                             string `csv:"Track rate" json:"track_rate_deg_sec,omitempty"`
-	UncagedSeekerBeforeLaunch             string `csv:"Uncaged seeker before launch" json:"uncaged_seeker_before_launch,omitempty"`
-	MaxLockAngleBeforeLaunch              string `csv:"Maximum lock angle before launch" json:"max_lock_angle_before_launch_deg,omitempty"`
-	MinAngleOfIncidenceToSun              string `csv:"Minimum angle of incidence to Sun" json:"min_angle_of_incidence_to_sun_deg,omitempty"`
-	BaselineLockRangeRear                 string `csv:"Baseline lock range rear-aspect" json:"baseline_lock_range_rear_km,omitempty"`
-	BaselineLockRangeAll                  string `csv:"Baseline lock range all-aspect" json:"baseline_lock_range_all_km,omitempty"`
-	BaselineLockRangeGround               string `csv:"Baseline lock range (ground)" json:"baseline_lock_range_ground_km,omitempty"`
-	BaselineLockRangeTarget               string `csv:"Baseline lock range (target)" json:"baseline_lock_range_target_km,omitempty"`
-	BaselineFlareDetection                string `csv:"Baseline flare detection" json:"baseline_flare_detection_km,omitempty"`
-	BaselineIRCMDetection                 string `csv:"Baseline IRCM detection" json:"baseline_ircm_detection_km,omitempty"`
-	BaselineDIRCMDetection                string `csv:"Baseline DIRCM detection" json:"baseline_dircm_detection_km,omitempty"`
-	BaselineLDIRCMDetection               string `csv:"Baseline LDIRCM detection" json:"baseline_ldircm_detection_km,omitempty"`
-	BaselineHeadOnLockRange               string `csv:"Baseline head-on lock range" json:"baseline_head_on_lock_range_km,omitempty"`
-	MaxLockRangeHardLimit                 string `csv:"Maximum lock range" json:"max_lock_range_km,omitempty"`
-	IRCCM                                 string `csv:"IRCCM" json:"irccm,omitempty"`
-	IRCCMType                             string `csv:"IRCCM type" json:"irccm_type,omitempty"`
-	IRCCMFieldOfView                      string `csv:"IRCCM field of view" json:"irccm_field_of_view_deg,omitempty"`
-	IRCCMRejectionThreshold               string `csv:"IRCCM rejection threshold" json:"irccm_rejection_threshold,omitempty"`
-	IRCCMReactionTime                     string `csv:"IRCCM reaction time" json:"irccm_reaction_time_s,omitempty"`
-	MinTargetSize                         string `csv:"Minimum target size" json:"min_target_size_m,omitempty"`
-	MaxBreakLockTime                      string `csv:"Maximum break lock time" json:"max_break_lock_time_s,omitempty"`
-	CanBeSlavedToRadar                    string `csv:"Can be slaved to radar" json:"can_be_slaved_to_radar,omitempty"`
-	CanLockAfterLaunch                    string `csv:"Can lock after launch" json:"can_lock_after_launch,omitempty"`
-	Band                                  string `csv:"Band" json:"band,omitempty"`
-	AngularSpeedRejectionThresh           string `csv:"Angular speed rejection" json:"angular_speed_rejection_deg_s,omitempty"`
-	AccelRejectionThreshRange             string `csv:"Acceleration rejection" json:"accel_rejection_m_s2,omitempty"`
-	InertialGuidanceDriftSpeed            string `csv:"Inertial guidance drift" json:"inertial_guidance_drift_m_s,omitempty"`
-	Datalink                              string `csv:"Datalink" json:"datalink,omitempty"`
-	CanDatalinkReconnect                  string `csv:"Can datalink reconnect" json:"can_datalink_reconnect,omitempty"`
-	SidelobeAttenuation                   string `csv:"Sidelobe attenuation" json:"sidelobe_attenuation,omitempty"`
-	TransmitterPower                      string `csv:"Transmitter power" json:"transmitter_power,omitempty"`
-	TransmitterHalfSensitivity            string `csv:"Transmitter half sensitivity" json:"transmitter_half_sensitivity,omitempty"`
-	TransmitterSidelobeSens               string `csv:"Transmitter sidelobe sensitivity" json:"transmitter_sidelobe_sensitivity,omitempty"`
-	ReceiverHalfSensitivity               string `csv:"Receiver half sensitivity" json:"receiver_half_sensitivity,omitempty"`
-	ReceiverSidelobeSens                  string `csv:"Receiver sidelobe sensitivity" json:"receiver_sidelobe_sensitivity,omitempty"`
-	DistanceMinValue                      string `csv:"Distance min" json:"distance_min_m,omitempty"`
-	DistanceMaxValue                      string `csv:"Distance max" json:"distance_max_km,omitempty"`
-	DistanceWidth                         string `csv:"Distance width" json:"distance_width_m,omitempty"`
-	DistanceRefWidth                      string `csv:"Distance ref width" json:"distance_ref_width_m,omitempty"`
-	DistanceMinSignalGate                 string `csv:"Distance min signal gate" json:"distance_min_signal_gate_m,omitempty"`
-	DistanceGateSearchRange               string `csv:"Distance gate search" json:"distance_gate_search_m,omitempty"`
-	DistanceGateAlphaFilter               string `csv:"Distance gate alpha" json:"distance_gate_alpha,omitempty"`
-	DistanceGateBetaFilter                string `csv:"Distance gate beta" json:"distance_gate_beta,omitempty"`
-	DopplerSpeedMinValue                  string `csv:"Doppler speed min" json:"doppler_speed_min_m_s,omitempty"`
-	DopplerSpeedMaxValue                  string `csv:"Doppler speed max" json:"doppler_speed_max_m_s,omitempty"`
-	DopplerSpeedWidth                     string `csv:"Doppler speed width" json:"doppler_speed_width_m_s,omitempty"`
-	DopplerSpeedRefWidth                  string `csv:"Doppler speed ref width" json:"doppler_speed_ref_width_m_s,omitempty"`
-	DopplerSpeedMinSignalGate             string `csv:"Doppler speed min gate" json:"doppler_speed_min_gate_m_s,omitempty"`
-	DopplerSpeedGateSearch                string `csv:"Doppler speed gate search" json:"doppler_speed_gate_search_m_s,omitempty"`
-	DopplerSpeedGateAlpha                 string `csv:"Doppler speed gate alpha" json:"doppler_speed_gate_alpha,omitempty"`
-	DopplerSpeedGateBeta                  string `csv:"Doppler speed gate beta" json:"doppler_speed_gate_beta,omitempty"`
-	ProportionalNavMultiplier             string `csv:"Proportional nav multiplier" json:"proportional_nav_multiplier,omitempty"`
-	BaseIndicatedAirSpeed                 string `csv:"Base air speed" json:"base_air_speed_m_s,omitempty"`
-	PIDProportionalTerm                   string `csv:"PID proportional" json:"pid_proportional,omitempty"`
-	PIDIntegralTerm                       string `csv:"PID integral" json:"pid_integral,omitempty"`
-	PIDIntegralTermLimit                  string `csv:"PID integral term limit" json:"pid_integral_limit,omitempty"`
-	PIDDerivativeTerm                     string `csv:"PID derivative" json:"pid_derivative,omitempty"`
-	OrientingPhase                        string `csv:"Orienting phase" json:"orienting_phase,omitempty"`
-	OrientingStartDelay                   string `csv:"Orienting start delay" json:"orienting_start_delay,omitempty"`
-	OrientingControlTime                  string `csv:"Orienting control time" json:"orienting_control_time,omitempty"`
-	OrientingElevationAddition            string `csv:"Orienting elevation addition" json:"orienting_elevation_addition,omitempty"`
-	DragCoefficientMultiplier             string `csv:"Drag coefficient multiplier" json:"drag_coefficient_multiplier,omitempty"`
-	WingAreaMultiplier                    string `csv:"Wing area multiplier" json:"wing_area_multiplier,omitempty"`
-	StartSpeed                            string `csv:"Start speed" json:"start_speed,omitempty"`
-	MaximumSpeed                          string `csv:"Maximum speed" json:"maximum_speed,omitempty"`
-	MinimumRange                          string `csv:"Minimum range" json:"minimum_range,omitempty"`
-	FlightRangeLimit                      string `csv:"Flight range limit" json:"flight_range_limit,omitempty"`
-	MaximumGLoad                          string `csv:"Maximum G-load" json:"maximum_g_load,omitempty"`
-	MaximumFinAngleOfAttack               string `csv:"Maximum fin angle of attack" json:"maximum_fin_angle_of_attack,omitempty"`
-	MaximumFinLateralAcceleration         string `csv:"Maximum fin lateral acceleration" json:"maximum_fin_lateral_acceleration,omitempty"`
-	MaximumLateralAcceleration            string `csv:"Maximum lateral acceleration" json:"maximum_lateral_acceleration,omitempty"`
-	MaximumAOA                            string `csv:"Maximum AOA" json:"maximum_aoa,omitempty"`
-	ThrustVectoring                       string `csv:"Thrust vectoring" json:"thrust_vectoring,omitempty"`
-	ThrustVectoringAngle                  string `csv:"Thrust vectoring angle" json:"thrust_vectoring_angle,omitempty"`
-	MaximumLaunchAngleHorizontal          string `csv:"Maximum launch angle (horizontally)" json:"maximum_launch_angle_horizontal,omitempty"`
-	MaximumLaunchAngleVertical            string `csv:"Maximum launch angle (vertically)" json:"maximum_launch_angle_vertical,omitempty"`
-	MaximumAxisValues                     string `csv:"Maximum axis values" json:"maximum_axis_values,omitempty"`
-	StatcardSpeed                         string `csv:"Maximum statcard (useless) speed" json:"statcard_speed,omitempty"`
-	StatcardLaunchRange                   string `csv:"Maximum statcard (useless) launch range" json:"statcard_launch_range,omitempty"`
-	StatcardGuaranteedRange               string `csv:"Statcard (useless) guaranteed range" json:"statcard_guaranteed_range,omitempty"`
-	StatcardGLoad                         string `csv:"Maximum statcard (useless) G-load" json:"statcard_g_load,omitempty"`
-	FlightTimeUntilGuidanceStarts         string `csv:"Flight time until guidance starts (delay)" json:"flight_time_until_guidance_starts,omitempty"`
-	FlightTimeWhenPullLimitX              string `csv:"Flight time when pull limit reaches x%" json:"flight_time_when_pull_limit_x,omitempty"`
-	FlightTimeWhenPullLimit100            string `csv:"Flight time when pull limit reaches 100%" json:"flight_time_when_pull_limit_100,omitempty"`
-	ETAtoImpactWhenPropMultiplier         string `csv:"ETA to impact when prop multiplier reaches x%" json:"eta_to_impact_when_prop_multiplier,omitempty"`
-	Loft                                  string `csv:"Loft" json:"loft,omitempty"`
-	LoftAngle                             string `csv:"Loft angle" json:"loft_angle,omitempty"`
-	TargetElevation                       string `csv:"Target elevation" json:"target_elevation,omitempty"`
-	MaximumTargetAngularChange            string `csv:"Maximum target angular change" json:"maximum_target_angular_change,omitempty"`
-	HasTracerInTail                       string `csv:"Has a tracer in its tail" json:"has_tracer_in_tail,omitempty"`
-	SeaSkimming                           string `csv:"Sea skimming" json:"sea_skimming,omitempty"`
-	SkimAltitude                          string `csv:"Skim altitude" json:"skim_altitude,omitempty"`
-	AttackAltitude                        string `csv:"Attack altitude" json:"attack_altitude,omitempty"`
-	AdditionalNotes                       string `csv:"Additional Notes:" json:"additional_notes,omitempty"`
+	Name                                  string `json:"name,omitempty"`
+	Mass                                  string `json:"mass_kg,omitempty"`
+	MassAtEndOfBoosterBurn                string `json:"mass_end_booster_burn_kg,omitempty"`
+	MassAtEndOfSustainerBurn              string `json:"mass_end_sustainer_burn_kg,omitempty"`
+	Caliber                               string `json:"caliber_mm,omitempty"`
+	Length                                string `json:"length_m,omitempty"`
+	ForceExertedByBooster                 string `json:"force_exerted_by_booster_N,omitempty"`
+	BurnTimeOfBooster                     string `json:"burn_time_of_booster_s,omitempty"`
+	RawAccelerationAtIgnition             string `json:"raw_acceleration_at_ignition_ms2,omitempty"`
+	SpecificImpulseOfBooster              string `json:"specific_impulse_of_booster_s,omitempty"`
+	DeltaVOfBooster                       string `json:"delta_v_of_booster_ms,omitempty"`
+	BoosterStartDelay                     string `json:"booster_start_delay_s,omitempty"`
+	ForceExertedBySustainer               string `json:"force_exerted_by_sustainer_N,omitempty"`
+	BurnTimeOfSustainer                   string `json:"burn_time_of_sustainer_s,omitempty"`
+	SpecificImpulseOfSustainer            string `json:"specific_impulse_of_sustainer_s,omitempty"`
+	DeltaVOfSustainer                     string `json:"delta_v_of_sustainer_ms,omitempty"`
+	TotalDeltaV                           string `json:"total_delta_v_ms,omitempty"`
+	ExplosiveMass                         string `json:"explosive_mass_kg_tnt,omitempty"`
+	Warhead                               string `json:"warhead,omitempty"`
+	Penetration                           string `json:"penetration_mm,omitempty"`
+	ProximityFuse                         string `json:"proximity_fuse,omitempty"`
+	ProximityFuseArmingDistance           string `json:"proximity_fuse_arming_distance,omitempty"`
+	ProximityFuseArmingDistanceFromTarget string `json:"proximity_fuse_arming_distance_from_target,omitempty"`
+	ProximityFuseRange                    string `json:"proximity_fuse_range_m,omitempty"`
+	ProximityFuseShellDetection           string `json:"proximity_fuse_shell_detection,omitempty"`
+	ProximityFuseMinimumAltitude          string `json:"proximity_fuse_minimum_atitude,omitempty"`
+	ProximityFuseDelay                    string `json:"proximity_fuse_delay_s,omitempty"`
+	ImpactFuseSensitivity                 string `json:"impact_fuse_sensitivity_mm,omitempty"`
+	ImpactFuseDelay                       string `json:"impact_fuse_delay_m,omitempty"`
+	GuidanceType                          string `json:"guidance_type,omitempty"`
+	GuidanceStartDelay                    string `json:"guidance_start_delay_s,omitempty"`
+	GuidanceDuration                      string `json:"guidance_duration_s,omitempty"`
+	GuidanceRange                         string `json:"guidance_range_km,omitempty"`
+	GuidanceFOV                           string `json:"guidance_fov_deg,omitempty"`
+	GuidanceMaxLead                       string `json:"guidance_max_lead_deg,omitempty"`
+	GuidanceLaunchSector                  string `json:"guidance_launch_sector_deg,omitempty"`
+	AimTrackingSensitivity                string `json:"aim_tracking_sensitivity,omitempty"`
+	SeekerWarmUpTime                      string `json:"seeker_warm_up_time_s,omitempty"`
+	SeekerSearchDuration                  string `json:"seeker_search_duration_s,omitempty"`
+	SeekerRange                           string `json:"seeker_range_km,omitempty"`
+	FieldOfView                           string `json:"field_of_view_deg,omitempty"`
+	GimbalLimit                           string `json:"gimbal_limit_deg,omitempty"`
+	TrackRate                             string `json:"track_rate_deg_sec,omitempty"`
+	UncagedSeekerBeforeLaunch             string `json:"uncaged_seeker_before_launch,omitempty"`
+	MaxLockAngleBeforeLaunch              string `json:"max_lock_angle_before_launch_deg,omitempty"`
+	MinAngleOfIncidenceToSun              string `json:"min_angle_of_incidence_to_sun_deg,omitempty"`
+	BaselineLockRangeRear                 string `json:"baseline_lock_range_rear_km,omitempty"`
+	BaselineLockRangeAll                  string `json:"baseline_lock_range_all_km,omitempty"`
+	BaselineLockRangeGround               string `json:"baseline_lock_range_ground_km,omitempty"`
+	BaselineLockRangeTarget               string `json:"baseline_lock_range_target_km,omitempty"`
+	BaselineFlareDetection                string `json:"baseline_flare_detection_km,omitempty"`
+	BaselineIRCMDetection                 string `json:"baseline_ircm_detection_km,omitempty"`
+	BaselineDIRCMDetection                string `json:"baseline_dircm_detection_km,omitempty"`
+	BaselineLDIRCMDetection               string `json:"baseline_ldircm_detection_km,omitempty"`
+	BaselineHeadOnLockRange               string `json:"baseline_head_on_lock_range_km,omitempty"`
+	MaxLockRangeHardLimit                 string `json:"max_lock_range_km,omitempty"`
+	IRCCM                                 string `json:"irccm,omitempty"`
+	IRCCMType                             string `json:"irccm_type,omitempty"`
+	IRCCMFieldOfView                      string `json:"irccm_field_of_view_deg,omitempty"`
+	IRCCMRejectionThreshold               string `json:"irccm_rejection_threshold,omitempty"`
+	IRCCMReactionTime                     string `json:"irccm_reaction_time_s,omitempty"`
+	MinTargetSize                         string `json:"min_target_size_m,omitempty"`
+	MaxBreakLockTime                      string `json:"max_break_lock_time_s,omitempty"`
+	CanBeSlavedToRadar                    string `json:"can_be_slaved_to_radar,omitempty"`
+	CanLockAfterLaunch                    string `json:"can_lock_after_launch,omitempty"`
+	Band                                  string `json:"band,omitempty"`
+	AngularSpeedRejectionThresh           string `json:"angular_speed_rejection_deg_s,omitempty"`
+	AccelRejectionThreshRange             string `json:"accel_rejection_m_s2,omitempty"`
+	InertialGuidanceDriftSpeed            string `json:"inertial_guidance_drift_m_s,omitempty"`
+	Datalink                              string `json:"datalink,omitempty"`
+	CanDatalinkReconnect                  string `json:"can_datalink_reconnect,omitempty"`
+	SidelobeAttenuation                   string `json:"sidelobe_attenuation,omitempty"`
+	TransmitterPower                      string `json:"transmitter_power,omitempty"`
+	TransmitterHalfSensitivity            string `json:"transmitter_half_sensitivity,omitempty"`
+	TransmitterSidelobeSens               string `json:"transmitter_sidelobe_sensitivity,omitempty"`
+	ReceiverHalfSensitivity               string `json:"receiver_half_sensitivity,omitempty"`
+	ReceiverSidelobeSens                  string `json:"receiver_sidelobe_sensitivity,omitempty"`
+	DistanceMinValue                      string `json:"distance_min_m,omitempty"`
+	DistanceMaxValue                      string `json:"distance_max_km,omitempty"`
+	DistanceWidth                         string `json:"distance_width_m,omitempty"`
+	DistanceRefWidth                      string `json:"distance_ref_width_m,omitempty"`
+	DistanceMinSignalGate                 string `json:"distance_min_signal_gate_m,omitempty"`
+	DistanceGateSearchRange               string `json:"distance_gate_search_m,omitempty"`
+	DistanceGateAlphaFilter               string `json:"distance_gate_alpha,omitempty"`
+	DistanceGateBetaFilter                string `json:"distance_gate_beta,omitempty"`
+	DopplerSpeedMinValue                  string `json:"doppler_speed_min_m_s,omitempty"`
+	DopplerSpeedMaxValue                  string `json:"doppler_speed_max_m_s,omitempty"`
+	DopplerSpeedWidth                     string `json:"doppler_speed_width_m_s,omitempty"`
+	DopplerSpeedRefWidth                  string `json:"doppler_speed_ref_width_m_s,omitempty"`
+	DopplerSpeedMinSignalGate             string `json:"doppler_speed_min_gate_m_s,omitempty"`
+	DopplerSpeedGateSearch                string `json:"doppler_speed_gate_search_m_s,omitempty"`
+	DopplerSpeedGateAlpha                 string `json:"doppler_speed_gate_alpha,omitempty"`
+	DopplerSpeedGateBeta                  string `json:"doppler_speed_gate_beta,omitempty"`
+	ProportionalNavMultiplier             string `json:"proportional_nav_multiplier,omitempty"`
+	BaseIndicatedAirSpeed                 string `json:"base_air_speed_m_s,omitempty"`
+	PIDProportionalTerm                   string `json:"pid_proportional,omitempty"`
+	PIDIntegralTerm                       string `json:"pid_integral,omitempty"`
+	PIDIntegralTermLimit                  string `json:"pid_integral_limit,omitempty"`
+	PIDDerivativeTerm                     string `json:"pid_derivative,omitempty"`
+	OrientingPhase                        string `json:"orienting_phase,omitempty"`
+	OrientingStartDelay                   string `json:"orienting_start_delay,omitempty"`
+	OrientingControlTime                  string `json:"orienting_control_time,omitempty"`
+	OrientingElevationAddition            string `json:"orienting_elevation_addition,omitempty"`
+	DragCoefficientMultiplier             string `json:"drag_coefficient_multiplier,omitempty"`
+	WingAreaMultiplier                    string `json:"wing_area_multiplier,omitempty"`
+	StartSpeed                            string `json:"start_speed,omitempty"`
+	MaximumSpeed                          string `json:"maximum_speed,omitempty"`
+	MinimumRange                          string `json:"minimum_range,omitempty"`
+	FlightRangeLimit                      string `json:"flight_range_limit,omitempty"`
+	MaximumGLoad                          string `json:"maximum_g_load,omitempty"`
+	MaximumFinAngleOfAttack               string `json:"maximum_fin_angle_of_attack,omitempty"`
+	MaximumFinLateralAcceleration         string `json:"maximum_fin_lateral_acceleration,omitempty"`
+	MaximumLateralAcceleration            string `json:"maximum_lateral_acceleration,omitempty"`
+	MaxLateralAcceleration                string `json:"max_lateral_acceleration,omitempty"`
+	MaximumAOA                            string `json:"maximum_aoa,omitempty"`
+	ThrustVectoring                       string `json:"thrust_vectoring,omitempty"`
+	ThrustVectoringAngle                  string `json:"thrust_vectoring_angle,omitempty"`
+	MaximumLaunchAngleHorizontalVertical  string `json:"maximum_launch_angle_horizontal_vertical,omitempty"`
+	MaximumAxisValues                     string `json:"maximum_axis_values,omitempty"`
+	StatcardSpeed                         string `json:"statcard_speed,omitempty"`
+	StatcardLaunchRange                   string `json:"statcard_launch_range,omitempty"`
+	StatcardGuaranteedRange               string `json:"statcard_guaranteed_range,omitempty"`
+	StatcardGLoad                         string `json:"statcard_g_load,omitempty"`
+	FlightTimeUntilGuidanceStarts         string `json:"flight_time_until_guidance_starts,omitempty"`
+	FlightTimeWhenPullLimitX              string `json:"flight_time_when_pull_limit_x,omitempty"`
+	FlightTimeWhenPullLimit100            string `json:"flight_time_when_pull_limit_100,omitempty"`
+	ETAtoImpactWhenPropMultiplier         string `json:"eta_to_impact_when_prop_multiplier,omitempty"`
+	Loft                                  string `json:"loft,omitempty"`
+	LoftAngle                             string `json:"loft_angle,omitempty"`
+	TargetElevation                       string `json:"target_elevation,omitempty"`
+	MaximumTargetAngularChange            string `json:"maximum_target_angular_change,omitempty"`
+	HasTracerInTail                       string `json:"has_tracer_in_tail,omitempty"`
+	SeaSkimming                           string `json:"sea_skimming,omitempty"`
+	SkimAltitude                          string `json:"skim_altitude,omitempty"`
+	AttackAltitude                        string `json:"attack_altitude,omitempty"`
+	AdditionalNotes                       string `json:"additional_notes,omitempty"`
 }
