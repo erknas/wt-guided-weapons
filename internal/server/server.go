@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -12,7 +11,7 @@ import (
 	"time"
 
 	"github.com/erknas/wt-guided-weapons/internal/config"
-	"github.com/erknas/wt-guided-weapons/internal/logger/mw"
+	"github.com/erknas/wt-guided-weapons/internal/logger"
 	"github.com/erknas/wt-guided-weapons/internal/types"
 	"github.com/go-chi/chi/v5"
 	"go.uber.org/zap"
@@ -20,7 +19,6 @@ import (
 
 type Servicer interface {
 	InsertWeapons(context.Context) error
-	UpdateWeapons(context.Context) error
 	GetWeaponsByCategory(context.Context, string) ([]*types.Weapon, error)
 	GetWeapons(context.Context) ([]*types.Weapon, error)
 }
@@ -62,7 +60,7 @@ func (s *Server) Run(ctx context.Context, cfg *config.Config) error {
 		errCh <- nil
 	}()
 
-	s.log.Debug("starting server", zap.String("port", fmt.Sprintf("http://localhost%s", cfg.ConfigServer.Port)))
+	s.log.Info("starting server", zap.String("port", fmt.Sprintf("http://localhost%s", cfg.ConfigServer.Port)))
 
 	select {
 	case <-quitCh:
@@ -72,7 +70,7 @@ func (s *Server) Run(ctx context.Context, cfg *config.Config) error {
 		if err := srv.Shutdown(shutdownCtx); err != nil {
 			return err
 		}
-		log.Println("server shutdown")
+		s.log.Info("server shutdown")
 	case err := <-errCh:
 		if err != nil {
 			return err
@@ -84,8 +82,9 @@ func (s *Server) Run(ctx context.Context, cfg *config.Config) error {
 
 func (s *Server) routes(r *chi.Mux) {
 	r.Use(func(next http.Handler) http.Handler {
-		return mw.RequestIDMiddleware(s.log, next)
+		return logger.RequestIDMiddleware(s.log, next)
 	})
+	r.Use(logger.MiddlewareLogger(s.log))
 
 	r.Route("/api", func(r chi.Router) {
 		r.Post("/insert", makeHTTPFunc(s.handleInsertWeapon))

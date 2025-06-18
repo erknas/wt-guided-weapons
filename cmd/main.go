@@ -25,6 +25,8 @@ func main() {
 	}
 	defer logger.Sync()
 
+	logger.Info("config loaded", zap.Any("cfg", cfg))
+
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer cancel()
 
@@ -34,19 +36,22 @@ func main() {
 		os.Exit(1)
 	}
 
+	logger.Info("storage initialized")
+
 	defer func() {
 		closeCtx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 		defer cancel()
 
 		if err := storage.Close(closeCtx); err != nil {
-			logger.Error("failed to disconnect from storage", zap.Error(err))
+			logger.Warn("failed to disconnect from storage", zap.Error(err))
 		}
+
+		logger.Info("storage closed")
 	}()
 
-	service := service.New(storage, storage, storage, logger)
+	service := service.New(storage, storage, logger)
 
 	server := server.New(service, logger)
-
 	if err := server.Run(ctx, cfg); err != nil {
 		logger.Error("server failed", zap.Error(err))
 		os.Exit(1)

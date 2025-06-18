@@ -2,53 +2,50 @@ package service
 
 import (
 	"context"
-	"log/slog"
 	"sync"
+	"time"
 
-	"github.com/erknas/wt-guided-weapons/internal/logger/sl"
+	"github.com/erknas/wt-guided-weapons/internal/logger"
 	csvparser "github.com/erknas/wt-guided-weapons/internal/service/csv-parser"
 	"github.com/erknas/wt-guided-weapons/internal/types"
+	"go.uber.org/zap"
 )
 
-var tables map[string]string = map[string]string{
-	"aam_ir_rear_aspect": "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=0",
-	"aam_ir_all_aspect":  "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=1726112384",
-	"aam_ir_heli":        "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=638442034",
-	"aam_sarh":           "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=128448244",
-	"aam_arh":            "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=650249168",
-	"aam_manual":         "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=29789551",
-	"agm_tv":             "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=1614911062",
-	"agm_ir":             "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=681584518",
-	"agm_gnss":           "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=838522739",
-	"agm_salh":           "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=979430030",
-	"agm_losbr":          "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=1015750365",
-	"agm_saclos":         "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=1114677066",
-	"agm_mclos":          "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=738722044",
-	"gbu_tv":             "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=1023650302",
-	"gbu_ir":             "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=1902633707",
-	"gbu_gnss":           "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=934904667",
-	"gbu_salh":           "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=515799062",
-	"sam_arh":            "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=732148886",
-	"sam_ir":             "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=330501771",
-	"sam_ir_optical":     "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=352246062",
-	"sam_losbr":          "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=816252431",
-	"sam_saclos":         "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=1659987410",
-	"atgm_ir":            "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=939030645",
-	"atgm_losbr":         "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=1210040000",
-	"atgm_saclos":        "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=1557896163",
-	"atgm_mclos":         "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=1498988859",
-	"ashm_arh":           "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=1251416353",
-	"ashm_saclos":        "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=1042355629",
-	"sam_ir_naval":       "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=1023721375",
-	"sam_saclos_naval":   "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=677045752",
+var Tables map[string]string = map[string]string{
+	"aam-ir-rear-aspect": "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=0",
+	"aam-ir-all-aspect":  "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=1726112384",
+	"aam-ir-heli":        "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=638442034",
+	"aam-sarh":           "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=128448244",
+	"aam-arh":            "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=650249168",
+	"aam-manual":         "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=29789551",
+	"agm-tv":             "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=1614911062",
+	"agm-ir":             "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=681584518",
+	"agm-gnss":           "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=838522739",
+	"agm-salh":           "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=979430030",
+	"agm-losbr":          "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=1015750365",
+	"agm-saclos":         "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=1114677066",
+	"agm-mclos":          "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=738722044",
+	"gbu-tv":             "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=1023650302",
+	"gbu-ir":             "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=1902633707",
+	"gbu-gnss":           "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=934904667",
+	"gbu-salh":           "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=515799062",
+	"sam-arh":            "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=732148886",
+	"sam-ir":             "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=330501771",
+	"sam-ir-optical":     "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=352246062",
+	"sam-losbr":          "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=816252431",
+	"sam-saclos":         "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=1659987410",
+	"atgm-ir":            "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=939030645",
+	"atgm-losbr":         "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=1210040000",
+	"atgm-saclos":        "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=1557896163",
+	"atgm-mclos":         "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=1498988859",
+	"ashm-arh":           "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=1251416353",
+	"ashm-saclos":        "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=1042355629",
+	"sam-ir-naval":       "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=1023721375",
+	"sam-saclos-naval":   "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=677045752",
 }
 
 type WeaponsInserter interface {
 	Insert(context.Context, []*types.Weapon) error
-}
-
-type WeaponsUpdater interface {
-	Update(context.Context, []*types.Weapon) error
 }
 
 type WeaponsProvider interface {
@@ -58,55 +55,70 @@ type WeaponsProvider interface {
 
 type Service struct {
 	inserter WeaponsInserter
-	updater  WeaponsUpdater
 	provider WeaponsProvider
-	log      *slog.Logger
+	log      *zap.Logger
 }
 
-func New(inserter WeaponsInserter, updater WeaponsUpdater, provider WeaponsProvider, log *slog.Logger) *Service {
+func New(inserter WeaponsInserter, provider WeaponsProvider, log *zap.Logger) *Service {
 	return &Service{
 		inserter: inserter,
-		updater:  updater,
 		provider: provider,
 		log:      log,
 	}
 }
 
 func (s *Service) InsertWeapons(ctx context.Context) error {
+	start := time.Now()
+	log := logger.FromContext(ctx, logger.Service)
+
 	wg := &sync.WaitGroup{}
 
-	errCh := make(chan error, len(tables))
-	dataCh := make(chan []*types.Weapon, len(tables))
+	errCh := make(chan error, len(Tables))
+	dataCh := make(chan []*types.Weapon, len(Tables))
 
-	for _, url := range tables {
+	for category, url := range Tables {
 		wg.Add(1)
-		go func(url string) {
+		go func(category, url string) {
 			defer wg.Done()
 
-			data, err := csvparser.ParseTable(ctx, url)
+			data, err := csvparser.ParseTable(ctx, category, url)
 			if err != nil {
-				s.log.Error("failed to parse table", sl.Err(err))
+				log.Error("parse table failed",
+					zap.Error(err),
+					zap.String("category", category),
+					zap.String("table_url", url),
+				)
 				errCh <- err
 				return
 			}
 
+			log.Debug("parse table complited",
+				zap.String("category", category),
+				zap.String("table_url", url),
+				zap.Int("weapons_count", len(data)),
+			)
+
 			dataCh <- data
-		}(url)
+		}(category, url)
 	}
 
 	go func() {
 		wg.Wait()
 		close(errCh)
 		close(dataCh)
-		slog.Debug("channels closed")
+		log.Debug("channels closed")
+		log.Debug("all goroutine complited")
 	}()
 
 	var weapons []*types.Weapon
+	successfulTables := 0
 
-	for range tables {
+	for range Tables {
 		select {
 		case <-ctx.Done():
-			slog.Warn("parsing cancelled", sl.Err(ctx.Err()))
+			log.Warn("parsing cancelled",
+				zap.Error(ctx.Err()),
+			)
 			return ctx.Err()
 		case err := <-errCh:
 			if err != nil {
@@ -114,28 +126,61 @@ func (s *Service) InsertWeapons(ctx context.Context) error {
 			}
 		case data := <-dataCh:
 			weapons = append(weapons, data...)
+			successfulTables++
 		}
 	}
 
-	return s.inserter.Insert(ctx, weapons)
-}
+	log.Info("tabels parsing complited",
+		zap.Int("total successful tables parsed", successfulTables),
+		zap.Int("total failed tables", len(Tables)-successfulTables),
+		zap.Int("weapons_count", len(weapons)),
+		zap.Duration("duration", time.Since(start)),
+	)
 
-func (s *Service) UpdateWeapons(ctx context.Context) error {
+	if err := s.inserter.Insert(ctx, weapons); err != nil {
+		log.Error("insert operation failed",
+			zap.Error(err),
+		)
+		return err
+	}
+
 	return nil
 }
 
 func (s *Service) GetWeaponsByCategory(ctx context.Context, category string) ([]*types.Weapon, error) {
-	return nil, nil
-}
+	log := logger.FromContext(ctx, logger.Service)
 
-func (s *Service) GetWeapons(ctx context.Context) ([]*types.Weapon, error) {
-	weapons, err := s.provider.Weapons(ctx)
+	weapons, err := s.provider.WeaponsByCategory(ctx, category)
 	if err != nil {
-		s.log.Error("failed to get weapons", sl.Err(err))
+		log.Error("service call failed",
+			zap.Error(err),
+			zap.String("category", category),
+		)
 		return nil, err
 	}
 
-	s.log.Info("get weapons OK", "amount", len(weapons))
+	log.Debug("service call complited",
+		zap.String("category", category),
+		zap.Int("weapons_count", len(weapons)),
+	)
+
+	return weapons, nil
+}
+
+func (s *Service) GetWeapons(ctx context.Context) ([]*types.Weapon, error) {
+	log := logger.FromContext(ctx, logger.Service)
+
+	weapons, err := s.provider.Weapons(ctx)
+	if err != nil {
+		log.Error("service call failed",
+			zap.Error(err),
+		)
+		return nil, err
+	}
+
+	log.Debug("service call complited",
+		zap.Int("weapons_amount", len(weapons)),
+	)
 
 	return weapons, nil
 }
