@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/erknas/wt-guided-weapons/internal/logger"
-	"github.com/erknas/wt-guided-weapons/internal/service"
 	"github.com/erknas/wt-guided-weapons/internal/types"
 	"github.com/go-chi/chi/v5"
 	"go.uber.org/zap"
@@ -30,11 +29,11 @@ func (s *Server) handleGetWeaponsByCategory(w http.ResponseWriter, r *http.Reque
 
 	category := chi.URLParam(r, "category")
 
-	if _, ok := service.Tables[category]; !ok {
-		log.Warn("invalid category request",
+	if _, exist := s.categories[category]; !exist {
+		log.Warn("invalid category",
 			zap.String("category", category),
 		)
-		return writeJSON(w, http.StatusBadRequest, map[string]string{"error": "category does not exist"})
+		return InvalidCategory(category)
 	}
 
 	weapons, err := s.svc.GetWeaponsByCategory(r.Context(), category)

@@ -7,42 +7,10 @@ import (
 
 	"github.com/erknas/wt-guided-weapons/internal/logger"
 	csvparser "github.com/erknas/wt-guided-weapons/internal/service/csv-parser"
+	"github.com/erknas/wt-guided-weapons/internal/service/tables"
 	"github.com/erknas/wt-guided-weapons/internal/types"
 	"go.uber.org/zap"
 )
-
-var Tables map[string]string = map[string]string{
-	"aam-ir-rear-aspect": "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=0",
-	"aam-ir-all-aspect":  "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=1726112384",
-	"aam-ir-heli":        "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=638442034",
-	"aam-sarh":           "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=128448244",
-	"aam-arh":            "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=650249168",
-	"aam-manual":         "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=29789551",
-	"agm-tv":             "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=1614911062",
-	"agm-ir":             "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=681584518",
-	"agm-gnss":           "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=838522739",
-	"agm-salh":           "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=979430030",
-	"agm-losbr":          "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=1015750365",
-	"agm-saclos":         "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=1114677066",
-	"agm-mclos":          "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=738722044",
-	"gbu-tv":             "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=1023650302",
-	"gbu-ir":             "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=1902633707",
-	"gbu-gnss":           "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=934904667",
-	"gbu-salh":           "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=515799062",
-	"sam-arh":            "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=732148886",
-	"sam-ir":             "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=330501771",
-	"sam-ir-optical":     "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=352246062",
-	"sam-losbr":          "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=816252431",
-	"sam-saclos":         "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=1659987410",
-	"atgm-ir":            "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=939030645",
-	"atgm-losbr":         "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=1210040000",
-	"atgm-saclos":        "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=1557896163",
-	"atgm-mclos":         "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=1498988859",
-	"ashm-arh":           "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=1251416353",
-	"ashm-saclos":        "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=1042355629",
-	"sam-ir-naval":       "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=1023721375",
-	"sam-saclos-naval":   "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=677045752",
-}
 
 type WeaponsInserter interface {
 	Insert(context.Context, []*types.Weapon) error
@@ -73,10 +41,15 @@ func (s *Service) InsertWeapons(ctx context.Context) error {
 
 	wg := &sync.WaitGroup{}
 
-	errCh := make(chan error, len(Tables))
-	dataCh := make(chan []*types.Weapon, len(Tables))
+	tables, err := tables.Load()
+	if err != nil {
+		return err
+	}
 
-	for category, url := range Tables {
+	errCh := make(chan error, len(tables.Tables))
+	dataCh := make(chan []*types.Weapon, len(tables.Tables))
+
+	for category, url := range tables.Tables {
 		wg.Add(1)
 		go func(category, url string) {
 			defer wg.Done()
@@ -113,7 +86,7 @@ func (s *Service) InsertWeapons(ctx context.Context) error {
 	var weapons []*types.Weapon
 	successfulTables := 0
 
-	for range Tables {
+	for range tables.Tables {
 		select {
 		case <-ctx.Done():
 			log.Warn("parsing cancelled",
@@ -132,7 +105,7 @@ func (s *Service) InsertWeapons(ctx context.Context) error {
 
 	log.Info("tabels parsing complited",
 		zap.Int("total successful tables parsed", successfulTables),
-		zap.Int("total failed tables", len(Tables)-successfulTables),
+		zap.Int("total failed tables", len(tables.Tables)-successfulTables),
 		zap.Int("weapons_count", len(weapons)),
 		zap.Duration("duration", time.Since(start)),
 	)
