@@ -2,10 +2,14 @@ package logger
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"strings"
 	"time"
 
+	"github.com/erknas/wt-guided-weapons/internal/server/lib"
+	apierrors "github.com/erknas/wt-guided-weapons/internal/server/lib/api-errors"
+	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
@@ -17,20 +21,23 @@ const (
 	Storage   = "storage"
 )
 
-func RequestIDMiddleware(logger *zap.Logger, next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		requestID := r.Header.Get("X-Request-ID")
-		if requestID == "" {
-			requestID = strings.Replace(uuid.New().String(), "-", "", -1)
-		}
+func MiddlewareRequestID(logger *zap.Logger) func(next http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			requestID := r.Header.Get("X-Request-ID")
 
-		requestLogger := logger.With(zap.String("requestID", requestID))
-		ctx := context.WithValue(r.Context(), "logger", requestLogger)
+			if requestID == "" {
+				requestID = strings.Replace(uuid.New().String(), "-", "", -1)
+			}
 
-		w.Header().Set("X-Request-ID", requestID)
+			requestLogger := logger.With(zap.String("requestID", requestID))
+			ctx := context.WithValue(r.Context(), "logger", requestLogger)
 
-		next.ServeHTTP(w, r.WithContext(ctx))
-	})
+			w.Header().Set("X-Request-ID", requestID)
+
+			next.ServeHTTP(w, r.WithContext(ctx))
+		})
+	}
 }
 
 func MiddlewareLogger(logger *zap.Logger) func(next http.Handler) http.Handler {
@@ -52,9 +59,27 @@ func MiddlewareLogger(logger *zap.Logger) func(next http.Handler) http.Handler {
 					zap.Duration("duration", time.Since(start)),
 				)
 			}()
+
 			next.ServeHTTP(ww, r)
 		}
 
 		return http.HandlerFunc(fn)
+	}
+}
+
+func MiddlewareCategoryCheck(categories map[string]struct{}) func(next http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			category := chi.URLParam(r, "category")
+
+			fmt.Println("Category", category)
+
+			if _, exists := categories[category]; !exists {
+				lib.WriteJSON(w, http.StatusBadRequest, apierrors.InvalidCategory(category))
+				return
+			}
+
+			next.ServeHTTP(w, r)
+		})
 	}
 }
