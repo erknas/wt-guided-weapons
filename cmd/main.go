@@ -12,7 +12,7 @@ import (
 	"github.com/erknas/wt-guided-weapons/internal/logger"
 	"github.com/erknas/wt-guided-weapons/internal/server"
 	"github.com/erknas/wt-guided-weapons/internal/service"
-	"github.com/erknas/wt-guided-weapons/internal/storage"
+	"github.com/erknas/wt-guided-weapons/internal/storage/mongodb"
 	"go.uber.org/zap"
 )
 
@@ -32,7 +32,7 @@ func main() {
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer cancel()
 
-	storage, err := storage.New(ctx, cfg)
+	storage, err := mongodb.New(ctx, cfg)
 	if err != nil {
 		logger.Error("failed to init storage",
 			zap.Error(err),

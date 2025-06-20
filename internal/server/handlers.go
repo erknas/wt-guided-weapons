@@ -1,9 +1,11 @@
 package server
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/erknas/wt-guided-weapons/internal/logger"
+	"github.com/erknas/wt-guided-weapons/internal/server/lib"
 	"github.com/erknas/wt-guided-weapons/internal/types"
 	"github.com/go-chi/chi/v5"
 	"go.uber.org/zap"
@@ -21,20 +23,14 @@ func (s *Server) handleInsertWeapon(w http.ResponseWriter, r *http.Request) erro
 
 	log.Info("InsertWeapons request complited")
 
-	return writeJSON(w, http.StatusOK, map[string]string{"msg": "OK"})
+	return lib.WriteJSON(w, http.StatusOK, map[string]string{"msg": "OK"})
 }
 
 func (s *Server) handleGetWeaponsByCategory(w http.ResponseWriter, r *http.Request) error {
 	log := logger.FromContext(r.Context(), logger.Transport)
 
 	category := chi.URLParam(r, "category")
-
-	if _, exist := s.categories[category]; !exist {
-		log.Warn("invalid category",
-			zap.String("category", category),
-		)
-		return InvalidCategory(category)
-	}
+	fmt.Println(category)
 
 	weapons, err := s.svc.GetWeaponsByCategory(r.Context(), category)
 	if err != nil {
@@ -49,7 +45,7 @@ func (s *Server) handleGetWeaponsByCategory(w http.ResponseWriter, r *http.Reque
 		zap.Int("weapons_count", len(weapons)),
 	)
 
-	return writeJSON(w, http.StatusOK, types.Weapons{Weapons: weapons})
+	return lib.WriteJSON(w, http.StatusOK, types.Weapons{Weapons: weapons})
 }
 
 func (s *Server) handleGetWeapons(w http.ResponseWriter, r *http.Request) error {
@@ -67,5 +63,5 @@ func (s *Server) handleGetWeapons(w http.ResponseWriter, r *http.Request) error 
 		zap.Int("weapons_count", len(weapons)),
 	)
 
-	return writeJSON(w, http.StatusOK, types.Weapons{Weapons: weapons})
+	return lib.WriteJSON(w, http.StatusOK, types.Weapons{Weapons: weapons})
 }
