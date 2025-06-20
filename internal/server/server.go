@@ -2,7 +2,6 @@ package server
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
@@ -12,6 +11,8 @@ import (
 
 	"github.com/erknas/wt-guided-weapons/internal/config"
 	"github.com/erknas/wt-guided-weapons/internal/logger"
+	"github.com/erknas/wt-guided-weapons/internal/server/lib"
+	apierrors "github.com/erknas/wt-guided-weapons/internal/server/lib/api-errors"
 	"github.com/erknas/wt-guided-weapons/internal/service/tables"
 	"github.com/erknas/wt-guided-weapons/internal/types"
 	"github.com/go-chi/chi/v5"
@@ -94,15 +95,13 @@ func (s *Server) Run(ctx context.Context, cfg *config.Config) error {
 }
 
 func (s *Server) routes(r *chi.Mux) {
-	r.Use(func(next http.Handler) http.Handler {
-		return logger.RequestIDMiddleware(s.log, next)
-	})
+	r.Use(logger.MiddlewareRequestID(s.log))
 	r.Use(logger.MiddlewareLogger(s.log))
 
 	r.Route("/api", func(r chi.Router) {
 		r.Post("/insert", makeHTTPFunc(s.handleInsertWeapon))
 		r.Get("/weapons", makeHTTPFunc(s.handleGetWeapons))
-		r.Get("/weapons/{category}", makeHTTPFunc(s.handleGetWeaponsByCategory))
+		r.With(logger.MiddlewareCategoryCheck(s.categories)).Get("/weapons/{category}", makeHTTPFunc(s.handleGetWeaponsByCategory))
 	})
 
 	r.Handle("/*", http.FileServer(http.Dir("./static")))
@@ -116,21 +115,15 @@ func makeHTTPFunc(fn httpFunc) http.HandlerFunc {
 		defer cancel()
 
 		if err := fn(w, r.WithContext(ctx)); err != nil {
-			if apiErr, ok := err.(APIError); ok {
-				writeJSON(w, apiErr.StatusCode, apiErr)
+			if apiErr, ok := err.(apierrors.APIError); ok {
+				lib.WriteJSON(w, apiErr.StatusCode, apiErr)
 			} else {
 				errResp := map[string]any{
 					"status_code": http.StatusInternalServerError,
 					"msg":         "internal sever error",
 				}
-				writeJSON(w, http.StatusInternalServerError, errResp)
+				lib.WriteJSON(w, http.StatusInternalServerError, errResp)
 			}
 		}
 	}
-}
-
-func writeJSON(w http.ResponseWriter, status int, v any) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)
-	return json.NewEncoder(w).Encode(v)
 }
