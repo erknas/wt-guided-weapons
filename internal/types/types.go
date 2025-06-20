@@ -7,74 +7,74 @@ type Weapons struct {
 type Weapon struct {
 	Category                              string `json:"category,omitempty"`
 	Name                                  string `json:"name,omitempty"`
-	Mass                                  string `json:"mass_kg,omitempty"`
-	MassAtEndOfBoosterBurn                string `json:"mass_end_booster_burn_kg,omitempty"`
-	MassAtEndOfSustainerBurn              string `json:"mass_end_sustainer_burn_kg,omitempty"`
-	Caliber                               string `json:"caliber_mm,omitempty"`
-	Length                                string `json:"length_m,omitempty"`
-	ForceExertedByBooster                 string `json:"force_exerted_by_booster_N,omitempty"`
-	BurnTimeOfBooster                     string `json:"burn_time_of_booster_s,omitempty"`
-	RawAccelerationAtIgnition             string `json:"raw_acceleration_at_ignition_ms2,omitempty"`
-	SpecificImpulseOfBooster              string `json:"specific_impulse_of_booster_s,omitempty"`
-	DeltaVOfBooster                       string `json:"delta_v_of_booster_ms,omitempty"`
-	BoosterStartDelay                     string `json:"booster_start_delay_s,omitempty"`
-	ForceExertedBySustainer               string `json:"force_exerted_by_sustainer_N,omitempty"`
-	BurnTimeOfSustainer                   string `json:"burn_time_of_sustainer_s,omitempty"`
-	SpecificImpulseOfSustainer            string `json:"specific_impulse_of_sustainer_s,omitempty"`
-	DeltaVOfSustainer                     string `json:"delta_v_of_sustainer_ms,omitempty"`
-	TotalDeltaV                           string `json:"total_delta_v_ms,omitempty"`
-	ExplosiveMass                         string `json:"explosive_mass_kg_tnt,omitempty"`
+	Mass                                  string `json:"mass,omitempty"`
+	MassAtEndOfBoosterBurn                string `json:"mass_at_end_of_booster_burn,omitempty"`
+	MassAtEndOfSustainerBurn              string `json:"mass_at_end_of_sustainer_burn,omitempty"`
+	Caliber                               string `json:"caliber,omitempty"`
+	Length                                string `json:"length,omitempty"`
+	ForceExertedByBooster                 string `json:"force_exerted_by_booster,omitempty"`
+	BurnTimeOfBooster                     string `json:"burn_time_of_booster,omitempty"`
+	RawAccelerationAtIgnition             string `json:"raw_acceleration_at_ignition,omitempty"`
+	SpecificImpulseOfBooster              string `json:"specific_impulse_of_booster,omitempty"`
+	DeltaVOfBooster                       string `json:"delta_v_of_booster,omitempty"`
+	BoosterStartDelay                     string `json:"booster_start_delay,omitempty"`
+	ForceExertedBySustainer               string `json:"force_exerted_by_sustainer,omitempty"`
+	BurnTimeOfSustainer                   string `json:"burn_time_of_sustainer,omitempty"`
+	SpecificImpulseOfSustainer            string `json:"specific_impulse_of_sustainer,omitempty"`
+	DeltaVOfSustainer                     string `json:"delta_v_of_sustainer,omitempty"`
+	TotalDeltaV                           string `json:"total_delta_v,omitempty"`
+	ExplosiveMass                         string `json:"explosive_mass,omitempty"`
 	Warhead                               string `json:"warhead,omitempty"`
-	Penetration                           string `json:"penetration_mm,omitempty"`
+	Penetration                           string `json:"penetration,omitempty"`
 	ProximityFuse                         string `json:"proximity_fuse,omitempty"`
 	ProximityFuseArmingDistance           string `json:"proximity_fuse_arming_distance,omitempty"`
 	ProximityFuseArmingDistanceFromTarget string `json:"proximity_fuse_arming_distance_from_target,omitempty"`
-	ProximityFuseRange                    string `json:"proximity_fuse_range_m,omitempty"`
+	ProximityFuseRange                    string `json:"proximity_fuse_range,omitempty"`
 	ProximityFuseShellDetection           string `json:"proximity_fuse_shell_detection,omitempty"`
 	ProximityFuseMinimumAltitude          string `json:"proximity_fuse_minimum_atitude,omitempty"`
-	ProximityFuseDelay                    string `json:"proximity_fuse_delay_s,omitempty"`
-	ImpactFuseSensitivity                 string `json:"impact_fuse_sensitivity_mm,omitempty"`
-	ImpactFuseDelay                       string `json:"impact_fuse_delay_m,omitempty"`
+	ProximityFuseDelay                    string `json:"proximity_fuse_delay,omitempty"`
+	ImpactFuseSensitivity                 string `json:"impact_fuse_sensitivity,omitempty"`
+	ImpactFuseDelay                       string `json:"impact_fuse_delay,omitempty"`
 	GuidanceType                          string `json:"guidance_type,omitempty"`
-	GuidanceStartDelay                    string `json:"guidance_start_delay_s,omitempty"`
-	GuidanceDuration                      string `json:"guidance_duration_s,omitempty"`
-	GuidanceRange                         string `json:"guidance_range_km,omitempty"`
-	GuidanceFOV                           string `json:"guidance_fov_deg,omitempty"`
-	GuidanceMaxLead                       string `json:"guidance_max_lead_deg,omitempty"`
-	GuidanceLaunchSector                  string `json:"guidance_launch_sector_deg,omitempty"`
+	GuidanceStartDelay                    string `json:"guidance_start_delay,omitempty"`
+	GuidanceDuration                      string `json:"guidance_duration,omitempty"`
+	GuidanceRange                         string `json:"guidance_range,omitempty"`
+	GuidanceFOV                           string `json:"guidance_fov,omitempty"`
+	GuidanceMaxLead                       string `json:"guidance_max_lead,omitempty"`
+	GuidanceLaunchSector                  string `json:"guidance_launch_sector,omitempty"`
 	AimTrackingSensitivity                string `json:"aim_tracking_sensitivity,omitempty"`
-	SeekerWarmUpTime                      string `json:"seeker_warm_up_time_s,omitempty"`
-	SeekerSearchDuration                  string `json:"seeker_search_duration_s,omitempty"`
-	SeekerRange                           string `json:"seeker_range_km,omitempty"`
-	FieldOfView                           string `json:"field_of_view_deg,omitempty"`
-	GimbalLimit                           string `json:"gimbal_limit_deg,omitempty"`
-	TrackRate                             string `json:"track_rate_deg_sec,omitempty"`
+	SeekerWarmUpTime                      string `json:"seeker_warm_up_time,omitempty"`
+	SeekerSearchDuration                  string `json:"seeker_search_duration,omitempty"`
+	SeekerRange                           string `json:"seeker_range,omitempty"`
+	FieldOfView                           string `json:"field_of_view,omitempty"`
+	GimbalLimit                           string `json:"gimbal_limit,omitempty"`
+	TrackRate                             string `json:"track_rate,omitempty"`
 	UncagedSeekerBeforeLaunch             string `json:"uncaged_seeker_before_launch,omitempty"`
-	MaxLockAngleBeforeLaunch              string `json:"max_lock_angle_before_launch_deg,omitempty"`
-	MinAngleOfIncidenceToSun              string `json:"min_angle_of_incidence_to_sun_deg,omitempty"`
-	BaselineLockRangeRear                 string `json:"baseline_lock_range_rear_km,omitempty"`
-	BaselineLockRangeAll                  string `json:"baseline_lock_range_all_km,omitempty"`
-	BaselineLockRangeGround               string `json:"baseline_lock_range_ground_km,omitempty"`
-	BaselineLockRangeTarget               string `json:"baseline_lock_range_target_km,omitempty"`
-	BaselineFlareDetection                string `json:"baseline_flare_detection_km,omitempty"`
-	BaselineIRCMDetection                 string `json:"baseline_ircm_detection_km,omitempty"`
-	BaselineDIRCMDetection                string `json:"baseline_dircm_detection_km,omitempty"`
-	BaselineLDIRCMDetection               string `json:"baseline_ldircm_detection_km,omitempty"`
-	BaselineHeadOnLockRange               string `json:"baseline_head_on_lock_range_km,omitempty"`
-	MaxLockRangeHardLimit                 string `json:"max_lock_range_km,omitempty"`
+	MaxLockAngleBeforeLaunch              string `json:"max_lock_angle_before_launch,omitempty"`
+	MinAngleOfIncidenceToSun              string `json:"min_angle_of_incidence_to_sun,omitempty"`
+	BaselineLockRangeRear                 string `json:"baseline_lock_range_rear,omitempty"`
+	BaselineLockRangeAll                  string `json:"baseline_lock_range_all,omitempty"`
+	BaselineLockRangeGround               string `json:"baseline_lock_range_ground,omitempty"`
+	BaselineLockRangeTarget               string `json:"baseline_lock_range_target,omitempty"`
+	BaselineFlareDetection                string `json:"baseline_flare_detection,omitempty"`
+	BaselineIRCMDetection                 string `json:"baseline_ircm_detection,omitempty"`
+	BaselineDIRCMDetection                string `json:"baseline_dircm_detection,omitempty"`
+	BaselineLDIRCMDetection               string `json:"baseline_ldircm_detection,omitempty"`
+	BaselineHeadOnLockRange               string `json:"baseline_head_on_lock_range,omitempty"`
+	MaxLockRangeHardLimit                 string `json:"max_lock_range,omitempty"`
 	IRCCM                                 string `json:"irccm,omitempty"`
 	IRCCMType                             string `json:"irccm_type,omitempty"`
-	IRCCMFieldOfView                      string `json:"irccm_field_of_view_deg,omitempty"`
+	IRCCMFieldOfView                      string `json:"irccm_field_of_view,omitempty"`
 	IRCCMRejectionThreshold               string `json:"irccm_rejection_threshold,omitempty"`
-	IRCCMReactionTime                     string `json:"irccm_reaction_time_s,omitempty"`
-	MinTargetSize                         string `json:"min_target_size_m,omitempty"`
-	MaxBreakLockTime                      string `json:"max_break_lock_time_s,omitempty"`
+	IRCCMReactionTime                     string `json:"irccm_reaction_time,omitempty"`
+	MinTargetSize                         string `json:"min_target_size,omitempty"`
+	MaxBreakLockTime                      string `json:"max_break_lock_time,omitempty"`
 	CanBeSlavedToRadar                    string `json:"can_be_slaved_to_radar,omitempty"`
 	CanLockAfterLaunch                    string `json:"can_lock_after_launch,omitempty"`
 	Band                                  string `json:"band,omitempty"`
-	AngularSpeedRejectionThresh           string `json:"angular_speed_rejection_deg_s,omitempty"`
-	AccelRejectionThreshRange             string `json:"accel_rejection_m_s2,omitempty"`
-	InertialGuidanceDriftSpeed            string `json:"inertial_guidance_drift_m_s,omitempty"`
+	AngularSpeedRejectionThresh           string `json:"angular_speed_rejection,omitempty"`
+	AccelRejectionThreshRange             string `json:"accel_rejection,omitempty"`
+	InertialGuidanceDriftSpeed            string `json:"inertial_guidance_drift,omitempty"`
 	Datalink                              string `json:"datalink,omitempty"`
 	CanDatalinkReconnect                  string `json:"can_datalink_reconnect,omitempty"`
 	SidelobeAttenuation                   string `json:"sidelobe_attenuation,omitempty"`
@@ -83,24 +83,24 @@ type Weapon struct {
 	TransmitterSidelobeSens               string `json:"transmitter_sidelobe_sensitivity,omitempty"`
 	ReceiverHalfSensitivity               string `json:"receiver_half_sensitivity,omitempty"`
 	ReceiverSidelobeSens                  string `json:"receiver_sidelobe_sensitivity,omitempty"`
-	DistanceMinValue                      string `json:"distance_min_m,omitempty"`
-	DistanceMaxValue                      string `json:"distance_max_km,omitempty"`
-	DistanceWidth                         string `json:"distance_width_m,omitempty"`
-	DistanceRefWidth                      string `json:"distance_ref_width_m,omitempty"`
-	DistanceMinSignalGate                 string `json:"distance_min_signal_gate_m,omitempty"`
-	DistanceGateSearchRange               string `json:"distance_gate_search_m,omitempty"`
+	DistanceMinValue                      string `json:"distance_min,omitempty"`
+	DistanceMaxValue                      string `json:"distance_max,omitempty"`
+	DistanceWidth                         string `json:"distance_width,omitempty"`
+	DistanceRefWidth                      string `json:"distance_ref_width,omitempty"`
+	DistanceMinSignalGate                 string `json:"distance_min_signal_gate,omitempty"`
+	DistanceGateSearchRange               string `json:"distance_gate_search,omitempty"`
 	DistanceGateAlphaFilter               string `json:"distance_gate_alpha,omitempty"`
 	DistanceGateBetaFilter                string `json:"distance_gate_beta,omitempty"`
-	DopplerSpeedMinValue                  string `json:"doppler_speed_min_m_s,omitempty"`
-	DopplerSpeedMaxValue                  string `json:"doppler_speed_max_m_s,omitempty"`
-	DopplerSpeedWidth                     string `json:"doppler_speed_width_m_s,omitempty"`
-	DopplerSpeedRefWidth                  string `json:"doppler_speed_ref_width_m_s,omitempty"`
-	DopplerSpeedMinSignalGate             string `json:"doppler_speed_min_gate_m_s,omitempty"`
-	DopplerSpeedGateSearch                string `json:"doppler_speed_gate_search_m_s,omitempty"`
+	DopplerSpeedMinValue                  string `json:"doppler_speed_min,omitempty"`
+	DopplerSpeedMaxValue                  string `json:"doppler_speed_max,omitempty"`
+	DopplerSpeedWidth                     string `json:"doppler_speed_width,omitempty"`
+	DopplerSpeedRefWidth                  string `json:"doppler_speed_ref_width,omitempty"`
+	DopplerSpeedMinSignalGate             string `json:"doppler_speed_min_gate,omitempty"`
+	DopplerSpeedGateSearch                string `json:"doppler_speed_gate_search,omitempty"`
 	DopplerSpeedGateAlpha                 string `json:"doppler_speed_gate_alpha,omitempty"`
 	DopplerSpeedGateBeta                  string `json:"doppler_speed_gate_beta,omitempty"`
 	ProportionalNavMultiplier             string `json:"proportional_nav_multiplier,omitempty"`
-	BaseIndicatedAirSpeed                 string `json:"base_air_speed_m_s,omitempty"`
+	BaseIndicatedAirSpeed                 string `json:"base_air_speed,omitempty"`
 	PIDProportionalTerm                   string `json:"pid_proportional,omitempty"`
 	PIDIntegralTerm                       string `json:"pid_integral,omitempty"`
 	PIDIntegralTermLimit                  string `json:"pid_integral_limit,omitempty"`
