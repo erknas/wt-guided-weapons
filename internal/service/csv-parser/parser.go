@@ -10,7 +10,7 @@ import (
 	"github.com/erknas/wt-guided-weapons/internal/types"
 )
 
-func ParseTable(ctx context.Context, url string) ([]*types.Weapon, error) {
+func ParseTable(ctx context.Context, category, url string) ([]*types.Weapon, error) {
 	data, err := readCSV(ctx, url)
 	if err != nil {
 		return nil, err
@@ -19,7 +19,7 @@ func ParseTable(ctx context.Context, url string) ([]*types.Weapon, error) {
 	var weapons []*types.Weapon
 
 	for i := range data[0][1:] {
-		weapon, err := mapToWeapon(data, i+1)
+		weapon, err := mapCSVToStruct(data, category, i+1)
 		if err != nil {
 			return nil, err
 		}
@@ -30,7 +30,7 @@ func ParseTable(ctx context.Context, url string) ([]*types.Weapon, error) {
 }
 
 func readCSV(ctx context.Context, url string) ([][]string, error) {
-	ctx, cancel := context.WithTimeout(ctx, time.Second*3)
+	ctx, cancel := context.WithTimeout(ctx, time.Second*5)
 	defer cancel()
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
