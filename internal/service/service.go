@@ -18,7 +18,6 @@ type WeaponsInserter interface {
 
 type WeaponsProvider interface {
 	WeaponsByCategory(context.Context, string) ([]*types.Weapon, error)
-	Weapons(context.Context) ([]*types.Weapon, error)
 }
 
 type Service struct {
@@ -135,24 +134,6 @@ func (s *Service) GetWeaponsByCategory(ctx context.Context, category string) ([]
 	log.Debug("service call complited",
 		zap.String("category", category),
 		zap.Int("weapons_count", len(weapons)),
-	)
-
-	return weapons, nil
-}
-
-func (s *Service) GetWeapons(ctx context.Context) ([]*types.Weapon, error) {
-	log := logger.FromContext(ctx, logger.Service)
-
-	weapons, err := s.provider.Weapons(ctx)
-	if err != nil {
-		log.Error("service call failed",
-			zap.Error(err),
-		)
-		return nil, err
-	}
-
-	log.Debug("service call complited",
-		zap.Int("weapons_amount", len(weapons)),
 	)
 
 	return weapons, nil

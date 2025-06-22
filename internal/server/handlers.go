@@ -47,21 +47,3 @@ func (s *Server) handleGetWeaponsByCategory(w http.ResponseWriter, r *http.Reque
 
 	return lib.WriteJSON(w, http.StatusOK, types.Weapons{Weapons: weapons})
 }
-
-func (s *Server) handleGetWeapons(w http.ResponseWriter, r *http.Request) error {
-	log := logger.FromContext(r.Context(), logger.Transport)
-
-	weapons, err := s.svc.GetWeapons(r.Context())
-	if err != nil {
-		log.Error("GetWeapons request failed",
-			zap.Error(err),
-		)
-		return err
-	}
-
-	log.Info("GetWeapons request complited",
-		zap.Int("weapons_count", len(weapons)),
-	)
-
-	return lib.WriteJSON(w, http.StatusOK, types.Weapons{Weapons: weapons})
-}

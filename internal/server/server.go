@@ -22,7 +22,6 @@ import (
 type Servicer interface {
 	InsertWeapons(context.Context) error
 	GetWeaponsByCategory(context.Context, string) ([]*types.Weapon, error)
-	GetWeapons(context.Context) ([]*types.Weapon, error)
 }
 
 type Server struct {
@@ -100,7 +99,6 @@ func (s *Server) routes(r *chi.Mux) {
 
 	r.Route("/api", func(r chi.Router) {
 		r.Post("/insert", makeHTTPFunc(s.handleInsertWeapon))
-		r.Get("/weapons", makeHTTPFunc(s.handleGetWeapons))
 		r.With(logger.MiddlewareCategoryCheck(s.categories)).Get("/weapons/{category}", makeHTTPFunc(s.handleGetWeaponsByCategory))
 	})
 

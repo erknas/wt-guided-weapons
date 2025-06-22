@@ -103,48 +103,6 @@ func (m *MongoDB) WeaponsByCategory(ctx context.Context, category string) ([]*ty
 	return weapons, nil
 }
 
-func (m *MongoDB) Weapons(ctx context.Context) ([]*types.Weapon, error) {
-	start := time.Now()
-	log := logger.FromContext(ctx, logger.Storage)
-
-	filter := bson.M{}
-
-	cursor, err := m.coll.Find(ctx, filter)
-	if err != nil {
-		log.Error("database query error",
-			zap.Error(err),
-			zap.String("operation", "find"),
-			zap.Any("filter", filter),
-		)
-
-		return nil, err
-	}
-	defer cursor.Close(ctx)
-
-	var weapons []*types.Weapon
-
-	if err := cursor.All(ctx, &weapons); err != nil {
-		log.Error("failed to decode documents",
-			zap.Error(err),
-		)
-		return nil, err
-	}
-
-	if err := cursor.Err(); err != nil {
-		log.Error("cursor error",
-			zap.Error(err),
-		)
-		return nil, err
-	}
-
-	log.Debug("database query complited",
-		zap.Int("total documents returned", len(weapons)),
-		zap.Duration("duration", time.Since(start)),
-	)
-
-	return weapons, nil
-}
-
 func (m *MongoDB) Close(ctx context.Context) error {
 	return m.client.Disconnect(ctx)
 }
