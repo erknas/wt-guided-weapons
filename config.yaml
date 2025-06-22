@@ -1,0 +1,13 @@
+env: "local"
+server:
+  port: ":3000"
+  read_timeout: 60s
+  write_timeout: 80s
+  idle_timeout: 80s
+mongodb:
+  username: "root"
+  password: "password"
+  host: "localhost"
+  port: "27017"
+  db_name: "wt-guided-weapons"
+  coll_name: "weapons"
