@@ -1,7 +1,6 @@
 package server
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/erknas/wt-guided-weapons/internal/logger"
@@ -30,7 +29,6 @@ func (s *Server) handleGetWeaponsByCategory(w http.ResponseWriter, r *http.Reque
 	log := logger.FromContext(r.Context(), logger.Transport)
 
 	category := chi.URLParam(r, "category")
-	fmt.Println(category)
 
 	weapons, err := s.svc.GetWeaponsByCategory(r.Context(), category)
 	if err != nil {

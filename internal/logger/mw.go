@@ -2,7 +2,6 @@ package logger
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"strings"
 	"time"
@@ -27,7 +26,7 @@ func MiddlewareRequestID(logger *zap.Logger) func(next http.Handler) http.Handle
 			requestID := r.Header.Get("X-Request-ID")
 
 			if requestID == "" {
-				requestID = strings.Replace(uuid.New().String(), "-", "", -1)
+				requestID = strings.ReplaceAll(uuid.New().String(), "-", "")
 			}
 
 			requestLogger := logger.With(zap.String("requestID", requestID))
@@ -71,8 +70,6 @@ func MiddlewareCategoryCheck(categories map[string]struct{}) func(next http.Hand
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			category := chi.URLParam(r, "category")
-
-			fmt.Println("Category", category)
 
 			if _, exists := categories[category]; !exists {
 				lib.WriteJSON(w, http.StatusBadRequest, apierrors.InvalidCategory(category))
