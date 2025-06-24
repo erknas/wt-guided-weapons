@@ -13,7 +13,6 @@ import (
 	"github.com/erknas/wt-guided-weapons/internal/logger"
 	"github.com/erknas/wt-guided-weapons/internal/server/lib"
 	apierrors "github.com/erknas/wt-guided-weapons/internal/server/lib/api-errors"
-	"github.com/erknas/wt-guided-weapons/internal/service/tables"
 	"github.com/erknas/wt-guided-weapons/internal/types"
 	"github.com/go-chi/chi/v5"
 	"go.uber.org/zap"
@@ -25,27 +24,15 @@ type Servicer interface {
 }
 
 type Server struct {
-	svc        Servicer
-	log        *zap.Logger
-	categories map[string]struct{}
+	svc Servicer
+	log *zap.Logger
 }
 
-func New(svc Servicer, log *zap.Logger) (*Server, error) {
-	tables, err := tables.Load()
-	if err != nil {
-		return nil, err
-	}
-
-	categories := make(map[string]struct{})
-	for category := range tables.Tables {
-		categories[category] = struct{}{}
-	}
-
+func New(svc Servicer, log *zap.Logger) *Server {
 	return &Server{
-		svc:        svc,
-		log:        log,
-		categories: categories,
-	}, nil
+		svc: svc,
+		log: log,
+	}
 }
 
 func (s *Server) Run(ctx context.Context, cfg *config.Config) error {
@@ -99,7 +86,7 @@ func (s *Server) routes(r *chi.Mux) {
 
 	r.Route("/api", func(r chi.Router) {
 		r.Post("/insert", makeHTTPFunc(s.handleInsertWeapon))
-		r.With(logger.MiddlewareCategoryCheck(s.categories)).Get("/weapons/{category}", makeHTTPFunc(s.handleGetWeaponsByCategory))
+		r.Get("/weapons/{category}", makeHTTPFunc(s.handleGetWeaponsByCategory))
 	})
 
 	r.Handle("/*", http.FileServer(http.Dir("./static")))
