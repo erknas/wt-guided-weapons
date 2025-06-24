@@ -12,6 +12,8 @@ import (
 	"github.com/erknas/wt-guided-weapons/internal/logger"
 	"github.com/erknas/wt-guided-weapons/internal/server"
 	"github.com/erknas/wt-guided-weapons/internal/service"
+	csvparser "github.com/erknas/wt-guided-weapons/internal/service/csv-parser"
+	urlsloader "github.com/erknas/wt-guided-weapons/internal/service/urls-loader"
 	"github.com/erknas/wt-guided-weapons/internal/storage/mongodb"
 	"go.uber.org/zap"
 )
@@ -40,7 +42,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	logger.Info("storage initialized")
+	logger.Info("storage init")
 
 	defer func() {
 		closeCtx, cancel := context.WithTimeout(context.Background(), time.Second*5)
@@ -55,18 +57,28 @@ func main() {
 		logger.Info("storage closed")
 	}()
 
-	service := service.New(storage, storage, logger)
-
-	server, err := server.New(service, logger)
+	urls, err := urlsloader.Load(cfg.FileName)
 	if err != nil {
-		logger.Error("failed to initialize server",
+		logger.Error("failed to load urls",
 			zap.Error(err),
 		)
 		os.Exit(1)
 	}
 
+	service, err := service.New(storage, storage, &csvparser.CSVParser{}, urls, logger)
+	if err != nil {
+		logger.Error("failed to init service",
+			zap.Error(err),
+		)
+		os.Exit(1)
+	}
+
+	server := server.New(service, logger)
+
 	if err := server.Run(ctx, cfg); err != nil {
-		logger.Error("server failed", zap.Error(err))
+		logger.Error("server failed",
+			zap.Error(err),
+		)
 		os.Exit(1)
 	}
 }
