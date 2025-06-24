@@ -9,6 +9,7 @@ import (
 
 type Config struct {
 	Env           string `yaml:"env"`
+	FileName      string `yaml:"file_name"`
 	ConfigServer  `yaml:"server"`
 	ConfigMongoDB `yaml:"mongodb"`
 }
