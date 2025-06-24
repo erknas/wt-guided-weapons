@@ -6,8 +6,6 @@ import (
 	"time"
 
 	"github.com/erknas/wt-guided-weapons/internal/logger"
-	csvparser "github.com/erknas/wt-guided-weapons/internal/service/csv-parser"
-	"github.com/erknas/wt-guided-weapons/internal/service/tables"
 	"github.com/erknas/wt-guided-weapons/internal/types"
 	"go.uber.org/zap"
 )
@@ -20,18 +18,33 @@ type WeaponsProvider interface {
 	WeaponsByCategory(context.Context, string) ([]*types.Weapon, error)
 }
 
+type TableParser interface {
+	Parse(context.Context, string, string) ([]*types.Weapon, error)
+}
+
 type Service struct {
 	inserter WeaponsInserter
 	provider WeaponsProvider
+	parser   TableParser
+	urls     map[string]string
 	log      *zap.Logger
 }
 
-func New(inserter WeaponsInserter, provider WeaponsProvider, log *zap.Logger) *Service {
+func New(
+	inserter WeaponsInserter,
+	provider WeaponsProvider,
+	parser TableParser,
+	urls map[string]string,
+	log *zap.Logger,
+) (*Service, error) {
+
 	return &Service{
 		inserter: inserter,
 		provider: provider,
+		parser:   parser,
+		urls:     urls,
 		log:      log,
-	}
+	}, nil
 }
 
 func (s *Service) InsertWeapons(ctx context.Context) error {
@@ -40,20 +53,15 @@ func (s *Service) InsertWeapons(ctx context.Context) error {
 
 	wg := &sync.WaitGroup{}
 
-	tables, err := tables.Load()
-	if err != nil {
-		return err
-	}
+	errCh := make(chan error, len(s.urls))
+	dataCh := make(chan []*types.Weapon, len(s.urls))
 
-	errCh := make(chan error, len(tables.Tables))
-	dataCh := make(chan []*types.Weapon, len(tables.Tables))
-
-	for category, url := range tables.Tables {
+	for category, url := range s.urls {
 		wg.Add(1)
 		go func(category, url string) {
 			defer wg.Done()
 
-			data, err := csvparser.ParseTable(ctx, category, url)
+			data, err := s.parser.Parse(ctx, category, url)
 			if err != nil {
 				log.Error("parse table failed",
 					zap.Error(err),
@@ -85,7 +93,7 @@ func (s *Service) InsertWeapons(ctx context.Context) error {
 	var weapons []*types.Weapon
 	successfulTables := 0
 
-	for range tables.Tables {
+	for range s.urls {
 		select {
 		case <-ctx.Done():
 			log.Warn("parsing cancelled",
@@ -104,7 +112,7 @@ func (s *Service) InsertWeapons(ctx context.Context) error {
 
 	log.Info("tabels parsing complited",
 		zap.Int("total successful tables parsed", successfulTables),
-		zap.Int("total failed tables", len(tables.Tables)-successfulTables),
+		zap.Int("total failed tables", len(s.urls)-successfulTables),
 		zap.Int("weapons_count", len(weapons)),
 		zap.Duration("duration", time.Since(start)),
 	)
