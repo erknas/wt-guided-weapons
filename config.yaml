@@ -1,4 +1,5 @@
 env: "local"
+file_name: "urls.json"
 server:
   port: ":3000"
   read_timeout: 60s
