@@ -2,12 +2,17 @@ package service
 
 import (
 	"context"
+	"errors"
 	"sync"
 	"time"
 
 	"github.com/erknas/wt-guided-weapons/internal/logger"
 	"github.com/erknas/wt-guided-weapons/internal/types"
 	"go.uber.org/zap"
+)
+
+var (
+	ErrCategoryNotExists = errors.New("category does not exist")
 )
 
 type WeaponsInserter interface {
@@ -51,8 +56,10 @@ func (s *Service) InsertWeapons(ctx context.Context) error {
 	start := time.Now()
 	log := logger.FromContext(ctx, logger.Service)
 
-	wg := &sync.WaitGroup{}
+	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
 
+	wg := &sync.WaitGroup{}
 	errCh := make(chan error, len(s.urls))
 	dataCh := make(chan []*types.Weapon, len(s.urls))
 
@@ -61,24 +68,34 @@ func (s *Service) InsertWeapons(ctx context.Context) error {
 		go func(category, url string) {
 			defer wg.Done()
 
-			data, err := s.parser.Parse(ctx, category, url)
-			if err != nil {
-				log.Error("parse table failed",
-					zap.Error(err),
-					zap.String("category", category),
-					zap.String("table_url", url),
-				)
-				errCh <- err
+			if ctx.Err() != nil {
 				return
 			}
 
-			log.Debug("parse table complited",
-				zap.String("category", category),
-				zap.String("table_url", url),
-				zap.Int("weapons_count", len(data)),
-			)
+			data, err := s.parser.Parse(ctx, category, url)
+			if err != nil {
+				select {
+				case errCh <- err:
+					log.Error("parse table failed",
+						zap.Error(err),
+						zap.String("category", category),
+						zap.String("table_url", url),
+					)
+				case <-ctx.Done():
+				}
+				return
+			}
 
-			dataCh <- data
+			select {
+			case dataCh <- data:
+				log.Debug("parse table completed",
+					zap.String("category", category),
+					zap.String("table_url", url),
+					zap.Int("weapons_count", len(data)),
+				)
+			case <-ctx.Done():
+			}
+
 		}(category, url)
 	}
 
@@ -86,8 +103,7 @@ func (s *Service) InsertWeapons(ctx context.Context) error {
 		wg.Wait()
 		close(errCh)
 		close(dataCh)
-		log.Debug("channels closed")
-		log.Debug("all goroutine complited")
+		log.Debug("all goroutines complited")
 	}()
 
 	var weapons []*types.Weapon
@@ -96,14 +112,14 @@ func (s *Service) InsertWeapons(ctx context.Context) error {
 	for range s.urls {
 		select {
 		case <-ctx.Done():
-			log.Warn("parsing cancelled",
+			log.Warn("context cancelled",
 				zap.Error(ctx.Err()),
+				zap.Int("complited tables", successfulTables),
 			)
 			return ctx.Err()
 		case err := <-errCh:
-			if err != nil {
-				return err
-			}
+			cancel()
+			return err
 		case data := <-dataCh:
 			weapons = append(weapons, data...)
 			successfulTables++
@@ -129,6 +145,13 @@ func (s *Service) InsertWeapons(ctx context.Context) error {
 
 func (s *Service) GetWeaponsByCategory(ctx context.Context, category string) ([]*types.Weapon, error) {
 	log := logger.FromContext(ctx, logger.Service)
+
+	if _, exists := s.urls[category]; !exists {
+		log.Warn("category does not exist",
+			zap.String("category", category),
+		)
+		return nil, ErrCategoryNotExists
+	}
 
 	weapons, err := s.provider.WeaponsByCategory(ctx, category)
 	if err != nil {
