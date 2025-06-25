@@ -14,7 +14,7 @@ import (
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
 )
 
-var notexistentCategories = []string{"", "aam-rear", "aam_ir_rear_aspect", "aam ir all aspect"}
+var notExistentCategories = []string{"", "aam-rear", "aam_ir_rear_aspect", "aam ir all aspect"}
 
 func setupMongo(ctx context.Context) (*mongo.Client, error) {
 	container, err := c.Run(ctx, "mongo:8.0")
@@ -49,7 +49,7 @@ func TestMongoDB_Insert(t *testing.T) {
 		{Category: "atgm-losbr", Name: "ACRA"},
 	}
 
-	t.Run("insert weapons", func(t *testing.T) {
+	t.Run("Success Insert inserts slice of weapons", func(t *testing.T) {
 		err := db.Insert(ctx, weapons)
 		require.NoError(t, err)
 
@@ -90,7 +90,7 @@ func TestMongoDB_WeaponsByCategory(t *testing.T) {
 		coll:   coll,
 	}
 
-	t.Run("return weapons by category", func(t *testing.T) {
+	t.Run("Success WeaponsByCategory returns slice of weapons", func(t *testing.T) {
 		weapons, err := db.WeaponsByCategory(ctx, "aam-ir-rear-aspect")
 		require.NoError(t, err)
 		assert.Len(t, weapons, 2)
@@ -98,8 +98,8 @@ func TestMongoDB_WeaponsByCategory(t *testing.T) {
 		assert.Equal(t, "AIM-9B", weapons[0].Name)
 	})
 
-	for _, category := range notexistentCategories {
-		t.Run(fmt.Sprintf("return empty slice for non-existent category %s", category), func(t *testing.T) {
+	for _, category := range notExistentCategories {
+		t.Run(fmt.Sprintf("Non-existent category %s returns empty slice of weapons", category), func(t *testing.T) {
 			weapons, err := db.WeaponsByCategory(ctx, category)
 			require.NoError(t, err)
 			assert.Empty(t, weapons)
