@@ -22,5 +22,5 @@ func NewApiError(statusCode int, err error) APIError {
 }
 
 func InvalidCategory(category string) APIError {
-	return NewApiError(http.StatusBadRequest, fmt.Errorf("invalid category: %s", category))
+	return NewApiError(http.StatusBadRequest, fmt.Errorf("category %s does not exist", category))
 }
