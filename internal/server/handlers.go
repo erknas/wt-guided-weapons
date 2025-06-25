@@ -1,10 +1,13 @@
 package server
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/erknas/wt-guided-weapons/internal/logger"
 	"github.com/erknas/wt-guided-weapons/internal/server/lib"
+	apierrors "github.com/erknas/wt-guided-weapons/internal/server/lib/api-errors"
+	"github.com/erknas/wt-guided-weapons/internal/service"
 	"github.com/erknas/wt-guided-weapons/internal/types"
 	"github.com/go-chi/chi/v5"
 	"go.uber.org/zap"
@@ -32,9 +35,9 @@ func (s *Server) handleGetWeaponsByCategory(w http.ResponseWriter, r *http.Reque
 
 	weapons, err := s.svc.GetWeaponsByCategory(r.Context(), category)
 	if err != nil {
-		log.Error("GetWeaponsByCategory request failed",
-			zap.Error(err),
-		)
+		if errors.Is(err, service.ErrCategoryNotExists) {
+			return apierrors.InvalidCategory(category)
+		}
 		return err
 	}
 
