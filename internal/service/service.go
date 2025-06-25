@@ -53,16 +53,16 @@ func New(
 }
 
 func (s *Service) InsertWeapons(ctx context.Context) error {
-	start := time.Now()
-	log := logger.FromContext(ctx, logger.Service)
-
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
+
+	log := logger.FromContext(ctx, logger.Service)
 
 	wg := &sync.WaitGroup{}
 	errCh := make(chan error, len(s.urls))
 	dataCh := make(chan []*types.Weapon, len(s.urls))
 
+	start := time.Now()
 	for category, url := range s.urls {
 		wg.Add(1)
 		go func(category, url string) {
@@ -127,8 +127,7 @@ func (s *Service) InsertWeapons(ctx context.Context) error {
 	}
 
 	log.Info("tabels parsing complited",
-		zap.Int("total successful tables parsed", successfulTables),
-		zap.Int("total failed tables", len(s.urls)-successfulTables),
+		zap.Int("total tables parsed", successfulTables),
 		zap.Int("weapons_count", len(weapons)),
 		zap.Duration("duration", time.Since(start)),
 	)
