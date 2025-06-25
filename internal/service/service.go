@@ -41,7 +41,7 @@ func New(
 	parser TableParser,
 	urls map[string]string,
 	log *zap.Logger,
-) (*Service, error) {
+) *Service {
 
 	return &Service{
 		inserter: inserter,
@@ -49,7 +49,7 @@ func New(
 		parser:   parser,
 		urls:     urls,
 		log:      log,
-	}, nil
+	}
 }
 
 func (s *Service) InsertWeapons(ctx context.Context) error {

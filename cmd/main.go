@@ -53,7 +53,6 @@ func main() {
 				zap.Error(err),
 			)
 		}
-
 		logger.Info("storage closed")
 	}()
 
@@ -65,13 +64,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	service, err := service.New(storage, storage, &csvparser.CSVParser{}, urls, logger)
-	if err != nil {
-		logger.Error("failed to init service",
-			zap.Error(err),
-		)
-		os.Exit(1)
-	}
+	service := service.New(storage, storage, &csvparser.CSVParser{}, urls, logger)
 
 	server := server.New(service, logger)
 
