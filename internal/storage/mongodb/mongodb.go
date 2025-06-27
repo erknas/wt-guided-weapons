@@ -41,38 +41,33 @@ func New(ctx context.Context, cfg *config.Config) (*MongoDB, error) {
 }
 
 func (m *MongoDB) Insert(ctx context.Context, weapons []*types.Weapon) error {
-	start := time.Now()
 	log := logger.FromContext(ctx, logger.Storage)
 
-	_, err := m.coll.InsertMany(ctx, weapons)
+	res, err := m.coll.InsertMany(ctx, weapons)
 	if err != nil {
-		log.Error("database query failed",
-			zap.String("operation", "insert"),
+		log.Error("database failed",
 			zap.Error(err),
+			zap.String("operation", "InsertMany"),
 		)
-		return err
 	}
 
-	log.Debug("database query complited",
-		zap.Int("total documents inserted", len(weapons)),
-		zap.Duration("duration", time.Since(start)),
+	log.Debug("Insert complited",
+		zap.Int("total documents inserted", len(res.InsertedIDs)),
 	)
 
 	return nil
 }
 
 func (m *MongoDB) WeaponsByCategory(ctx context.Context, category string) ([]*types.Weapon, error) {
-	start := time.Now()
 	log := logger.FromContext(ctx, logger.Storage)
 
 	filter := bson.M{"category": category}
 
 	cursor, err := m.coll.Find(ctx, filter)
 	if err != nil {
-		log.Error("database query failed",
+		log.Error("database failed",
 			zap.Error(err),
-			zap.String("operation", "find"),
-			zap.Any("filter", filter),
+			zap.String("operation", "Find"),
 		)
 		return nil, err
 	}
@@ -81,23 +76,23 @@ func (m *MongoDB) WeaponsByCategory(ctx context.Context, category string) ([]*ty
 	var weapons []*types.Weapon
 
 	if err := cursor.All(ctx, &weapons); err != nil {
-		log.Error("failed to decode documents",
+		log.Error("database failed",
 			zap.Error(err),
+			zap.String("operation", "Decoding"),
 		)
 		return nil, err
 	}
 
 	if err := cursor.Err(); err != nil {
-		log.Error("cursor error",
+		log.Error("iteration error",
 			zap.Error(err),
 		)
 		return nil, err
 	}
 
-	log.Debug("database query complited",
-		zap.String("category", category),
+	log.Debug("WeaponsByCategory complited",
+		zap.Any("filter", filter),
 		zap.Int("total documents returned", len(weapons)),
-		zap.Duration("duration", time.Since(start)),
 	)
 
 	return weapons, nil
