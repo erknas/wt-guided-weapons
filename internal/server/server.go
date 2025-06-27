@@ -2,7 +2,6 @@ package server
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"os"
 	"os/signal"
@@ -24,14 +23,22 @@ type Servicer interface {
 }
 
 type Server struct {
-	svc Servicer
-	log *zap.Logger
+	svc        Servicer
+	categories map[string]struct{}
+	log        *zap.Logger
 }
 
-func New(svc Servicer, log *zap.Logger) *Server {
+func New(svc Servicer, urls map[string]string, log *zap.Logger) *Server {
+	categories := make(map[string]struct{}, len(urls))
+
+	for category := range urls {
+		categories[category] = struct{}{}
+	}
+
 	return &Server{
-		svc: svc,
-		log: log,
+		svc:        svc,
+		categories: categories,
+		log:        log,
 	}
 }
 
@@ -60,7 +67,7 @@ func (s *Server) Run(ctx context.Context, cfg *config.Config) error {
 		errCh <- nil
 	}()
 
-	s.log.Info("starting server", zap.String("port", fmt.Sprintf("http://localhost%s", cfg.ConfigServer.Port)))
+	s.log.Info("starting server", zap.String("port", cfg.ConfigServer.Port))
 
 	select {
 	case <-quitCh:
@@ -86,7 +93,7 @@ func (s *Server) routes(r *chi.Mux) {
 
 	r.Route("/api", func(r chi.Router) {
 		r.Post("/insert", makeHTTPFunc(s.handleInsertWeapon))
-		r.Get("/weapons/{category}", makeHTTPFunc(s.handleGetWeaponsByCategory))
+		r.With(logger.MiddlewareCategoryCheck(s.categories)).Get("/weapons/{category}", makeHTTPFunc(s.handleGetWeaponsByCategory))
 	})
 
 	r.Handle("/*", http.FileServer(http.Dir("./static")))
