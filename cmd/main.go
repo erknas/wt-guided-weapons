@@ -64,9 +64,11 @@ func main() {
 		os.Exit(1)
 	}
 
-	service := service.New(storage, storage, &csvparser.CSVParser{}, urls, logger)
+	parser := csvparser.New(urls, logger)
 
-	server := server.New(service, logger)
+	service := service.New(storage, storage, parser)
+
+	server := server.New(service, urls, logger)
 
 	if err := server.Run(ctx, cfg); err != nil {
 		logger.Error("server failed",
