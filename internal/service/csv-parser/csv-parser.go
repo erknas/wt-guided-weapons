@@ -12,29 +12,29 @@ import (
 	"go.uber.org/zap"
 )
 
-type Weapons struct {
+type Tables struct {
 	urls map[string]string
 	log  *zap.Logger
 }
 
-func New(urls map[string]string, log *zap.Logger) *Weapons {
-	return &Weapons{
+func New(urls map[string]string, log *zap.Logger) *Tables {
+	return &Tables{
 		urls: urls,
 		log:  log,
 	}
 }
 
-func (w *Weapons) Aggregate(ctx context.Context) ([]*types.Weapon, error) {
+func (t *Tables) Aggregate(ctx context.Context) ([]*types.Weapon, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
 	wg := &sync.WaitGroup{}
 
-	errCh := make(chan error, len(w.urls))
-	dataCh := make(chan []*types.Weapon, len(w.urls))
+	errCh := make(chan error, len(t.urls))
+	dataCh := make(chan []*types.Weapon, len(t.urls))
 
 	start := time.Now()
-	for category, url := range w.urls {
+	for category, url := range t.urls {
 		wg.Add(1)
 		go func(category, url string) {
 			defer wg.Done()
@@ -43,11 +43,11 @@ func (w *Weapons) Aggregate(ctx context.Context) ([]*types.Weapon, error) {
 				return
 			}
 
-			data, err := w.ParseTableByURL(ctx, category, url)
+			data, err := t.ParseTableByURL(ctx, category, url)
 			if err != nil {
 				select {
 				case errCh <- err:
-					w.log.Error("parse table failed",
+					t.log.Error("parse table failed",
 						zap.Error(err),
 						zap.String("category", category),
 						zap.String("table_url", url),
@@ -59,7 +59,7 @@ func (w *Weapons) Aggregate(ctx context.Context) ([]*types.Weapon, error) {
 
 			select {
 			case dataCh <- data:
-				w.log.Debug("parse table completed",
+				t.log.Debug("parse table completed",
 					zap.String("category", category),
 					zap.String("table_url", url),
 					zap.Int("weapons_count", len(data)),
@@ -74,30 +74,30 @@ func (w *Weapons) Aggregate(ctx context.Context) ([]*types.Weapon, error) {
 		wg.Wait()
 		close(errCh)
 		close(dataCh)
-		w.log.Debug("all goroutines complited")
+		t.log.Debug("all goroutines complited")
 	}()
 
 	var weapons []*types.Weapon
 	successfulTables := 0
 
-	for range w.urls {
+	for range t.urls {
 		select {
 		case <-ctx.Done():
-			w.log.Warn("context cancelled",
+			t.log.Warn("context cancelled",
 				zap.Error(ctx.Err()),
 				zap.Int("complited tables", successfulTables),
 			)
-			return nil, ctx.Err()
+			return nil, fmt.Errorf("context error: %w", ctx.Err())
 		case err := <-errCh:
 			cancel()
-			return nil, err
+			return nil, fmt.Errorf("failed to parse table: %w", err)
 		case data := <-dataCh:
 			weapons = append(weapons, data...)
 			successfulTables++
 		}
 	}
 
-	w.log.Info("tabels parsing complited",
+	t.log.Info("tabels parsing complited",
 		zap.Int("total tables parsed", successfulTables),
 		zap.Int("weapons_count", len(weapons)),
 		zap.Duration("duration", time.Since(start)),
@@ -106,10 +106,10 @@ func (w *Weapons) Aggregate(ctx context.Context) ([]*types.Weapon, error) {
 	return weapons, nil
 }
 
-func (w *Weapons) ParseTableByURL(ctx context.Context, category, url string) ([]*types.Weapon, error) {
-	data, err := w.readCSV(ctx, url)
+func (t *Tables) ParseTableByURL(ctx context.Context, category, url string) ([]*types.Weapon, error) {
+	data, err := t.readCSV(ctx, url)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to read CSV: %w", err)
 	}
 
 	var weapons []*types.Weapon
@@ -117,7 +117,7 @@ func (w *Weapons) ParseTableByURL(ctx context.Context, category, url string) ([]
 	for i := range data[0][1:] {
 		weapon, err := mapCSVToStruct(data, category, i+1)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("mapping CSV to struct failed: %w", err)
 		}
 		weapons = append(weapons, weapon)
 	}
@@ -125,13 +125,13 @@ func (w *Weapons) ParseTableByURL(ctx context.Context, category, url string) ([]
 	return weapons, nil
 }
 
-func (w *Weapons) readCSV(ctx context.Context, url string) ([][]string, error) {
+func (t *Tables) readCSV(ctx context.Context, url string) ([][]string, error) {
 	ctx, cancel := context.WithTimeout(ctx, time.Second*5)
 	defer cancel()
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
 
 	client := &http.Client{}

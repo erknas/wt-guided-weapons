@@ -2,6 +2,7 @@ package mongodb
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/erknas/wt-guided-weapons/internal/config"
@@ -25,11 +26,11 @@ func New(ctx context.Context, cfg *config.Config) (*MongoDB, error) {
 
 	client, err := mongo.Connect(opts)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to create client: %w", err)
 	}
 
 	if err := client.Ping(ctx, nil); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to send ping: %w", err)
 	}
 
 	coll := client.Database(cfg.ConfigMongoDB.DBName).Collection(cfg.ConfigMongoDB.CollName)
@@ -49,6 +50,7 @@ func (m *MongoDB) Insert(ctx context.Context, weapons []*types.Weapon) error {
 			zap.Error(err),
 			zap.String("operation", "InsertMany"),
 		)
+		return fmt.Errorf("failed to insert documents: %w", err)
 	}
 
 	log.Debug("Insert complited",
@@ -69,7 +71,7 @@ func (m *MongoDB) WeaponsByCategory(ctx context.Context, category string) ([]*ty
 			zap.Error(err),
 			zap.String("operation", "Find"),
 		)
-		return nil, err
+		return nil, fmt.Errorf("failed to find documents: %w", err)
 	}
 	defer cursor.Close(ctx)
 
@@ -80,14 +82,14 @@ func (m *MongoDB) WeaponsByCategory(ctx context.Context, category string) ([]*ty
 			zap.Error(err),
 			zap.String("operation", "Decoding"),
 		)
-		return nil, err
+		return nil, fmt.Errorf("failed to decode document: %w", err)
 	}
 
 	if err := cursor.Err(); err != nil {
 		log.Error("iteration error",
 			zap.Error(err),
 		)
-		return nil, err
+		return nil, fmt.Errorf("last cursor error: %w", err)
 	}
 
 	log.Debug("WeaponsByCategory complited",

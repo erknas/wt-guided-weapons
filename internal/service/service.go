@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/erknas/wt-guided-weapons/internal/logger"
 	"github.com/erknas/wt-guided-weapons/internal/types"
@@ -42,14 +43,14 @@ func (s *Service) InsertWeapons(ctx context.Context) error {
 		log.Error("failed to aggregate weapons",
 			zap.Error(err),
 		)
-		return err
+		return fmt.Errorf("failed to aggreagte weapons: %w", err)
 	}
 
 	if err := s.inserter.Insert(ctx, weapons); err != nil {
 		log.Error("failed to insert weapons",
 			zap.Error(err),
 		)
-		return err
+		return fmt.Errorf("failed to insert weapons: %w", err)
 	}
 
 	log.Debug("InsertWeapons complited")
@@ -66,7 +67,7 @@ func (s *Service) GetWeaponsByCategory(ctx context.Context, category string) ([]
 			zap.Error(err),
 			zap.String("category", category),
 		)
-		return nil, err
+		return nil, fmt.Errorf("failed to get weapons by category %s: %w", category, err)
 	}
 
 	log.Debug("GetWeaponsByCategory complited",
