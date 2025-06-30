@@ -12,8 +12,11 @@ import (
 	"github.com/erknas/wt-guided-weapons/internal/logger"
 	"github.com/erknas/wt-guided-weapons/internal/server"
 	"github.com/erknas/wt-guided-weapons/internal/service"
-	csvparser "github.com/erknas/wt-guided-weapons/internal/service/csv-parser"
+	"github.com/erknas/wt-guided-weapons/internal/service/aggregator"
+	csvreader "github.com/erknas/wt-guided-weapons/internal/service/csv-reader"
 	urlsloader "github.com/erknas/wt-guided-weapons/internal/service/urls-loader"
+	weaponmapper "github.com/erknas/wt-guided-weapons/internal/service/weapon-mapper"
+	weaponparser "github.com/erknas/wt-guided-weapons/internal/service/weapon-parser"
 	"github.com/erknas/wt-guided-weapons/internal/storage/mongodb"
 	"go.uber.org/zap"
 )
@@ -64,12 +67,13 @@ func main() {
 		os.Exit(1)
 	}
 
-	parser := csvparser.New(urls, logger)
+	parser := weaponparser.New(&csvreader.HTTPReader{}, &weaponmapper.WeaponMapper{})
 
-	service := service.New(storage, storage, parser)
+	aggregator := aggregator.New(urls, parser, logger)
+
+	service := service.New(storage, storage, aggregator)
 
 	server := server.New(service, urls, logger)
-
 	if err := server.Run(ctx, cfg); err != nil {
 		logger.Error("server failed",
 			zap.Error(err),

@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/erknas/wt-guided-weapons/internal/server/lib"
-	apierrors "github.com/erknas/wt-guided-weapons/internal/server/lib/api-errors"
+	"github.com/erknas/wt-guided-weapons/internal/lib/api"
+	apierrors "github.com/erknas/wt-guided-weapons/internal/lib/api/api-errors"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/google/uuid"
@@ -72,7 +72,7 @@ func MiddlewareCategoryCheck(categories map[string]struct{}) func(next http.Hand
 			category := chi.URLParam(r, "category")
 
 			if _, exists := categories[category]; !exists {
-				lib.WriteJSON(w, http.StatusBadRequest, apierrors.InvalidCategory(category))
+				api.WriteJSON(w, http.StatusBadRequest, apierrors.InvalidCategory(category))
 				return
 			}
 

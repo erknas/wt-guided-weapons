@@ -9,17 +9,17 @@ import (
 	"time"
 
 	"github.com/erknas/wt-guided-weapons/internal/config"
+	"github.com/erknas/wt-guided-weapons/internal/lib/api"
+	apierrors "github.com/erknas/wt-guided-weapons/internal/lib/api/api-errors"
 	"github.com/erknas/wt-guided-weapons/internal/logger"
-	"github.com/erknas/wt-guided-weapons/internal/server/lib"
-	apierrors "github.com/erknas/wt-guided-weapons/internal/server/lib/api-errors"
 	"github.com/erknas/wt-guided-weapons/internal/types"
 	"github.com/go-chi/chi/v5"
 	"go.uber.org/zap"
 )
 
 type Servicer interface {
-	InsertWeapons(context.Context) error
-	GetWeaponsByCategory(context.Context, string) ([]*types.Weapon, error)
+	InsertWeapons(ctx context.Context) error
+	GetWeaponsByCategory(ctx context.Context, category string) ([]*types.Weapon, error)
 }
 
 type Server struct {
@@ -108,13 +108,13 @@ func makeHTTPFunc(fn httpFunc) http.HandlerFunc {
 
 		if err := fn(w, r.WithContext(ctx)); err != nil {
 			if apiErr, ok := err.(apierrors.APIError); ok {
-				lib.WriteJSON(w, apiErr.StatusCode, apiErr)
+				api.WriteJSON(w, apiErr.StatusCode, apiErr)
 			} else {
 				errResp := map[string]any{
 					"status_code": http.StatusInternalServerError,
 					"msg":         "internal sever error",
 				}
-				lib.WriteJSON(w, http.StatusInternalServerError, errResp)
+				api.WriteJSON(w, http.StatusInternalServerError, errResp)
 			}
 		}
 	}

@@ -1,4 +1,4 @@
-package csvparser
+package weaponmapper
 
 import (
 	"fmt"
@@ -7,7 +7,9 @@ import (
 	"github.com/erknas/wt-guided-weapons/internal/types"
 )
 
-func mapCSVToStruct(data [][]string, category string, weaponIdx int) (*types.Weapon, error) {
+type WeaponMapper struct{}
+
+func (m *WeaponMapper) Map(data [][]string, category string, weaponIdx int) (*types.Weapon, error) {
 	if len(data) == 0 || weaponIdx >= len(data[0]) {
 		return nil, fmt.Errorf("invalid data")
 	}

@@ -10,15 +10,15 @@ import (
 )
 
 type WeaponsInserter interface {
-	Insert(context.Context, []*types.Weapon) error
+	Insert(ctx context.Context, weapons []*types.Weapon) error
 }
 
 type WeaponsProvider interface {
-	WeaponsByCategory(context.Context, string) ([]*types.Weapon, error)
+	WeaponsByCategory(ctx context.Context, category string) ([]*types.Weapon, error)
 }
 
 type WeaponsAggregator interface {
-	Aggregate(context.Context) ([]*types.Weapon, error)
+	Aggregate(ctx context.Context) ([]*types.Weapon, error)
 }
 
 type Service struct {
@@ -43,7 +43,7 @@ func (s *Service) InsertWeapons(ctx context.Context) error {
 		log.Error("failed to aggregate weapons",
 			zap.Error(err),
 		)
-		return fmt.Errorf("failed to aggreagte weapons: %w", err)
+		return fmt.Errorf("failed to aggregate weapons: %w", err)
 	}
 
 	if err := s.inserter.Insert(ctx, weapons); err != nil {

@@ -10,29 +10,29 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-type MockWeaponsAggregator struct {
+type mockWeaponsAggregator struct {
 	mock.Mock
 }
 
-type MockWeaponsInserter struct {
+type mockWeaponsInserter struct {
 	mock.Mock
 }
 
-type MockWeaponsProvider struct {
+type mockWeaponsProvider struct {
 	mock.Mock
 }
 
-func (m *MockWeaponsAggregator) Aggregate(ctx context.Context) ([]*types.Weapon, error) {
+func (m *mockWeaponsAggregator) Aggregate(ctx context.Context) ([]*types.Weapon, error) {
 	args := m.Called(ctx)
 	return args.Get(0).([]*types.Weapon), args.Error(1)
 }
 
-func (m *MockWeaponsInserter) Insert(ctx context.Context, weapons []*types.Weapon) error {
+func (m *mockWeaponsInserter) Insert(ctx context.Context, weapons []*types.Weapon) error {
 	args := m.Called(ctx, weapons)
 	return args.Error(0)
 }
 
-func (m *MockWeaponsProvider) WeaponsByCategory(ctx context.Context, category string) ([]*types.Weapon, error) {
+func (m *mockWeaponsProvider) WeaponsByCategory(ctx context.Context, category string) ([]*types.Weapon, error) {
 	args := m.Called(ctx, category)
 	return args.Get(0).([]*types.Weapon), args.Error(1)
 }
@@ -40,8 +40,8 @@ func (m *MockWeaponsProvider) WeaponsByCategory(ctx context.Context, category st
 func TestService_InsertWeapons(t *testing.T) {
 	ctx := context.Background()
 
-	mockAggregator := new(MockWeaponsAggregator)
-	mockInserter := new(MockWeaponsInserter)
+	mockAggregator := new(mockWeaponsAggregator)
+	mockInserter := new(mockWeaponsInserter)
 
 	service := &Service{
 		aggregator: mockAggregator,
@@ -69,7 +69,7 @@ func TestService_InsertWeapons(t *testing.T) {
 func TestService_GetWeaponsByCategory(t *testing.T) {
 	ctx := context.Background()
 
-	mockProvider := new(MockWeaponsProvider)
+	mockProvider := new(mockWeaponsProvider)
 
 	service := &Service{
 		provider: mockProvider,
