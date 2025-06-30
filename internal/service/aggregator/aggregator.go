@@ -91,7 +91,7 @@ func (w *Weapons) Aggregate(ctx context.Context) ([]*types.Weapon, error) {
 				zap.Error(ctx.Err()),
 				zap.Int("complited tables", successfulTables),
 			)
-			return nil, fmt.Errorf("context error: %w", ctx.Err())
+			return nil, ctx.Err()
 		case err := <-errCh:
 			cancel()
 			return nil, fmt.Errorf("failed to parse table: %w", err)
