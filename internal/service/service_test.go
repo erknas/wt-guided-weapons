@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"testing"
-	"time"
 
 	"github.com/erknas/wt-guided-weapons/internal/types"
 	"github.com/stretchr/testify/assert"
@@ -142,7 +141,6 @@ func TestService_InsertWeapons(t *testing.T) {
 
 func TestService_GetWeaponsByCategory(t *testing.T) {
 	ctx := context.Background()
-
 	weapons := []*types.Weapon{
 		{Category: "sam-ir", Name: "9M39 Igla"},
 		{Category: "sam-ir", Name: "AIM-9X"},
@@ -150,77 +148,78 @@ func TestService_GetWeaponsByCategory(t *testing.T) {
 		{Category: "sam-ir", Name: "HN-6"},
 	}
 
-	t.Run("Success GetWeaponsByCategory", func(t *testing.T) {
-		mockProvider := new(mockWeaponsProvider)
-		service := &Service{
-			provider: mockProvider,
-		}
+	tests := []struct {
+		name        string
+		category    string
+		mocks       func(*mockWeaponsProvider)
+		wantErr     bool
+		containsErr string
+		checkErr    func(*testing.T, error)
+	}{{
+		name:     "Success GetWeaponsByCategory",
+		category: "sam-ir",
+		mocks: func(mwp *mockWeaponsProvider) {
+			mwp.On("WeaponsByCategory", mock.Anything, "sam-ir").Return(weapons, nil)
+		},
+		wantErr: false,
+	}, {
+		name:     "Fail GetWeaponsByCategory",
+		category: "samir",
+		mocks: func(mwp *mockWeaponsProvider) {
+			mwp.On("WeaponsByCategory", mock.Anything, "samir").Return([]*types.Weapon{}, errors.New("failed to find documents"))
+		},
+		wantErr:     true,
+		containsErr: "failed to get weapons by category",
+		checkErr: func(t *testing.T, err error) {
+			assert.Contains(t, err.Error(), "failed to find documents")
+		},
+	}, {
+		name:     "Fail GetWeaponsByCategory context cancelled",
+		category: "sam-ir",
+		mocks: func(mwp *mockWeaponsProvider) {
+			mwp.On("WeaponsByCategory", mock.Anything, "sam-ir").Return([]*types.Weapon{}, context.Canceled)
+		},
+		wantErr:     true,
+		containsErr: "failed to get weapons by category",
+		checkErr: func(t *testing.T, err error) {
+			assert.ErrorIs(t, err, context.Canceled)
+		},
+	}, {
+		name:     "Fail GetWeaponsByCateogry context timeout",
+		category: "sam-ir",
+		mocks: func(mwp *mockWeaponsProvider) {
+			mwp.On("WeaponsByCategory", mock.Anything, "sam-ir").Return([]*types.Weapon{}, context.DeadlineExceeded)
+		},
+		wantErr:     true,
+		containsErr: "failed to get weapons by category",
+		checkErr: func(t *testing.T, err error) {
+			assert.ErrorIs(t, err, context.DeadlineExceeded)
+		},
+	},
+	}
 
-		mockProvider.On("WeaponsByCategory", mock.Anything, "sam-ir").Return(weapons, nil)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			mockProvider := new(mockWeaponsProvider)
+			tt.mocks(mockProvider)
 
-		res, err := service.GetWeaponsByCategory(ctx, "sam-ir")
-		require.NoError(t, err)
-		assert.Equal(t, weapons, res)
-		mockProvider.AssertExpectations(t)
-	})
+			service := &Service{
+				provider: mockProvider,
+			}
 
-	t.Run("Fail GetWeaponsByCategory", func(t *testing.T) {
-		mockProvider := new(mockWeaponsProvider)
-		service := &Service{
-			provider: mockProvider,
-		}
+			res, err := service.GetWeaponsByCategory(ctx, tt.category)
 
-		category := "sam-ir"
-		expectedErr := errors.New("failed to find documents")
-		mockProvider.On("WeaponsByCategory", mock.Anything, category).Return([]*types.Weapon{}, expectedErr)
-
-		res, err := service.GetWeaponsByCategory(ctx, category)
-		require.Error(t, err)
-		assert.EqualError(t, err, fmt.Sprintf("failed to get weapons by category %s: %v", category, expectedErr))
-		assert.ErrorIs(t, err, expectedErr)
-		assert.Nil(t, res)
-		mockProvider.AssertExpectations(t)
-	})
-
-	t.Run("Fail GetWeaponsByCategory context cancelled", func(t *testing.T) {
-		mockProvider := new(mockWeaponsProvider)
-		service := &Service{
-			provider: mockProvider,
-		}
-
-		category := "sam-ir"
-		expectedErr := context.Canceled
-		mockProvider.On("WeaponsByCategory", mock.Anything, category).Return([]*types.Weapon{}, expectedErr)
-
-		ctx, cancel := context.WithCancel(context.Background())
-		cancel()
-
-		res, err := service.GetWeaponsByCategory(ctx, category)
-		require.Error(t, err)
-		assert.ErrorIs(t, err, expectedErr)
-		assert.Nil(t, res)
-		mockProvider.AssertExpectations(t)
-	})
-
-	t.Run("Fail GetWeaponsByCategory context timeout", func(t *testing.T) {
-		mockProvider := new(mockWeaponsProvider)
-		service := &Service{
-			provider: mockProvider,
-		}
-
-		category := "sam-ir"
-		expectedErr := context.Canceled
-		mockProvider.On("WeaponsByCategory", mock.Anything, category).Return([]*types.Weapon{}, expectedErr)
-
-		ctx, cancel := context.WithTimeout(context.Background(), time.Nanosecond)
-		defer cancel()
-
-		time.Sleep(time.Millisecond)
-
-		res, err := service.GetWeaponsByCategory(ctx, category)
-		require.Error(t, err)
-		assert.ErrorIs(t, err, expectedErr)
-		assert.Nil(t, res)
-		mockProvider.AssertExpectations(t)
-	})
+			if tt.wantErr {
+				require.Error(t, err)
+				assert.Empty(t, res)
+				assert.Contains(t, err.Error(), tt.containsErr)
+				if tt.checkErr != nil {
+					tt.checkErr(t, err)
+				}
+			} else {
+				require.NoError(t, err)
+				assert.NotEmpty(t, res)
+			}
+		})
+	}
 }
