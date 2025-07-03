@@ -38,7 +38,7 @@ func (p *CSVWeaponParser) Parse(ctx context.Context, category, url string) ([]*t
 	for i := range data[0][1:] {
 		weapon, err := p.mapper.Map(data, category, i+1)
 		if err != nil {
-			return nil, fmt.Errorf("mapping CSV to struct failed: %w", err)
+			return nil, err
 		}
 		weapons = append(weapons, weapon)
 	}
