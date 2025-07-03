@@ -46,7 +46,7 @@ func TestAggregate(t *testing.T) {
 		checkErr func(*testing.T, error)
 	}{
 		{
-			name: "Success Aggregate",
+			name: "Success",
 			mocks: func(mtp *mockTableParser) {
 				mtp.On("Parse", mock.Anything, "aam-sarh", urls["aam-sarh"]).Return(aamSarh, nil)
 				mtp.On("Parse", mock.Anything, "aam-arh", urls["aam-arh"]).Return(aamArh, nil)
@@ -54,7 +54,7 @@ func TestAggregate(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name: "Fail Aggregate",
+			name: "Parse error",
 			mocks: func(mtp *mockTableParser) {
 				mtp.On("Parse", mock.Anything, "aam-sarh", urls["aam-sarh"]).Return([]*types.Weapon{}, errors.New("failed to read CSV"))
 				mtp.On("Parse", mock.Anything, "aam-arh", urls["aam-arh"]).Return(aamArh, nil)
@@ -65,7 +65,7 @@ func TestAggregate(t *testing.T) {
 			},
 		},
 		{
-			name: "Fail Aggregate context cancelled",
+			name: "Context cancelled",
 			mocks: func(mtp *mockTableParser) {
 			},
 			ctx: func() context.Context {
@@ -79,7 +79,7 @@ func TestAggregate(t *testing.T) {
 			},
 		},
 		{
-			name: "Fail Aggregate context timeout",
+			name: "Context timeout",
 			mocks: func(mtp *mockTableParser) {
 				mtp.On("Parse", mock.Anything, mock.Anything, mock.Anything).After(time.Millisecond*10).Return([]*types.Weapon{}, nil)
 			},

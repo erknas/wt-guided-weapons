@@ -57,7 +57,7 @@ func TestService_InsertWeapons(t *testing.T) {
 		checkErr    func(*testing.T, error)
 	}{
 		{
-			name: "Success InsertWeapons",
+			name: "Success",
 			mocks: func(mwa *mockWeaponsAggregator, mwi *mockWeaponsInserter) {
 				mwa.On("Aggregate", mock.Anything).Return(weapons, nil)
 				mwi.On("Insert", mock.Anything, weapons).Return(nil)
@@ -65,7 +65,7 @@ func TestService_InsertWeapons(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name: "Fail InsertWeapons Insert error",
+			name: "Insert error",
 			mocks: func(mwa *mockWeaponsAggregator, mwi *mockWeaponsInserter) {
 				mwa.On("Aggregate", mock.Anything).Return(weapons, nil)
 				mwi.On("Insert", mock.Anything, weapons).Return(errors.New("failed to insert documents"))
@@ -77,7 +77,7 @@ func TestService_InsertWeapons(t *testing.T) {
 			},
 		},
 		{
-			name: "Fail InsertWeapons Aggregate error",
+			name: "Aggregate error",
 			mocks: func(mwa *mockWeaponsAggregator, mwi *mockWeaponsInserter) {
 				mwa.On("Aggregate", mock.Anything).Return([]*types.Weapon{}, errors.New("failed to parse table"))
 			},
@@ -88,7 +88,7 @@ func TestService_InsertWeapons(t *testing.T) {
 			},
 		},
 		{
-			name: "Fail InsertWeapons Aggregate context cancelled",
+			name: "Aggregate context cancelled",
 			mocks: func(mwa *mockWeaponsAggregator, mwi *mockWeaponsInserter) {
 				mwa.On("Aggregate", mock.Anything).Return([]*types.Weapon{}, fmt.Errorf("failed to parse table: %w", context.Canceled))
 			},
@@ -104,7 +104,7 @@ func TestService_InsertWeapons(t *testing.T) {
 			},
 		},
 		{
-			name: "Fail InsertWeapons Aggregate context timeout",
+			name: "Aggregate context timeout",
 			mocks: func(mwa *mockWeaponsAggregator, mwi *mockWeaponsInserter) {
 				mwa.On("Aggregate", mock.Anything).Return([]*types.Weapon{}, fmt.Errorf("failed to parse table: %w", context.DeadlineExceeded))
 			},

@@ -50,7 +50,7 @@ func TestMongoDB_Insert(t *testing.T) {
 		{Category: "atgm-losbr", Name: "ACRA"},
 	}
 
-	t.Run("Success Insert", func(t *testing.T) {
+	t.Run("Success", func(t *testing.T) {
 		err := db.Insert(ctx, weapons)
 		require.NoError(t, err)
 
@@ -87,7 +87,7 @@ func TestMongoDB_WeaponsByCategory(t *testing.T) {
 		coll:   coll,
 	}
 
-	t.Run("Success WeaponsByCategory returns slice of weapons", func(t *testing.T) {
+	t.Run("Success", func(t *testing.T) {
 		weapons, err := db.WeaponsByCategory(ctx, "aam-ir-rear-aspect")
 		require.NoError(t, err)
 		assert.Len(t, weapons, 2)
