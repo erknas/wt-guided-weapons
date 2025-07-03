@@ -18,5 +18,9 @@ func Load(fileName string) (map[string]string, error) {
 		return nil, fmt.Errorf("failed to decode data: %w", err)
 	}
 
+	if len(urls) != 30 {
+		return nil, fmt.Errorf("invalid urls, urls count=%d", len(urls))
+	}
+
 	return urls, nil
 }
