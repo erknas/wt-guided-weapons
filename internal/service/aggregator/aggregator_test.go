@@ -2,7 +2,9 @@ package aggregator
 
 import (
 	"context"
+	"errors"
 	"testing"
+	"time"
 
 	"github.com/erknas/wt-guided-weapons/internal/types"
 	"github.com/stretchr/testify/assert"
@@ -20,32 +22,105 @@ func (m *mockTableParser) Parse(ctx context.Context, category, url string) ([]*t
 	return args.Get(0).([]*types.Weapon), args.Error(1)
 }
 
-func TestAggregator(t *testing.T) {
-	ctx := context.Background()
-
+func TestAggregate(t *testing.T) {
 	urls := map[string]string{
 		"aam-sarh": "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=128448244",
 		"aam-arh":  "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=650249168",
 	}
 
-	mockParser := new(mockTableParser)
-
-	weapons := &Weapons{
-		urls:   urls,
-		parser: mockParser,
-		log:    zap.NewNop(),
+	aamSarh := []*types.Weapon{
+		{Name: "AIM-7C Sparrow", Category: "aam-sarh"},
+		{Name: "AIM-7D Sparrow", Category: "aam-sarh"},
 	}
 
-	aamSarh := []*types.Weapon{{Category: "aam-sarh", Name: "AIM-7C Sparrow"}, {Category: "aam-sarh", Name: "AIM-7D Sparrow"}}
-	aamArh := []*types.Weapon{{Category: "aam-arh", Name: "AAM-4"}, {Category: "aam-arh", Name: "AIM-54A Phoenix"}}
+	aamArh := []*types.Weapon{
+		{Name: "AAM-4", Category: "aam-arh"},
+		{Name: "AIM-54A Phoenix", Category: "aam-arh"},
+	}
 
-	t.Run("Aggregator", func(t *testing.T) {
-		mockParser.On("Parse", mock.Anything, "aam-sarh", urls["aam-sarh"]).Return(aamSarh, nil)
-		mockParser.On("Parse", mock.Anything, "aam-arh", urls["aam-arh"]).Return(aamArh, nil)
+	tests := []struct {
+		name     string
+		mocks    func(*mockTableParser)
+		ctx      func() context.Context
+		wantErr  bool
+		checkErr func(*testing.T, error)
+	}{
+		{
+			name: "Success Aggregate",
+			mocks: func(mtp *mockTableParser) {
+				mtp.On("Parse", mock.Anything, "aam-sarh", urls["aam-sarh"]).Return(aamSarh, nil)
+				mtp.On("Parse", mock.Anything, "aam-arh", urls["aam-arh"]).Return(aamArh, nil)
+			},
+			wantErr: false,
+		},
+		{
+			name: "Fail Aggregate",
+			mocks: func(mtp *mockTableParser) {
+				mtp.On("Parse", mock.Anything, "aam-sarh", urls["aam-sarh"]).Return([]*types.Weapon{}, errors.New("failed to read CSV"))
+				mtp.On("Parse", mock.Anything, "aam-arh", urls["aam-arh"]).Return(aamArh, nil)
+			},
+			wantErr: true,
+			checkErr: func(t *testing.T, err error) {
+				assert.Contains(t, err.Error(), "failed to parse table")
+			},
+		},
+		{
+			name: "Fail Aggregate context cancelled",
+			mocks: func(mtp *mockTableParser) {
+			},
+			ctx: func() context.Context {
+				ctx, cancel := context.WithCancel(context.Background())
+				cancel()
+				return ctx
+			},
+			wantErr: true,
+			checkErr: func(t *testing.T, err error) {
+				assert.ErrorIs(t, err, context.Canceled)
+			},
+		},
+		{
+			name: "Fail Aggregate context timeout",
+			mocks: func(mtp *mockTableParser) {
+				mtp.On("Parse", mock.Anything, mock.Anything, mock.Anything).After(time.Millisecond*10).Return([]*types.Weapon{}, nil)
+			},
+			ctx: func() context.Context {
+				ctx, cancel := context.WithTimeout(context.Background(), time.Nanosecond)
+				defer cancel()
+				time.Sleep(time.Millisecond)
+				return ctx
+			},
+			wantErr: true,
+			checkErr: func(t *testing.T, err error) {
+				assert.ErrorIs(t, err, context.DeadlineExceeded)
+			},
+		},
+	}
 
-		res, err := weapons.Aggregate(ctx)
-		require.NoError(t, err)
-		assert.Len(t, res, 4)
-		mockParser.AssertExpectations(t)
-	})
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			mockParser := new(mockTableParser)
+			tt.mocks(mockParser)
+
+			aggregator := New(urls, mockParser, zap.NewNop())
+
+			ctx := context.Background()
+			if tt.ctx != nil {
+				ctx = tt.ctx()
+			}
+
+			res, err := aggregator.Aggregate(ctx)
+
+			if tt.wantErr {
+				require.Error(t, err)
+				tt.checkErr(t, err)
+			} else {
+				require.NoError(t, err)
+				assert.NotEmpty(t, res)
+				assert.ElementsMatch(t, append(aamSarh, aamArh...), res)
+				assert.Len(t, res, 4)
+			}
+
+			mock.AssertExpectationsForObjects(t)
+		})
+	}
 }
