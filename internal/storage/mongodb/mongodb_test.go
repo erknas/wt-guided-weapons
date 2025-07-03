@@ -35,6 +35,7 @@ func TestMongoDB_Insert(t *testing.T) {
 
 	client, err := setupMongo(ctx)
 	require.NoError(t, err)
+	defer client.Disconnect(ctx)
 
 	coll := client.Database("test").Collection("test_weapons")
 
@@ -49,7 +50,7 @@ func TestMongoDB_Insert(t *testing.T) {
 		{Category: "atgm-losbr", Name: "ACRA"},
 	}
 
-	t.Run("Success Insert inserts slice of weapons", func(t *testing.T) {
+	t.Run("Success Insert", func(t *testing.T) {
 		err := db.Insert(ctx, weapons)
 		require.NoError(t, err)
 
@@ -62,11 +63,6 @@ func TestMongoDB_Insert(t *testing.T) {
 		require.NoError(t, err)
 		assert.Equal(t, "ACRA", res.Name)
 	})
-
-	t.Cleanup(func() {
-		coll.Drop(ctx)
-		client.Disconnect(ctx)
-	})
 }
 
 func TestMongoDB_WeaponsByCategory(t *testing.T) {
@@ -74,6 +70,7 @@ func TestMongoDB_WeaponsByCategory(t *testing.T) {
 
 	client, err := setupMongo(ctx)
 	require.NoError(t, err)
+	defer client.Disconnect(ctx)
 
 	coll := client.Database("test").Collection("test_weapons")
 
@@ -105,8 +102,4 @@ func TestMongoDB_WeaponsByCategory(t *testing.T) {
 			assert.Empty(t, weapons)
 		})
 	}
-
-	t.Cleanup(func() {
-		defer client.Disconnect(ctx)
-	})
 }
