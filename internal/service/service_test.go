@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/erknas/wt-guided-weapons/internal/types"
 	"github.com/stretchr/testify/assert"
@@ -40,7 +41,6 @@ func (m *mockWeaponsProvider) WeaponsByCategory(ctx context.Context, category st
 }
 
 func TestService_InsertWeapons(t *testing.T) {
-	ctx := context.Background()
 	weapons := []*types.Weapon{
 		{Category: "sam-ir", Name: "9M39 Igla"},
 		{Category: "sam-ir", Name: "AIM-9X"},
@@ -51,6 +51,7 @@ func TestService_InsertWeapons(t *testing.T) {
 	tests := []struct {
 		name        string
 		mocks       func(*mockWeaponsAggregator, *mockWeaponsInserter)
+		ctx         func() context.Context
 		wantErr     bool
 		containsErr string
 		checkErr    func(*testing.T, error)
@@ -91,6 +92,11 @@ func TestService_InsertWeapons(t *testing.T) {
 			mocks: func(mwa *mockWeaponsAggregator, mwi *mockWeaponsInserter) {
 				mwa.On("Aggregate", mock.Anything).Return([]*types.Weapon{}, fmt.Errorf("failed to parse table: %w", context.Canceled))
 			},
+			ctx: func() context.Context {
+				ctx, cancel := context.WithCancel(context.Background())
+				cancel()
+				return ctx
+			},
 			wantErr:     true,
 			containsErr: "failed to aggregate weapons",
 			checkErr: func(t *testing.T, err error) {
@@ -101,6 +107,12 @@ func TestService_InsertWeapons(t *testing.T) {
 			name: "Fail InsertWeapons Aggregate context timeout",
 			mocks: func(mwa *mockWeaponsAggregator, mwi *mockWeaponsInserter) {
 				mwa.On("Aggregate", mock.Anything).Return([]*types.Weapon{}, fmt.Errorf("failed to parse table: %w", context.DeadlineExceeded))
+			},
+			ctx: func() context.Context {
+				ctx, cancel := context.WithTimeout(context.Background(), time.Nanosecond)
+				defer cancel()
+				time.Sleep(time.Millisecond)
+				return ctx
 			},
 			wantErr:     true,
 			containsErr: "failed to aggregate weapons",
@@ -119,6 +131,11 @@ func TestService_InsertWeapons(t *testing.T) {
 			service := &Service{
 				aggregator: mockAggregator,
 				inserter:   mockInserter,
+			}
+
+			ctx := context.Background()
+			if tt.ctx != nil {
+				ctx = tt.ctx()
 			}
 
 			err := service.InsertWeapons(ctx)
@@ -140,7 +157,6 @@ func TestService_InsertWeapons(t *testing.T) {
 }
 
 func TestService_GetWeaponsByCategory(t *testing.T) {
-	ctx := context.Background()
 	weapons := []*types.Weapon{
 		{Category: "sam-ir", Name: "9M39 Igla"},
 		{Category: "sam-ir", Name: "AIM-9X"},
@@ -152,6 +168,7 @@ func TestService_GetWeaponsByCategory(t *testing.T) {
 		name        string
 		category    string
 		mocks       func(*mockWeaponsProvider)
+		ctx         func() context.Context
 		wantErr     bool
 		containsErr string
 		checkErr    func(*testing.T, error)
@@ -179,6 +196,11 @@ func TestService_GetWeaponsByCategory(t *testing.T) {
 		mocks: func(mwp *mockWeaponsProvider) {
 			mwp.On("WeaponsByCategory", mock.Anything, "sam-ir").Return([]*types.Weapon{}, context.Canceled)
 		},
+		ctx: func() context.Context {
+			ctx, cancel := context.WithCancel(context.Background())
+			cancel()
+			return ctx
+		},
 		wantErr:     true,
 		containsErr: "failed to get weapons by category",
 		checkErr: func(t *testing.T, err error) {
@@ -189,6 +211,12 @@ func TestService_GetWeaponsByCategory(t *testing.T) {
 		category: "sam-ir",
 		mocks: func(mwp *mockWeaponsProvider) {
 			mwp.On("WeaponsByCategory", mock.Anything, "sam-ir").Return([]*types.Weapon{}, context.DeadlineExceeded)
+		},
+		ctx: func() context.Context {
+			ctx, cancel := context.WithTimeout(context.Background(), time.Nanosecond)
+			defer cancel()
+			time.Sleep(time.Millisecond)
+			return ctx
 		},
 		wantErr:     true,
 		containsErr: "failed to get weapons by category",
@@ -207,6 +235,11 @@ func TestService_GetWeaponsByCategory(t *testing.T) {
 				provider: mockProvider,
 			}
 
+			ctx := context.Background()
+			if tt.ctx != nil {
+				ctx = tt.ctx()
+			}
+
 			res, err := service.GetWeaponsByCategory(ctx, tt.category)
 
 			if tt.wantErr {
@@ -220,6 +253,8 @@ func TestService_GetWeaponsByCategory(t *testing.T) {
 				require.NoError(t, err)
 				assert.NotEmpty(t, res)
 			}
+
+			mockProvider.AssertExpectations(t)
 		})
 	}
 }
