@@ -7,6 +7,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	apierrors "github.com/erknas/wt-guided-weapons/internal/lib/api/api-errors"
+	"github.com/erknas/wt-guided-weapons/internal/logger"
 	"github.com/erknas/wt-guided-weapons/internal/types"
 	"github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/assert"
@@ -36,7 +38,6 @@ func TestHandleGetWeaponsByCategory(t *testing.T) {
 		server := New(mocServicer, urls, zap.NewNop())
 
 		rr := httptest.NewRecorder()
-
 		req, err := http.NewRequest(http.MethodGet, "", nil)
 		require.NoError(t, err)
 
@@ -70,8 +71,10 @@ func TestHandleGetWeaponsByCategory(t *testing.T) {
 
 		server := New(mockServicer, urls, zap.NewNop())
 
-		rr := httptest.NewRecorder()
+		r := chi.NewRouter()
+		r.With(logger.MiddlewareCategoryCheck(server.categories)).Get("/", makeHTTPFunc(server.handleGetWeaponsByCategory))
 
+		rr := httptest.NewRecorder()
 		req, err := http.NewRequest(http.MethodGet, "", nil)
 		require.NoError(t, err)
 
@@ -79,13 +82,14 @@ func TestHandleGetWeaponsByCategory(t *testing.T) {
 		rctx.URLParams.Add("category", "gbuir")
 		req = req.WithContext(context.WithValue(req.Context(), chi.RouteCtxKey, rctx))
 
-		mockServicer.On("GetWeaponsByCategory", mock.Anything, mock.Anything).Return([]*types.Weapon{}, nil)
+		r.ServeHTTP(rr, req)
 
-		err = server.handleGetWeaponsByCategory(rr, req)
-		require.Error(t, err)
-		assert.Equal(t, err.Error(), "category gbuir does not exist")
+		var resp apierrors.APIError
+		err = json.NewDecoder(rr.Body).Decode(&resp)
+		require.NoError(t, err)
 
-		assert.Equal(t, rr.Result().StatusCode, http.StatusBadRequest)
+		assert.Equal(t, http.StatusBadRequest, rr.Result().StatusCode)
+		assert.Equal(t, resp.Message, "category gbuir does not exist")
 
 		mockServicer.AssertNotCalled(t, "GetWeaponsByCategory")
 	})
