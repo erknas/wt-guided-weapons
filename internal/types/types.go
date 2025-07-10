@@ -53,6 +53,7 @@ type Weapon struct {
 	MaxLockAngleBeforeLaunch              string `json:"max_lock_angle_before_launch,omitempty"`
 	MinAngleOfIncidenceToSun              string `json:"min_angle_of_incidence_to_sun,omitempty"`
 	BaselineLockRangeRear                 string `json:"baseline_lock_range_rear,omitempty"`
+	BaselineFlareAndIRCMDetectionRange    string `json:"baseline_flare_and_ircm_detection_range,omitempty"`
 	BaselineLockRangeAll                  string `json:"baseline_lock_range_all,omitempty"`
 	BaselineLockRangeGround               string `json:"baseline_lock_range_ground,omitempty"`
 	BaselineLockRangeTarget               string `json:"baseline_lock_range_target,omitempty"`
@@ -125,10 +126,12 @@ type Weapon struct {
 	ThrustVectoringAngle                  string `json:"thrust_vectoring_angle,omitempty"`
 	MaximumLaunchAngleHorizontalVertical  string `json:"maximum_launch_angle_horizontal_vertical,omitempty"`
 	MaximumAxisValues                     string `json:"maximum_axis_values,omitempty"`
-	StatcardSpeed                         string `json:"statcard_speed,omitempty"`
+	StatcardSpeedMach                     string `json:"statcard_speed_mach,omitempty"`
+	StatcardSpeedMsOrMach                 string `json:"statcard_speed_ms_or_mach,omitempty"`
 	StatcardLaunchRange                   string `json:"statcard_launch_range,omitempty"`
 	StatcardGuaranteedRange               string `json:"statcard_guaranteed_range,omitempty"`
-	StatcardGLoad                         string `json:"statcard_g_load,omitempty"`
+	MaximumStatcardGLoad                  string `json:"maximum_statcard_g_load,omitempty"`
+	StatcardMaxGLoad                      string `json:"statcard_max_g_load,omitempty"`
 	FlightTimeUntilGuidanceStarts         string `json:"flight_time_until_guidance_starts,omitempty"`
 	FlightTimeWhenPullLimitX              string `json:"flight_time_when_pull_limit_x,omitempty"`
 	FlightTimeWhenPullLimit100            string `json:"flight_time_when_pull_limit_100,omitempty"`
