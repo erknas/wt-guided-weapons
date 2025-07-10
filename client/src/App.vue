@@ -1,9 +1,9 @@
 <script setup>
-import Weapons from "./components/Weapons.vue"
+	import WeaponsPage from './veiws/WeaponsPage.vue';
 </script>
 
 <template>
 	<div class="app">
-		<Weapons />
+		<WeaponsPage />
 	</div>
 </template>
