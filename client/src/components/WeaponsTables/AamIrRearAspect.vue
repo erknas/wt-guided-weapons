@@ -217,7 +217,7 @@ defineProps({
           <td 
             v-for="weapon in weapons" 
             :key="weapon.id"
-            class="data-cell"
+            class="data-cell text-center"
           >
             {{ weapon.warhead || '-' }}
           </td>
@@ -237,7 +237,7 @@ defineProps({
           <td 
             v-for="weapon in weapons" 
             :key="weapon.id"
-            class="data-cell"
+            class="data-cell text-center"
           >
             {{ weapon.proximity_fuse || '-' }}
           </td>
@@ -257,7 +257,7 @@ defineProps({
           <td 
             v-for="weapon in weapons" 
             :key="weapon.id"
-            class="data-cell"
+            class="data-cell text-center"
           >
             {{ weapon.proximity_fuse_shell_detection || '-' }}
           </td>
@@ -303,7 +303,7 @@ defineProps({
           <td 
             v-for="weapon in weapons" 
             :key="weapon.id"
-            class="data-cell"
+            class="data-cell text-center"
           >
             {{ weapon.guidance_type || '-' }}
           </td>
@@ -383,7 +383,7 @@ defineProps({
           <td 
             v-for="weapon in weapons" 
             :key="weapon.id"
-            class="data-cell"
+            class="data-cell text-center"
           >
             {{ weapon.uncaged_seeker_before_launch || '-' }}
           </td>
@@ -463,7 +463,7 @@ defineProps({
           <td 
             v-for="weapon in weapons" 
             :key="weapon.id"
-            class="data-cell"
+            class="data-cell text-center"
           >
             {{ weapon.can_be_slaved_to_radar || '-' }}
           </td>
@@ -669,7 +669,7 @@ defineProps({
           <td 
             v-for="weapon in weapons" 
             :key="weapon.id"
-            class="data-cell"
+            class="data-cell text-center"
           >
             {{ weapon.thrust_vectoring || '-' }}
           </td>
@@ -709,7 +709,7 @@ defineProps({
   top: 120px;
   left: 0px;
   right: 0px;
-  bottom: 0;
+  bottom: 0px;
 }
 
 .table-container {
@@ -767,27 +767,29 @@ thead th {
   background-color: whitesmoke;
   font-size: large;
   min-width: 150px;
-  max-width: 100px;
+  max-width: 150px;
 }
 
 .table .data-cell {
   text-align: right;
   padding-right: 5px;
+  padding-top: 0;
+  padding-bottom: 0;
   z-index: 0;
   font-size: 14px;
   line-height: 1.3;
+  position: relative;
 }
 
 .header-cell-param {
   border-bottom: 1px solid #bababa;
   text-align: left;
-  padding-left: 2px;
-  padding-right: 150px;
-  padding-top: 0;
-  padding-bottom: 0;
+  word-wrap: break-word;
+  white-space: normal;
+  padding: 0px 5px 0 2px;
   font-size: 14px;
   line-height: 1.3;
-  max-width: 300px;
+  max-width: 295px;
 }
 
 .engine-props-row {
@@ -800,6 +802,7 @@ thead th {
   background-color: #e46a61;
   font-size: large;
   font-weight: bold;
+  border-bottom: 1px solid #bababa;
 }
 
 .engine-props-row .engine-props-fill{
@@ -816,6 +819,8 @@ thead th {
   background-color: #8dcbff;
   font-size: large;
   font-weight: bold;
+  border-bottom: 1px solid #bababa;
+  padding: 0px 5px 0 2px;
 }
 
 .physical-props-row .physical-props-fill {
@@ -833,6 +838,8 @@ thead th {
   background-color: #94bb96;
   font-size: large;
   font-weight: bold;
+  border-bottom: 1px solid #bababa;
+  padding: 0px 5px 0 2px;
 }
 
 .fuse-warhead-props-row .fuse-warhead-props-fill {
@@ -847,15 +854,16 @@ thead th {
 .guidance-props.sticky-col {
   display: block;
   text-align: left;
-  background-color: #ffe344;
+  background-color: #f1dc51;
   font-size: large;
   font-weight: bold;
+  border-bottom: 1px solid #bababa;
+  padding: 0px 5px 0 2px;
 }
 
 .guidance-props-row .guidance-props-fill{
-  background-color: #ffe344;
+  background-color: #f1dc51;
 }
-
 
 .flight-props-row {
   position: relative;
@@ -867,6 +875,8 @@ thead th {
   background-color: #c2638f;
   font-size: large;
   font-weight: bold;
+  border-bottom: 1px solid #bababa;
+  padding: 0px 5px 0 2px;
 }
 
 .flight-props-row .flight-props-fill{
@@ -881,8 +891,14 @@ thead th {
 }
 
 .data-cell.add-notes-data {
+  width: 150px;
   text-align: center;
 }
+
+.data-cell.text-center{
+  text-align: center;
+}
+
 
 th:nth-child(even), td:nth-child(even) {
   background-color: #dbdbdb
