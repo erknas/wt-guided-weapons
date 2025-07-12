@@ -23,14 +23,19 @@ const categories = WEAPONS_CATEGORIES
 <style scoped>
 .selector-container {
 	position: fixed;
-	top: 20px;
-	left: 0px;
-	z-index: 1000;
+	top: 1px;
+	left: 1px;
+	z-index: 100;
 }
 
 .category-selector {
 	min-width: 170px;
 	padding: 8px;
 	font-size: 15px;
+	outline: none !important;
+	background: #dbdbdb;
+	color: black;
+	font-size: small;
 }
+
 </style>
