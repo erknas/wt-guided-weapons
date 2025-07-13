@@ -92,7 +92,7 @@ func (m *WeaponMapper) Map(data [][]string, category string, weaponIdx int) (*ty
 	weapon.IRCCM = getValue("IRCCM:")
 	weapon.IRCCMType = getValue("IRCCM type:")
 	weapon.IRCCMFieldOfView = getValue("IRCCM field of view: [degrees]")
-	weapon.IRCCMRejectionThreshold = getValue("IRCCM rejection threshold:")
+	weapon.IRCCMRejectionThreshold = getValue("IRCCM rejection treshold:")
 	weapon.IRCCMReactionTime = getValue("IRCCM reaction time: [s]")
 	weapon.MinTargetSize = getValue("Minimum target size: [m]")
 	weapon.MaxBreakLockTime = getValue("Maximum break lock time: [s]")
