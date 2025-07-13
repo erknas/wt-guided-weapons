@@ -13,7 +13,7 @@ defineProps({
     <table class="table">
       <thead>
         <tr>
-          <th class="sticky-col sticky-row header-cell-name">Name</th>
+          <th class="sticky-col sticky-row header-cell-name">Name:</th>
           <th 
             v-for="weapon in weapons" 
             :key="weapon.id"
@@ -31,7 +31,7 @@ defineProps({
       </thead>
       <tbody>
         <tr>
-          <td class="sticky-col header-cell-param">Mass [kg]</td>
+          <td class="sticky-col header-cell-param">Mass: [kg]</td>
           <td 
             v-for="weapon in weapons" 
             :key="weapon.id"
@@ -41,7 +41,7 @@ defineProps({
           </td>
         </tr>
         <tr>
-          <td class="sticky-col header-cell-param">Mass at end of booster burn [kg]</td>
+          <td class="sticky-col header-cell-param">Mass at end of booster burn: [kg]</td>
           <td 
             v-for="weapon in weapons" 
             :key="weapon.id"
@@ -51,7 +51,7 @@ defineProps({
           </td>
         </tr>
         <tr>
-          <td class="sticky-col header-cell-param">Mass at end of sustainer burn [kg]</td>
+          <td class="sticky-col header-cell-param">Mass at end of sustainer burn: [kg]</td>
           <td 
             v-for="weapon in weapons" 
             :key="weapon.id"
@@ -61,7 +61,7 @@ defineProps({
           </td>
         </tr>
         <tr>
-          <td class="sticky-col header-cell-param">Calibre [mm]</td>
+          <td class="sticky-col header-cell-param">Calibre: [mm]</td>
           <td 
             v-for="weapon in weapons" 
             :key="weapon.id"
@@ -71,7 +71,7 @@ defineProps({
           </td>
         </tr>
         <tr>
-          <td class="sticky-col header-cell-param">Length [m]</td>
+          <td class="sticky-col header-cell-param">Length: [m]</td>
           <td 
             v-for="weapon in weapons" 
             :key="weapon.id"
@@ -87,7 +87,7 @@ defineProps({
           <td colspan="100%" class="engine-props-fill"></td>
         </tr>
         <tr>
-          <td class="sticky-col header-cell-param">Force exerted by booster [N]</td>
+          <td class="sticky-col header-cell-param">Force exerted by booster: [N]</td>
           <td 
             v-for="weapon in weapons" 
             :key="weapon.id"
@@ -97,7 +97,7 @@ defineProps({
           </td>
         </tr>
         <tr>
-          <td class="sticky-col header-cell-param">Burn time of booster [s]</td>
+          <td class="sticky-col header-cell-param">Burn time of booster: [s]</td>
           <td 
             v-for="weapon in weapons" 
             :key="weapon.id"
@@ -772,9 +772,7 @@ thead th {
 
 .table .data-cell {
   text-align: right;
-  padding-right: 5px;
-  padding-top: 0;
-  padding-bottom: 0;
+  padding: 0 5px;
   z-index: 0;
   font-size: 14px;
   line-height: 1.3;
@@ -786,31 +784,10 @@ thead th {
   text-align: left;
   word-wrap: break-word;
   white-space: normal;
-  padding: 0px 5px 0 2px;
+  padding: 0px 2px;
   font-size: 14px;
   line-height: 1.3;
   max-width: 295px;
-}
-
-.engine-props-row {
-  position: relative;
-}
-
-.engine-props.sticky-col {
-  display: block;
-  text-align: left;
-  background-color: #e46a61;
-  font-size: large;
-  font-weight: bold;
-  border-bottom: 1px solid #bababa;
-}
-
-.engine-props-row .engine-props-fill{
-  background-color: #e46a61;
-}
-
-.physical-props-row {
-  position: relative;
 }
 
 .physical-props.sticky-col {
@@ -820,16 +797,25 @@ thead th {
   font-size: large;
   font-weight: bold;
   border-bottom: 1px solid #bababa;
-  padding: 0px 5px 0 2px;
+  padding: 5px 2px;
 }
 
 .physical-props-row .physical-props-fill {
   background-color: #8dcbff;
 }
 
+.engine-props.sticky-col {
+  display: block;
+  text-align: left;
+  background-color: #e46a61;
+  font-size: large;
+  font-weight: bold;
+  border-bottom: 1px solid #bababa;
+  padding: 5px 2px;
+}
 
-.fuse-warhead-props-row {
-  position: relative;
+.engine-props-row .engine-props-fill{
+  background-color: #e46a61;
 }
 
 .fuse-warhead-props.sticky-col {
@@ -839,16 +825,11 @@ thead th {
   font-size: large;
   font-weight: bold;
   border-bottom: 1px solid #bababa;
-  padding: 0px 5px 0 2px;
+  padding: 5px 2px;
 }
 
 .fuse-warhead-props-row .fuse-warhead-props-fill {
   background-color: #94bb96;
-}
-
-
-.guidance-props-row {
-  position: relative;
 }
 
 .guidance-props.sticky-col {
@@ -858,15 +839,11 @@ thead th {
   font-size: large;
   font-weight: bold;
   border-bottom: 1px solid #bababa;
-  padding: 0px 5px 0 2px;
+  padding: 5px 2px;
 }
 
 .guidance-props-row .guidance-props-fill{
   background-color: #f1dc51;
-}
-
-.flight-props-row {
-  position: relative;
 }
 
 .flight-props.sticky-col {
@@ -876,7 +853,7 @@ thead th {
   font-size: large;
   font-weight: bold;
   border-bottom: 1px solid #bababa;
-  padding: 0px 5px 0 2px;
+  padding: 5px 2px;
 }
 
 .flight-props-row .flight-props-fill{
@@ -898,7 +875,6 @@ thead th {
 .data-cell.text-center{
   text-align: center;
 }
-
 
 th:nth-child(even), td:nth-child(even) {
   background-color: #dbdbdb
