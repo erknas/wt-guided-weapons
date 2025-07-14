@@ -37,5 +37,4 @@ const categories = WEAPONS_CATEGORIES
 	color: black;
 	font-size: small;
 }
-
 </style>
