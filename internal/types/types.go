@@ -119,6 +119,7 @@ type Weapon struct {
 	MaximumGLoad                          string `json:"maximum_g_load,omitempty"`
 	MaximumFinAngleOfAttack               string `json:"maximum_fin_angle_of_attack,omitempty"`
 	MaximumFinLateralAcceleration         string `json:"maximum_fin_lateral_acceleration,omitempty"`
+	FinsLateralAcceleration               string `json:"fins_lateral_acceleration,omitempty"`
 	MaximumLateralAcceleration            string `json:"maximum_lateral_acceleration,omitempty"`
 	MaxLateralAcceleration                string `json:"max_lateral_acceleration,omitempty"`
 	MaximumAOA                            string `json:"maximum_aoa,omitempty"`
