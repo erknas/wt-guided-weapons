@@ -9,7 +9,6 @@ defineProps({
 
 <template>
 <div class="table-container-wrapper">
-  <div class="table-container">
     <table class="table">
       <thead>
         <tr>
@@ -26,7 +25,7 @@ defineProps({
           <td class="sticky-col physical-props">
             Physical properties
           </td>
-          <td colspan="100%" class="physical-props-fill"></td>
+          <td :colspan="weapons.length" class="physical-props-fill"></td>
         </tr>
       </thead>
       <tbody>
@@ -84,7 +83,7 @@ defineProps({
           <td class="sticky-col engine-props">
             Engine properties
           </td>
-          <td colspan="100%" class="engine-props-fill"></td>
+          <td :colspan="weapons.length" class="engine-props-fill"></td>
         </tr>
         <tr>
           <td class="sticky-col header-cell-param">Force exerted by booster: [N]</td>
@@ -200,7 +199,7 @@ defineProps({
           <td class="sticky-col fuse-warhead-props">
             Fuse and warhead properties
           </td>
-          <td colspan="100%" class="fuse-warhead-props-fill"></td>
+          <td :colspan="weapons.length" class="fuse-warhead-props-fill"></td>
         </tr>
         <tr>
           <td class="sticky-col header-cell-param">Explosive mass: [kg of TNT equivalent]</td>
@@ -296,7 +295,7 @@ defineProps({
           <td class="sticky-col guidance-props">
             Guidance properties
           </td>
-          <td colspan="100%" class="guidance-props-fill"></td>
+          <td :colspan="weapons.length" class="guidance-props-fill"></td>
         </tr>
         <tr>
           <td class="sticky-col header-cell-param">Guidance type:</td>
@@ -532,7 +531,7 @@ defineProps({
           <td class="sticky-col flight-props">
             Flight properties
           </td>
-          <td colspan="100%" class="flight-props-fill"></td>
+          <td :colspan="weapons.length" class="flight-props-fill"></td>
         </tr>
         <tr>
           <td class="sticky-col header-cell-param">Drag coefficient multiplier (this is not the only value affecting drag, just because it's higher than another missile's doesn't mean it actually has higher drag!!):</td>
@@ -696,191 +695,5 @@ defineProps({
         </tr>
       </tbody>
     </table>
-  </div>
 </div>
 </template>
-
-<style scoped>
-.table-container-wrapper {
-  width: calc(100vw - 0px);
-  height: calc(100vh - 120px);
-  overflow: auto;
-  position: fixed;
-  top: 120px;
-  left: 0px;
-  right: 0px;
-  bottom: 0px;
-}
-
-.table-container {
-  width: max-content;  
-  min-width: 100%;
-}
-
-.table {
-  border-collapse: separate;
-  border-spacing: 0;
-  width: auto;
-  color: black;
-  background-color: whitesmoke;
-  font-family: Arial, Helvetica, sans-serif;
-}
-
-th:not(.sticky-col),
-td:not(.sticky-col) {
-  border-right: 1px solid #bababa;
-  border-bottom: 1px solid #bababa;
-}
-
-.sticky-col.sticky-row {
-  position: sticky;
-  left: 0;
-  top: 0;
-  z-index: 12;
-  border-right: 5px solid #bababa;
-  border-bottom: 5px solid #bababa;
-  text-align: left;
-  padding-left: 2px;
-}
-
-thead th {
-  position: sticky;
-  top: 0;
-  z-index: 3;
-  background: #f5f5f5;
-  border-bottom: 1px solid #bababa;
-  border-top: 1px solid #bababa;
-  font-size: large;
-}
-
-.sticky-col {
-  position: sticky;
-  left: 0;
-  z-index: 2;
-  background: white;
-  border-right: 5px solid #bababa;
-  border-left: 1px solid #bababa;
-}
-
-.table .header-cell {
-  border-bottom: 5px solid #bababa;
-  background-color: whitesmoke;
-  font-size: large;
-  min-width: 150px;
-  max-width: 150px;
-}
-
-.table .data-cell {
-  text-align: right;
-  padding: 0 5px;
-  z-index: 0;
-  font-size: 14px;
-  line-height: 1.3;
-  position: relative;
-}
-
-.header-cell-param {
-  border-bottom: 1px solid #bababa;
-  text-align: left;
-  word-wrap: break-word;
-  white-space: normal;
-  padding: 0px 2px;
-  font-size: 14px;
-  line-height: 1.3;
-  max-width: 295px;
-}
-
-.physical-props.sticky-col {
-  display: block;
-  text-align: left;
-  background-color: #8dcbff;
-  font-size: large;
-  font-weight: bold;
-  border-bottom: 1px solid #bababa;
-  padding: 5px 2px;
-}
-
-.physical-props-row .physical-props-fill {
-  background-color: #8dcbff;
-}
-
-.engine-props.sticky-col {
-  display: block;
-  text-align: left;
-  background-color: #e46a61;
-  font-size: large;
-  font-weight: bold;
-  border-bottom: 1px solid #bababa;
-  padding: 5px 2px;
-}
-
-.engine-props-row .engine-props-fill{
-  background-color: #e46a61;
-}
-
-.fuse-warhead-props.sticky-col {
-  display: block;
-  text-align: left;
-  background-color: #94bb96;
-  font-size: large;
-  font-weight: bold;
-  border-bottom: 1px solid #bababa;
-  padding: 5px 2px;
-}
-
-.fuse-warhead-props-row .fuse-warhead-props-fill {
-  background-color: #94bb96;
-}
-
-.guidance-props.sticky-col {
-  display: block;
-  text-align: left;
-  background-color: #f1dc51;
-  font-size: large;
-  font-weight: bold;
-  border-bottom: 1px solid #bababa;
-  padding: 5px 2px;
-}
-
-.guidance-props-row .guidance-props-fill{
-  background-color: #f1dc51;
-}
-
-.flight-props.sticky-col {
-  display: block;
-  text-align: left;
-  background-color: #c2638f;
-  font-size: large;
-  font-weight: bold;
-  border-bottom: 1px solid #bababa;
-  padding: 5px 2px;
-}
-
-.flight-props-row .flight-props-fill{
-  background-color: #c2638f;
-}
-
-.add-notes {
-  padding: 50px 2px;
-  font-size: large;
-  font-weight: bold;
-  text-align: left;
-}
-
-.data-cell.add-notes-data {
-  width: 150px;
-  text-align: center;
-}
-
-.data-cell.text-center{
-  text-align: center;
-}
-
-th:nth-child(even), td:nth-child(even) {
-  background-color: #dbdbdb
-}
-
-.header-cell:nth-child(even) {
-  background-color: #dbdbdb
-}
-</style>
