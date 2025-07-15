@@ -89,6 +89,11 @@ type Weapon struct {
 	DistanceWidth                         string `json:"distance_width,omitempty"`
 	DistanceRefWidth                      string `json:"distance_ref_width,omitempty"`
 	DistanceMinSignalGate                 string `json:"distance_min_signal_gate,omitempty"`
+	DistanceMinValueM                     string `json:"distance_min_m,omitempty"`
+	DistanceMaxValueKm                    string `json:"distance_max_km,omitempty"`
+	DistanceWidthM                        string `json:"distance_width_m,omitempty"`
+	DistanceRefWidthM                     string `json:"distance_ref_width_m,omitempty"`
+	DistanceMinSignalGateM                string `json:"distance_min_signal_gate_m,omitempty"`
 	DistanceGateSearchRange               string `json:"distance_gate_search,omitempty"`
 	DistanceGateAlphaFilter               string `json:"distance_gate_alpha,omitempty"`
 	DistanceGateBetaFilter                string `json:"distance_gate_beta,omitempty"`
