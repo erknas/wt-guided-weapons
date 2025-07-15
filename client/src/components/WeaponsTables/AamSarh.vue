@@ -548,7 +548,7 @@ defineProps({
           </td>
         </tr>
         <tr>
-          <td class="sticky-col header-cell-param">Distance minimum value:</td>
+          <td class="sticky-col header-cell-param">Distance minimum value: [m]</td>
           <td 
             v-for="weapon in weapons" 
             :key="weapon.id"
@@ -558,7 +558,7 @@ defineProps({
           </td>
         </tr>
         <tr>
-          <td class="sticky-col header-cell-param">Distance maximum value:</td>
+          <td class="sticky-col header-cell-param">Distance maximum value: [km]</td>
           <td 
             v-for="weapon in weapons" 
             :key="weapon.id"
@@ -568,7 +568,7 @@ defineProps({
           </td>
         </tr>
         <tr>
-          <td class="sticky-col header-cell-param">Distance width:</td>
+          <td class="sticky-col header-cell-param">Distance width: [m]</td>
           <td 
             v-for="weapon in weapons" 
             :key="weapon.id"
@@ -578,7 +578,7 @@ defineProps({
           </td>
         </tr>
         <tr>
-          <td class="sticky-col header-cell-param">Distance minimum signal gate:</td>
+          <td class="sticky-col header-cell-param">Distance minimum signal gate: [m]</td>
           <td 
             v-for="weapon in weapons" 
             :key="weapon.id"
@@ -588,7 +588,7 @@ defineProps({
           </td>
         </tr>
         <tr>
-          <td class="sticky-col header-cell-param">Distance refWidth:</td>
+          <td class="sticky-col header-cell-param">Distance ref Width: [m]</td>
           <td 
             v-for="weapon in weapons" 
             :key="weapon.id"
@@ -934,7 +934,7 @@ defineProps({
           </td>
         </tr>
         <tr>
-          <td class="sticky-col header-cell-param">Maximum target angular change:  [degrees/s]</td>
+          <td class="sticky-col header-cell-param">Maximum target angular change: [degrees/s]</td>
           <td 
             v-for="weapon in weapons" 
             :key="weapon.id"
