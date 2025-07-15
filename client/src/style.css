@@ -256,3 +256,11 @@ th:nth-child(even), td:nth-child(even) {
 .header-cell:nth-child(even) {
   background-color: #dbdbdb
 }
+
+.table tr:hover td {
+  background-color: #b4d7ff;
+}
+
+.table tr:hover td:hover {
+  background-color: #6bb0ff;
+}
