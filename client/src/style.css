@@ -186,7 +186,7 @@ td:not(.sticky-col) {
   padding: 5px 2px;
 }
 
-.engine-props-row .engine-props-fill{
+.engine-props-row .engine-props-fill {
   background-color: #e46a61;
 }
 
@@ -214,7 +214,7 @@ td:not(.sticky-col) {
   padding: 5px 2px;
 }
 
-.guidance-props-row .guidance-props-fill{
+.guidance-props-row .guidance-props-fill {
   background-color: #f1dc51;
 }
 
@@ -228,7 +228,7 @@ td:not(.sticky-col) {
   padding: 5px 2px;
 }
 
-.flight-props-row .flight-props-fill{
+.flight-props-row .flight-props-fill {
   background-color: #c2638f;
 }
 
@@ -245,7 +245,7 @@ td:not(.sticky-col) {
   text-align: center;
 }
 
-.data-cell.text-center{
+.data-cell.text-center {
   text-align: center;
 }
 
@@ -257,10 +257,10 @@ th:nth-child(even), td:nth-child(even) {
   background-color: #dbdbdb
 }
 
-.table tr:hover td {
+.table tr:not(.no-hover):hover td {
   background-color: #b4d7ff;
 }
 
-.table tr:hover td:hover {
-  background-color: #6bb0ff;
+.table tr:hover td:not(.no-hover):hover {
+  background-color: #74b5ff;
 }

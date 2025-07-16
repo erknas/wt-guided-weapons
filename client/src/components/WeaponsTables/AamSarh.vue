@@ -21,11 +21,11 @@ defineProps({
             {{ weapon.name }}
           </th>
         </tr>
-        <tr class="physical-props-row">
-          <td class="sticky-col physical-props">
+        <tr class="physical-props-row no-hover">
+          <td class="sticky-col physical-props no-hover">
             Physical properties
           </td>
-          <td :colspan="weapons.length" class="physical-props-fill"></td>
+          <td :colspan="weapons.length" class="physical-props-fill no-hover"></td>
         </tr>
       </thead>
       <tbody>
@@ -79,11 +79,11 @@ defineProps({
             {{ weapon.length || '-' }}
           </td>
         </tr>
-        <tr class="engine-props-row">
-          <td class="sticky-col engine-props">
+        <tr class="engine-props-row no-hover">
+          <td class="sticky-col engine-props no-hover">
             Engine properties
           </td>
-          <td :colspan="weapons.length" class="engine-props-fill"></td>
+          <td :colspan="weapons.length" class="engine-props-fill no-hover"></td>
         </tr>
         <tr>
           <td class="sticky-col header-cell-param">Force exerted by booster: [N]</td>
@@ -195,11 +195,11 @@ defineProps({
             {{ weapon.total_delta_v || '-' }}
           </td>
         </tr>
-        <tr class="fuse-warhead-props-row">
-          <td class="sticky-col fuse-warhead-props">
+        <tr class="fuse-warhead-props-row no-hover">
+          <td class="sticky-col fuse-warhead-props no-hover">
             Fuse and warhead properties
           </td>
-          <td :colspan="weapons.length" class="fuse-warhead-props-fill"></td>
+          <td :colspan="weapons.length" class="fuse-warhead-props-fill no-hover"></td>
         </tr>
         <tr>
           <td class="sticky-col header-cell-param">Explosive mass: [kg of TNT equivalent]</td>
@@ -291,11 +291,11 @@ defineProps({
             {{ weapon.impact_fuse_delay|| '-' }}
           </td>
         </tr>
-        <tr class="guidance-props-row">
-          <td class="sticky-col guidance-props">
+        <tr class="guidance-props-row no-hover">
+          <td class="sticky-col guidance-props no-hover">
             Guidance properties
           </td>
-          <td :colspan="weapons.length" class="guidance-props-fill"></td>
+          <td :colspan="weapons.length" class="guidance-props-fill no-hover"></td>
         </tr>
         <tr>
           <td class="sticky-col header-cell-param">Guidance type:</td>
@@ -464,7 +464,7 @@ defineProps({
             :key="weapon.id"
             class="data-cell"
           >
-            {{ weapon.inertial_guidance_drift || '-' }}
+            {{ weapon.inertial_guidance_drift_ms || '-' }}
           </td>
         </tr>
         <tr>
@@ -757,11 +757,11 @@ defineProps({
             {{ weapon.pid_derivative || '-' }}
           </td>
         </tr>
-        <tr class="flight-props-row">
-          <td class="sticky-col flight-props">
+        <tr class="flight-props-row no-hover">
+          <td class="sticky-col flight-props no-hover">
             Flight properties
           </td>
-          <td :colspan="weapons.length" class="flight-props-fill"></td>
+          <td :colspan="weapons.length" class="flight-props-fill no-hover"></td>
         </tr>
         <tr>
           <td class="sticky-col header-cell-param">Drag coefficient multiplier (this is not the only value affecting drag, just because it's higher than another missile's doesn't mean it actually has higher drag!!):</td>
