@@ -35,6 +35,7 @@ type Weapon struct {
 	ProximityFuseDelay                    string `json:"proximity_fuse_delay,omitempty"`
 	ImpactFuseSensitivity                 string `json:"impact_fuse_sensitivity,omitempty"`
 	ImpactFuseDelay                       string `json:"impact_fuse_delay,omitempty"`
+	DefaultZoom                           string `json:"default_zoom,omitempty"`
 	GuidanceType                          string `json:"guidance_type,omitempty"`
 	GuidanceStartDelay                    string `json:"guidance_start_delay,omitempty"`
 	GuidanceDuration                      string `json:"guidance_duration,omitempty"`
@@ -75,6 +76,7 @@ type Weapon struct {
 	Band                                  string `json:"band,omitempty"`
 	AngularSpeedRejectionThresh           string `json:"angular_speed_rejection,omitempty"`
 	AccelRejectionThreshRange             string `json:"accel_rejection,omitempty"`
+	InertialGuidanceDriftSpeedMs          string `json:"inertial_guidance_drift_ms,omitempty"`
 	InertialGuidanceDriftSpeed            string `json:"inertial_guidance_drift,omitempty"`
 	Datalink                              string `json:"datalink,omitempty"`
 	CanDatalinkReconnect                  string `json:"can_datalink_reconnect,omitempty"`
