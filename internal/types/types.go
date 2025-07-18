@@ -31,7 +31,7 @@ type Weapon struct {
 	ProximityFuseArmingDistanceFromTarget string `json:"proximity_fuse_arming_distance_from_target,omitempty"`
 	ProximityFuseRange                    string `json:"proximity_fuse_range,omitempty"`
 	ProximityFuseShellDetection           string `json:"proximity_fuse_shell_detection,omitempty"`
-	ProximityFuseMinimumAltitude          string `json:"proximity_fuse_minimum_atitude,omitempty"`
+	ProximityFuseMinimumAltitude          string `json:"proximity_fuse_minimum_altitude,omitempty"`
 	ProximityFuseDelay                    string `json:"proximity_fuse_delay,omitempty"`
 	ImpactFuseSensitivity                 string `json:"impact_fuse_sensitivity,omitempty"`
 	ImpactFuseDelay                       string `json:"impact_fuse_delay,omitempty"`
@@ -122,6 +122,7 @@ type Weapon struct {
 	StartSpeed                            string `json:"start_speed,omitempty"`
 	MaximumSpeed                          string `json:"maximum_speed,omitempty"`
 	MinimumRange                          string `json:"minimum_range,omitempty"`
+	MinimumRangeKm                        string `json:"minimum_range_km,omitempty"`
 	FlightRangeLimit                      string `json:"flight_range_limit,omitempty"`
 	MaximumGLoad                          string `json:"maximum_g_load,omitempty"`
 	MaximumFinAngleOfAttack               string `json:"maximum_fin_angle_of_attack,omitempty"`

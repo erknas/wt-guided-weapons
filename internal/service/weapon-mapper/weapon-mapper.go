@@ -148,6 +148,7 @@ func (m *WeaponMapper) Map(data [][]string, category string, weaponIdx int) (*ty
 	weapon.StartSpeed = getValue("Start speed: [m/s]")
 	weapon.MaximumSpeed = getValue("Maximum speed: [m/s]")
 	weapon.MinimumRange = getValue("Minimum range: [m]")
+	weapon.MinimumRangeKm = getValue("Minimum range: [km]")
 	weapon.FlightRangeLimit = getValue("Flight range limit: [km]")
 	weapon.MaximumGLoad = getValue("Maximum G-load: [G]")
 	weapon.MaximumFinAngleOfAttack = getValue("Maximum fin angle of attack: [degrees]")
