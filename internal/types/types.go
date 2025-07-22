@@ -136,6 +136,7 @@ type Weapon struct {
 	MaximumLaunchAngleHorizontalVertical  string `json:"maximum_launch_angle_horizontal_vertical,omitempty"`
 	MaximumAxisValues                     string `json:"maximum_axis_values,omitempty"`
 	StatcardSpeedMach                     string `json:"statcard_speed_mach,omitempty"`
+	StatcardSpeedMs                       string `json:"statcard_speed_ms,omitempty"`
 	StatcardSpeedMsOrMach                 string `json:"statcard_speed_ms_or_mach,omitempty"`
 	StatcardLaunchRange                   string `json:"statcard_launch_range,omitempty"`
 	StatcardGuaranteedRange               string `json:"statcard_guaranteed_range,omitempty"`

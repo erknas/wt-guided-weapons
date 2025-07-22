@@ -163,6 +163,7 @@ func (m *WeaponMapper) Map(data [][]string, category string, weaponIdx int) (*ty
 	weapon.MaximumLaunchAngleHorizontalVertical = getValue("Maximum launch angle (horizontally / vertically): [degrees]")
 	weapon.MaximumAxisValues = getValue("Maximum axis values:")
 	weapon.StatcardSpeedMach = getValue("Maximum statcard (useless) speed: [Mach]")
+	weapon.StatcardSpeedMs = getValue("Maximum statcard (useless) speed: [m/s]")
 	weapon.StatcardSpeedMsOrMach = getValue("Maximum statcard (useless) speed: [m/s] or [Mach]")
 	weapon.StatcardLaunchRange = getValue("Maximum statcard (useless) launch range: [km]")
 	weapon.DragCoefficientMultiplier = getValue("Drag coefficient multiplier (this is not the only value affecting drag, just because it's higher than another missile's doesn't mean it actually has higher drag!!):")
