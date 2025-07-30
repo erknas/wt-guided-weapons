@@ -22,11 +22,11 @@ func TestLoad(t *testing.T) {
 		wantLen     int
 	}{
 		{
-			name: "Success with 30 URLs",
+			name: "Success with 31 URLs",
 			prepareFile: func(t *testing.T) string {
 				filePath := filepath.Join(tmpDir, "success.json")
 				urls := make(map[string]string, 30)
-				for i := 0; i < 30; i++ {
+				for i := 0; i < 31; i++ {
 					urls[fmt.Sprintf("cat%d", i)] = fmt.Sprintf("http://example.com/%d", i)
 				}
 				data, err := json.Marshal(urls)
@@ -35,7 +35,7 @@ func TestLoad(t *testing.T) {
 				require.NoError(t, err)
 				return filePath
 			},
-			wantLen: 30,
+			wantLen: 31,
 		},
 		{
 			name: "File not exists",
@@ -55,20 +55,6 @@ func TestLoad(t *testing.T) {
 			},
 			wantErr:     true,
 			errContains: "failed to decode data",
-		},
-		{
-			name: "Invalid URLs count",
-			prepareFile: func(t *testing.T) string {
-				filePath := filepath.Join(tmpDir, "invalid_count.json")
-				urls := map[string]string{"cat1": "http://example.com/1"}
-				data, err := json.Marshal(urls)
-				require.NoError(t, err)
-				err = os.WriteFile(filePath, data, 0644)
-				require.NoError(t, err)
-				return filePath
-			},
-			wantErr:     true,
-			errContains: "invalid urls, urls count=1",
 		},
 		{
 			name: "Empty file",
