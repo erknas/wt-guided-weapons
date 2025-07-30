@@ -103,7 +103,7 @@ type httpFunc func(w http.ResponseWriter, r *http.Request) error
 
 func makeHTTPFunc(fn httpFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		ctx, cancel := context.WithTimeout(r.Context(), time.Second*5)
+		ctx, cancel := context.WithTimeout(r.Context(), time.Second*10)
 		defer cancel()
 
 		if err := fn(w, r.WithContext(ctx)); err != nil {
