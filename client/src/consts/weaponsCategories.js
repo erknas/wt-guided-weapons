@@ -26,6 +26,7 @@ export const WEAPONS_CATEGORIES = [
   { value: "atgm-saclos", label: "ATGM (SACLOS)" },
   { value: "atgm-mclos", label: "ATGM (MCLOS)" },
   { value: "ashm-arh", label: "AShM (ARH)" },
+  { value: "ashm-ir", label: "AShM (IR)" },
   { value: "ashm-saclos", label: "AShM (SACLOS)" },
   { value: "sam-ir-naval", label: "SAM (IR) (naval)" },
   { value: "sam-saclos-naval", label: "SAM (SACLOS) (naval)" },
