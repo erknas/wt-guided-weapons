@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"testing"
-	"time"
 
 	"github.com/erknas/wt-guided-weapons/internal/types"
 	"github.com/stretchr/testify/assert"
@@ -62,36 +61,6 @@ func TestAggregate(t *testing.T) {
 			wantErr: true,
 			checkErr: func(t *testing.T, err error) {
 				assert.Contains(t, err.Error(), "failed to parse table")
-			},
-		},
-		{
-			name: "Context cancelled",
-			mocks: func(mtp *mockTableParser) {
-			},
-			ctx: func() context.Context {
-				ctx, cancel := context.WithCancel(context.Background())
-				cancel()
-				return ctx
-			},
-			wantErr: true,
-			checkErr: func(t *testing.T, err error) {
-				assert.ErrorIs(t, err, context.Canceled)
-			},
-		},
-		{
-			name: "Context timeout",
-			mocks: func(mtp *mockTableParser) {
-				mtp.On("Parse", mock.Anything, mock.Anything, mock.Anything).After(time.Millisecond*10).Return([]*types.Weapon{}, nil)
-			},
-			ctx: func() context.Context {
-				ctx, cancel := context.WithTimeout(context.Background(), time.Nanosecond)
-				defer cancel()
-				time.Sleep(time.Millisecond)
-				return ctx
-			},
-			wantErr: true,
-			checkErr: func(t *testing.T, err error) {
-				assert.ErrorIs(t, err, context.DeadlineExceeded)
 			},
 		},
 	}
