@@ -20,6 +20,7 @@ import (
 type Servicer interface {
 	InsertWeapons(ctx context.Context) error
 	GetWeaponsByCategory(ctx context.Context, category string) ([]*types.Weapon, error)
+	SearchWeapon(ctx context.Context, name string) (map[string]string, error)
 }
 
 type Server struct {
@@ -94,6 +95,7 @@ func (s *Server) routes(r *chi.Mux) {
 	r.Route("/api", func(r chi.Router) {
 		r.Post("/insert", makeHTTPFunc(s.handleInsertWeapon))
 		r.With(logger.MiddlewareCategoryCheck(s.categories)).Get("/weapons/{category}", makeHTTPFunc(s.handleGetWeaponsByCategory))
+		r.Get("/weapons/search/{name}", makeHTTPFunc(s.handleSeachWeapon))
 	})
 
 	r.Handle("/*", http.FileServer(http.Dir("./static")))

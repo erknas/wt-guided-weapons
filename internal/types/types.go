@@ -1,5 +1,10 @@
 package types
 
+type SearchResult struct {
+	Name     string
+	Category string
+}
+
 type Weapons struct {
 	Weapons []*Weapon `json:"weapons"`
 }
