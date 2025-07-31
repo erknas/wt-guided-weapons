@@ -764,6 +764,26 @@ defineProps({
           </td>
         </tr>
         <tr>
+          <td class="sticky-col header-cell-param">Sea skimming:</td>
+          <td 
+            v-for="weapon in weapons" 
+            :key="weapon.id"
+            class="data-cell text-center"
+          >
+            {{ weapon.sea_skimming || '-' }}
+          </td>
+        </tr>
+        <tr>
+          <td class="sticky-col header-cell-param">ETA to impact when sea skimming altitude reaches x metres: [s/m]</td>
+          <td 
+            v-for="weapon in weapons" 
+            :key="weapon.id"
+            class="data-cell"
+          >
+            {{ weapon.eta_to_impact_when_sea_altitude_reaches_metres || '-' }}
+          </td>
+        </tr>
+        <tr>
           <td class="sticky-col add-notes">Additional Notes: </td>
           <td 
             v-for="weapon in weapons" 
@@ -777,3 +797,9 @@ defineProps({
     </table>
 </div>
 </template>
+
+<style scoped>
+.table {
+	width: auto;
+}
+</style>
