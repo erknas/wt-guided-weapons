@@ -1,18 +1,19 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, watch } from 'vue'
+import { useWeaponsApi } from '../composables/useWeaponsApi';
 import CategorySelector from '../components/CategorySelector.vue';
 import WeaponsLoader from '../components/WeaponsLoader.vue';
-import { useWeaponsApi } from '../composables/useWeaponsApi';
+import WeaponSearcher from '../components/WeaponSearcher.vue';
 
 const selectedCategory = ref('aam-ir-rear-aspect')
 const { weapons, loading, error, fetchWeaponsByCategory } = useWeaponsApi()
 
-const handleCategoryChange = async (category) => {
-	selectedCategory.value = category
-	await fetchWeaponsByCategory(category)
-}
+watch(selectedCategory, async (newCategory) => {
+  if (newCategory) {
+    await fetchWeaponsByCategory(newCategory)
+  }
+}, { immediate: true })
 
-onMounted(() => fetchWeaponsByCategory(selectedCategory.value))
 </script>
 
 <template>
@@ -22,7 +23,6 @@ onMounted(() => fetchWeaponsByCategory(selectedCategory.value))
 
 		<CategorySelector 
 			v-model="selectedCategory"
-			@update:modelValue="handleCategoryChange"
 		/>
 
 		<WeaponsLoader
@@ -30,5 +30,7 @@ onMounted(() => fetchWeaponsByCategory(selectedCategory.value))
 			:weapons="weapons"
 			:category="selectedCategory"
 		/>
+
+		<WeaponSearcher />
 	</div>
 </template>

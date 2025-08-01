@@ -1,19 +1,28 @@
 <script setup>
 import { WEAPONS_CATEGORIES } from '../consts/weaponsCategories';
 
+const categories = WEAPONS_CATEGORIES
+const emit = defineEmits(['update:modelValue'])
+
 defineProps({
 	modelValue: String
 })
 
-defineEmits(['update:modelValue'])
-
-const categories = WEAPONS_CATEGORIES
 </script>
 
 <template>
 	<div class="selector-container">
-		<select :value="modelValue" @change="$emit('update:modelValue', $event.target.value)" class="category-selector">
-			<option v-for="category in categories" :value="category.value" :key="category.value" :class="`option-${category.value}`">
+		<select
+		 :value="modelValue"
+		 @change="emit('update:modelValue', $event.target.value)"
+		 class="category-selector"
+		 >
+			<option
+			v-for="category in categories" 
+			:value="category.value" 
+			:key="category.value" 
+			:class="`option-${category.value}`"
+			>
 				{{ category.label }}
 			</option>
 		</select>
