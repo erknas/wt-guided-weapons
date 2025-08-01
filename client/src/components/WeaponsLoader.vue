@@ -26,7 +26,7 @@ const currentTable = computed(() => {
     .catch((err) => {
       error.value = 'Category not found'
       console.error('failed to load component:', err)
-      return import(`./WeaponsTables/AamIrRearAspect.vue`)
+      return
     })
   )
 })
