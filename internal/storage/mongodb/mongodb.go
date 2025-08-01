@@ -36,10 +36,6 @@ func New(ctx context.Context, cfg *config.Config) (*MongoDB, error) {
 
 	coll := client.Database(cfg.ConfigMongoDB.DBName).Collection(cfg.ConfigMongoDB.CollName)
 
-	if err := createIndex(ctx, coll); err != nil {
-		return nil, fmt.Errorf("failed to create index: %w", err)
-	}
-
 	return &MongoDB{
 		client: client,
 		coll:   coll,
@@ -110,10 +106,12 @@ func (m *MongoDB) Search(ctx context.Context, name string) (map[string]string, e
 
 	filter := bson.M{
 		"name": bson.M{
-			"$regex":   "^" + regexp.QuoteMeta(name),
+			"$regex":   regexp.QuoteMeta(name),
 			"$options": "i",
 		},
 	}
+
+	log.Debug("filter", zap.Any("", filter))
 
 	cursor, err := m.coll.Find(ctx, filter)
 	if err != nil {
