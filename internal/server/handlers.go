@@ -49,9 +49,9 @@ func (s *Server) handleGetWeaponsByCategory(w http.ResponseWriter, r *http.Reque
 func (s *Server) handleSeachWeapon(w http.ResponseWriter, r *http.Request) error {
 	log := logger.FromContext(r.Context(), logger.Transport)
 
-	name := chi.URLParam(r, "name")
+	query := chi.URLParam(r, "name")
 
-	result, err := s.svc.SearchWeapon(r.Context(), name)
+	results, err := s.svc.SearchWeapon(r.Context(), query)
 	if err != nil {
 		log.Error("SearchWeapon failed",
 			zap.Error(err),
@@ -60,9 +60,9 @@ func (s *Server) handleSeachWeapon(w http.ResponseWriter, r *http.Request) error
 	}
 
 	log.Info("handleSearchWeapon complited",
-		zap.String("name", name),
-		zap.Int("total weapons found", len(result)),
+		zap.String("name", query),
+		zap.Int("total weapons found", len(results)),
 	)
 
-	return api.WriteJSON(w, http.StatusOK, result)
+	return api.WriteJSON(w, http.StatusOK, types.Results{Results: results})
 }

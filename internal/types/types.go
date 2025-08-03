@@ -1,8 +1,12 @@
 package types
 
 type SearchResult struct {
-	Name     string
-	Category string
+	Name     string `json:"name"`
+	Category string `json:"category"`
+}
+
+type Results struct {
+	Results []SearchResult `json:"results"`
 }
 
 type Weapons struct {

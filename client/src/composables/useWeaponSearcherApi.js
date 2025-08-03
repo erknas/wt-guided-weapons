@@ -2,7 +2,7 @@ import { computed, ref, watch } from "vue";
 
 export function useSearchApi() {
   const query = ref("");
-  const results = ref({});
+  const results = ref([]);
   const loading = ref(false);
   const error = ref("");
 
@@ -15,10 +15,6 @@ export function useSearchApi() {
     }
     return await response.json();
   };
-
-  const resultsArray = computed(() => {
-    return Object.entries(results.value);
-  });
 
   const debounce = (func, delay) => {
     let timeout;
@@ -39,7 +35,7 @@ export function useSearchApi() {
 
     try {
       const data = await searchAPI(searchQuery);
-      results.value = data;
+      results.value = data.results;
     } catch (err) {
       error.value = "Search error";
       console.error("Search error:", err);
@@ -49,7 +45,7 @@ export function useSearchApi() {
     }
   };
 
-  const debouncedSearch = debounce(search, 300);
+  const debouncedSearch = debounce(search, 500);
 
   watch(query, (newQuery) => {
     debouncedSearch(newQuery);
@@ -65,7 +61,7 @@ export function useSearchApi() {
     query,
     loading,
     error,
-    resultsArray,
+    results,
 
     search,
     clearSearch,

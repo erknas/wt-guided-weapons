@@ -101,12 +101,12 @@ func (m *MongoDB) WeaponsByCategory(ctx context.Context, category string) ([]*ty
 	return weapons, nil
 }
 
-func (m *MongoDB) Search(ctx context.Context, name string) (map[string]string, error) {
+func (m *MongoDB) Search(ctx context.Context, query string) ([]types.SearchResult, error) {
 	log := logger.FromContext(ctx, logger.Storage)
 
 	filter := bson.M{
 		"name": bson.M{
-			"$regex":   regexp.QuoteMeta(name),
+			"$regex":   regexp.QuoteMeta(query),
 			"$options": "i",
 		},
 	}
@@ -123,16 +123,16 @@ func (m *MongoDB) Search(ctx context.Context, name string) (map[string]string, e
 	}
 	defer cursor.Close(ctx)
 
-	result := make(map[string]string, 20)
+	var results []types.SearchResult
 
 	for cursor.Next(ctx) {
-		var searchResult types.SearchResult
-		if err := cursor.Decode(&searchResult); err != nil {
+		var result types.SearchResult
+		if err := cursor.Decode(&result); err != nil {
 			log.Error("failed to decode document", zap.Error(err))
 			continue
 		}
 
-		result[searchResult.Name] = searchResult.Category
+		results = append(results, result)
 	}
 
 	if err := cursor.Err(); err != nil {
@@ -142,7 +142,7 @@ func (m *MongoDB) Search(ctx context.Context, name string) (map[string]string, e
 		return nil, fmt.Errorf("last cursor error: %w", err)
 	}
 
-	return result, nil
+	return results, nil
 }
 
 func (m *MongoDB) Close(ctx context.Context) error {

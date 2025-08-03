@@ -15,7 +15,7 @@ type WeaponsInserter interface {
 
 type WeaponsProvider interface {
 	WeaponsByCategory(ctx context.Context, category string) ([]*types.Weapon, error)
-	Search(ctx context.Context, name string) (map[string]string, error)
+	Search(ctx context.Context, name string) ([]types.SearchResult, error)
 }
 
 type WeaponsAggregator interface {
@@ -79,16 +79,16 @@ func (s *Service) GetWeaponsByCategory(ctx context.Context, category string) ([]
 	return weapons, nil
 }
 
-func (s *Service) SearchWeapon(ctx context.Context, name string) (map[string]string, error) {
+func (s *Service) SearchWeapon(ctx context.Context, query string) ([]types.SearchResult, error) {
 	log := logger.FromContext(ctx, logger.Service)
 
-	result, err := s.provider.Search(ctx, name)
+	results, err := s.provider.Search(ctx, query)
 	if err != nil {
 		log.Error("failed to find weapon",
 			zap.Error(err),
 		)
-		return nil, fmt.Errorf("failed to find weapon %s: %w", name, err)
+		return nil, fmt.Errorf("failed to find weapon %s: %w", query, err)
 	}
 
-	return result, nil
+	return results, nil
 }

@@ -20,7 +20,7 @@ import (
 type Servicer interface {
 	InsertWeapons(ctx context.Context) error
 	GetWeaponsByCategory(ctx context.Context, category string) ([]*types.Weapon, error)
-	SearchWeapon(ctx context.Context, name string) (map[string]string, error)
+	SearchWeapon(ctx context.Context, name string) ([]types.SearchResult, error)
 }
 
 type Server struct {
