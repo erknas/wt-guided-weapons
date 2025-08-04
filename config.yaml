@@ -12,3 +12,5 @@ mongodb:
   port: "27017"
   db_name: "wt-guided-weapons"
   coll_name: "weapons"
+  conn_timeout: 5s
+  select_timeout: 10s

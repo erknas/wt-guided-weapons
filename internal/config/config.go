@@ -22,12 +22,14 @@ type ConfigServer struct {
 }
 
 type ConfigMongoDB struct {
-	Username string `yaml:"username"`
-	Password string `yaml:"password"`
-	Host     string `yaml:"host"`
-	Port     string `yaml:"port"`
-	DBName   string `yaml:"db_name"`
-	CollName string `yaml:"coll_name"`
+	Username       string        `yaml:"username"`
+	Password       string        `yaml:"password"`
+	Host           string        `yaml:"host"`
+	Port           string        `yaml:"port"`
+	DBName         string        `yaml:"db_name"`
+	CollName       string        `yaml:"coll_name"`
+	ConnectTimeout time.Duration `yaml:"conn_timeout"`
+	SelectTimeout  time.Duration `yaml:"select_timeout"`
 }
 
 func Load() *Config {
