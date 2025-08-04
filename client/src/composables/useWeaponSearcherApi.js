@@ -5,6 +5,7 @@ export function useSearchApi() {
   const results = ref([]);
   const loading = ref(false);
   const error = ref("");
+  const lastSearchQuery = ref("");
 
   const searchAPI = async (searchQuery) => {
     const response = await fetch(
@@ -25,8 +26,15 @@ export function useSearchApi() {
   };
 
   const search = async (searchQuery) => {
-    if (!searchQuery.trim()) {
-      results.value = {};
+    const trimmedQuery = searchQuery.trim();
+
+    if (!trimmedQuery) {
+      results.value = [];
+      lastSearchQuery.value = "";
+      return;
+    }
+
+    if (trimmedQuery === lastSearchQuery.value) {
       return;
     }
 
@@ -34,12 +42,13 @@ export function useSearchApi() {
     error.value = "";
 
     try {
-      const data = await searchAPI(searchQuery);
+      const data = await searchAPI(trimmedQuery);
       results.value = data.results;
+      lastSearchQuery.value = trimmedQuery;
     } catch (err) {
       error.value = "Search error";
       console.error("Search error:", err);
-      results.value = {};
+      results.value = [];
     } finally {
       loading.value = false;
     }
@@ -53,7 +62,7 @@ export function useSearchApi() {
 
   const clearSearch = () => {
     query.value = "";
-    results.value = {};
+    results.value = [];
     error.value = "";
   };
 

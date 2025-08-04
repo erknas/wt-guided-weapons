@@ -26,7 +26,12 @@ const handleClickOutside = () => {
 }
 
 watch(results, (newResults) => {
-  isOpen.value = newResults.length > 0 && query.value.trim() != ''
+  const hasResults = Array.isArray(newResults) && newResults.length > 0
+  const hasQuery = query.value?.trim?.() !== ''
+  
+  isOpen.value = hasResults && hasQuery
+}, { 
+  immediate: false
 })
 </script>
 
