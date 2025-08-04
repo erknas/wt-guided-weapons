@@ -10,7 +10,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func (s *Server) handleInsertWeapon(w http.ResponseWriter, r *http.Request) error {
+func (s *Server) handleInsertWeapons(w http.ResponseWriter, r *http.Request) error {
 	log := logger.FromContext(r.Context(), logger.Transport)
 
 	if err := s.svc.InsertWeapons(r.Context()); err != nil {
@@ -20,7 +20,7 @@ func (s *Server) handleInsertWeapon(w http.ResponseWriter, r *http.Request) erro
 		return err
 	}
 
-	log.Info("handleInsertWeapons complited")
+	log.Info("InsertWeapons handler complited")
 
 	return api.WriteJSON(w, http.StatusOK, map[string]string{"msg": "OK"})
 }
@@ -30,15 +30,15 @@ func (s *Server) handleGetWeaponsByCategory(w http.ResponseWriter, r *http.Reque
 
 	category := chi.URLParam(r, "category")
 
-	weapons, err := s.svc.GetWeaponsByCategory(r.Context(), category)
+	weapons, err := s.svc.WeaponsByCategory(r.Context(), category)
 	if err != nil {
-		log.Error("GetWeaponsByCategory failed",
+		log.Error("WeaponsByCategory failed",
 			zap.Error(err),
 		)
 		return err
 	}
 
-	log.Info("handleGetWeaponsByCategory complited",
+	log.Info("GetWeaponsByCategory handler complited",
 		zap.String("category", category),
 		zap.Int("total weapons", len(weapons)),
 	)
@@ -59,8 +59,8 @@ func (s *Server) handleSeachWeapon(w http.ResponseWriter, r *http.Request) error
 		return err
 	}
 
-	log.Info("handleSearchWeapon complited",
-		zap.String("name", query),
+	log.Info("SearchWeapon handler complited",
+		zap.String("query", query),
 		zap.Int("total weapons found", len(results)),
 	)
 

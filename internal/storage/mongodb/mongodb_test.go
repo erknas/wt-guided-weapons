@@ -65,7 +65,7 @@ func TestMongoDB_Insert(t *testing.T) {
 	})
 }
 
-func TestMongoDB_WeaponsByCategory(t *testing.T) {
+func TestMongoDB_ByCategory(t *testing.T) {
 	ctx := context.Background()
 
 	client, err := setupMongo(ctx)
@@ -87,8 +87,8 @@ func TestMongoDB_WeaponsByCategory(t *testing.T) {
 		coll:   coll,
 	}
 
-	t.Run("Success", func(t *testing.T) {
-		weapons, err := db.WeaponsByCategory(ctx, "aam-ir-rear-aspect")
+	t.Run("ByCategory", func(t *testing.T) {
+		weapons, err := db.ByCategory(ctx, "aam-ir-rear-aspect")
 		require.NoError(t, err)
 		assert.Len(t, weapons, 2)
 		assert.Equal(t, "aam-ir-rear-aspect", weapons[0].Category)
@@ -97,9 +97,40 @@ func TestMongoDB_WeaponsByCategory(t *testing.T) {
 
 	for _, category := range notExistentCategories {
 		t.Run(fmt.Sprintf("Non-existent category %s returns empty slice of weapons", category), func(t *testing.T) {
-			weapons, err := db.WeaponsByCategory(ctx, category)
+			weapons, err := db.ByCategory(ctx, category)
 			require.NoError(t, err)
 			assert.Empty(t, weapons)
 		})
 	}
+}
+
+func TestMongodb_Search(t *testing.T) {
+	ctx := context.Background()
+
+	client, err := setupMongo(ctx)
+	require.NoError(t, err)
+	defer client.Disconnect(ctx)
+
+	coll := client.Database("test").Collection("test_weapons")
+
+	_, err = coll.InsertMany(ctx, []interface{}{
+		bson.M{"category": "aam-ir-rear-aspect", "name": "AIM-9B"},
+		bson.M{"category": "aam-ir-rear-aspect", "name": "A-91"},
+		bson.M{"category": "aam-ir-all-aspect", "name": "AIM-9L"},
+		bson.M{"category": "gbu-tv", "name": "GBU-8/B"},
+	})
+	require.NoError(t, err)
+
+	db := &MongoDB{
+		client: client,
+		coll:   coll,
+	}
+
+	t.Run("Search", func(t *testing.T) {
+		query := "aim"
+		results, err := db.Search(ctx, query)
+		require.NoError(t, err)
+		assert.NotEmpty(t, results)
+		assert.Len(t, results, 2)
+	})
 }

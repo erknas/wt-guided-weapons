@@ -25,17 +25,22 @@ func (m *mockServicer) InsertWeapons(ctx context.Context) error {
 	return nil
 }
 
-func (m *mockServicer) GetWeaponsByCategory(ctx context.Context, category string) ([]*types.Weapon, error) {
+func (m *mockServicer) WeaponsByCategory(ctx context.Context, category string) ([]*types.Weapon, error) {
 	args := m.Called(ctx, category)
 	return args.Get(0).([]*types.Weapon), args.Error(1)
 }
 
+func (m *mockServicer) SearchWeapon(ctx context.Context, query string) ([]types.SearchResult, error) {
+	args := m.Called(ctx, query)
+	return args.Get(0).([]types.SearchResult), args.Error(1)
+}
+
 func TestHandleGetWeaponsByCategory(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
-		mocServicer := new(mockServicer)
+		mockServicer := new(mockServicer)
 		urls := map[string]string{"gbu-ir": "test-url"}
 
-		server := New(mocServicer, urls, zap.NewNop())
+		server := New(mockServicer, urls, zap.NewNop())
 
 		rr := httptest.NewRecorder()
 		req, err := http.NewRequest(http.MethodGet, "", nil)
@@ -50,7 +55,7 @@ func TestHandleGetWeaponsByCategory(t *testing.T) {
 			{Category: "gbu-ir", Name: "SPICE 2000"},
 		}
 
-		mocServicer.On("GetWeaponsByCategory", mock.AnythingOfType("*context.valueCtx"), "gbu-ir").Return(weapons, nil)
+		mockServicer.On("WeaponsByCategory", mock.AnythingOfType("*context.valueCtx"), "gbu-ir").Return(weapons, nil)
 
 		err = server.handleGetWeaponsByCategory(rr, req)
 		require.NoError(t, err)
@@ -62,7 +67,7 @@ func TestHandleGetWeaponsByCategory(t *testing.T) {
 		require.NoError(t, err)
 		assert.Equal(t, weapons, res.Weapons)
 
-		mocServicer.AssertExpectations(t)
+		mockServicer.AssertExpectations(t)
 	})
 
 	t.Run("Category does not exist", func(t *testing.T) {
@@ -91,6 +96,43 @@ func TestHandleGetWeaponsByCategory(t *testing.T) {
 		assert.Equal(t, http.StatusBadRequest, rr.Result().StatusCode)
 		assert.Equal(t, resp.Message, "category gbuir does not exist")
 
-		mockServicer.AssertNotCalled(t, "GetWeaponsByCategory")
+		mockServicer.AssertNotCalled(t, "WeaponsByCategory")
+	})
+}
+
+func TestHandleSearchWeapon(t *testing.T) {
+	t.Run("Success", func(t *testing.T) {
+		mockServicer := new(mockServicer)
+
+		server := New(mockServicer, map[string]string{}, zap.NewNop())
+
+		rr := httptest.NewRecorder()
+		req, err := http.NewRequest(http.MethodGet, "", nil)
+		require.NoError(t, err)
+
+		rctx := chi.NewRouteContext()
+		rctx.URLParams.Add("name", "spice")
+		req = req.WithContext(context.WithValue(req.Context(), chi.RouteCtxKey, rctx))
+
+		searchResults := []types.SearchResult{
+			{Category: "gbu-ir", Name: "SPICE 1000"},
+			{Category: "gbu-ir", Name: "SPICE 2000"},
+		}
+
+		results := types.Results{Results: searchResults}
+
+		mockServicer.On("SearchWeapon", mock.AnythingOfType("*context.valueCtx"), "spice").Return(searchResults, nil)
+
+		err = server.handleSeachWeapon(rr, req)
+		require.NoError(t, err)
+
+		assert.Equal(t, rr.Result().StatusCode, http.StatusOK)
+
+		var res types.Results
+		err = json.NewDecoder(rr.Result().Body).Decode(&res)
+		require.NoError(t, err)
+		assert.Equal(t, results, res)
+
+		mockServicer.AssertExpectations(t)
 	})
 }

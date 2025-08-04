@@ -14,8 +14,8 @@ type WeaponsInserter interface {
 }
 
 type WeaponsProvider interface {
-	WeaponsByCategory(ctx context.Context, category string) ([]*types.Weapon, error)
-	Search(ctx context.Context, name string) ([]types.SearchResult, error)
+	ByCategory(ctx context.Context, category string) ([]*types.Weapon, error)
+	Search(ctx context.Context, query string) ([]types.SearchResult, error)
 }
 
 type WeaponsAggregator interface {
@@ -51,7 +51,7 @@ func (s *Service) InsertWeapons(ctx context.Context) error {
 		log.Error("failed to insert weapons",
 			zap.Error(err),
 		)
-		return fmt.Errorf("failed to insert weapons: %w", err)
+		return err
 	}
 
 	log.Debug("InsertWeapons complited")
@@ -59,19 +59,19 @@ func (s *Service) InsertWeapons(ctx context.Context) error {
 	return nil
 }
 
-func (s *Service) GetWeaponsByCategory(ctx context.Context, category string) ([]*types.Weapon, error) {
+func (s *Service) WeaponsByCategory(ctx context.Context, category string) ([]*types.Weapon, error) {
 	log := logger.FromContext(ctx, logger.Service)
 
-	weapons, err := s.provider.WeaponsByCategory(ctx, category)
+	weapons, err := s.provider.ByCategory(ctx, category)
 	if err != nil {
 		log.Error("failed to provide weapons",
 			zap.Error(err),
 			zap.String("category", category),
 		)
-		return nil, fmt.Errorf("failed to get weapons by category %s: %w", category, err)
+		return nil, err
 	}
 
-	log.Debug("GetWeaponsByCategory complited",
+	log.Debug("WeaponsByCategory complited",
 		zap.String("category", category),
 		zap.Int("total weapons", len(weapons)),
 	)
@@ -87,8 +87,13 @@ func (s *Service) SearchWeapon(ctx context.Context, query string) ([]types.Searc
 		log.Error("failed to find weapon",
 			zap.Error(err),
 		)
-		return nil, fmt.Errorf("failed to find weapon %s: %w", query, err)
+		return nil, err
 	}
+
+	log.Debug("SearchWeapon complited",
+		zap.String("query", query),
+		zap.Int("total overlaps", len(results)),
+	)
 
 	return results, nil
 }

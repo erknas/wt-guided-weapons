@@ -47,9 +47,8 @@ func (m *MongoDB) Insert(ctx context.Context, weapons []*types.Weapon) error {
 
 	res, err := m.coll.InsertMany(ctx, weapons)
 	if err != nil {
-		log.Error("database failed",
+		log.Error("insert error",
 			zap.Error(err),
-			zap.String("operation", "InsertMany"),
 		)
 		return fmt.Errorf("failed to insert documents: %w", err)
 	}
@@ -61,16 +60,15 @@ func (m *MongoDB) Insert(ctx context.Context, weapons []*types.Weapon) error {
 	return nil
 }
 
-func (m *MongoDB) WeaponsByCategory(ctx context.Context, category string) ([]*types.Weapon, error) {
+func (m *MongoDB) ByCategory(ctx context.Context, category string) ([]*types.Weapon, error) {
 	log := logger.FromContext(ctx, logger.Storage)
 
 	filter := bson.M{"category": category}
 
 	cursor, err := m.coll.Find(ctx, filter)
 	if err != nil {
-		log.Error("database failed",
+		log.Error("find error",
 			zap.Error(err),
-			zap.String("operation", "Find"),
 		)
 		return nil, fmt.Errorf("failed to find documents: %w", err)
 	}
@@ -79,9 +77,8 @@ func (m *MongoDB) WeaponsByCategory(ctx context.Context, category string) ([]*ty
 	var weapons []*types.Weapon
 
 	if err := cursor.All(ctx, &weapons); err != nil {
-		log.Error("database failed",
+		log.Error("decoding error",
 			zap.Error(err),
-			zap.String("operation", "Decoding"),
 		)
 		return nil, fmt.Errorf("failed to decode document: %w", err)
 	}
@@ -93,8 +90,7 @@ func (m *MongoDB) WeaponsByCategory(ctx context.Context, category string) ([]*ty
 		return nil, fmt.Errorf("last cursor error: %w", err)
 	}
 
-	log.Debug("WeaponsByCategory complited",
-		zap.Any("filter", filter),
+	log.Debug("ByCategory complited",
 		zap.Int("total documents returned", len(weapons)),
 	)
 
@@ -111,13 +107,10 @@ func (m *MongoDB) Search(ctx context.Context, query string) ([]types.SearchResul
 		},
 	}
 
-	log.Debug("filter", zap.Any("", filter))
-
 	cursor, err := m.coll.Find(ctx, filter)
 	if err != nil {
-		log.Error("database failed",
+		log.Error("find error",
 			zap.Error(err),
-			zap.String("operation", "Find"),
 		)
 		return nil, fmt.Errorf("failed to find documents: %w", err)
 	}
@@ -125,14 +118,11 @@ func (m *MongoDB) Search(ctx context.Context, query string) ([]types.SearchResul
 
 	var results []types.SearchResult
 
-	for cursor.Next(ctx) {
-		var result types.SearchResult
-		if err := cursor.Decode(&result); err != nil {
-			log.Error("failed to decode document", zap.Error(err))
-			continue
-		}
-
-		results = append(results, result)
+	if err := cursor.All(ctx, &results); err != nil {
+		log.Error("decoding error",
+			zap.Error(err),
+		)
+		return nil, fmt.Errorf("failed to decode document: %w", err)
 	}
 
 	if err := cursor.Err(); err != nil {
@@ -141,6 +131,10 @@ func (m *MongoDB) Search(ctx context.Context, query string) ([]types.SearchResul
 		)
 		return nil, fmt.Errorf("last cursor error: %w", err)
 	}
+
+	log.Debug("Search complited",
+		zap.Int("total results", len(results)),
+	)
 
 	return results, nil
 }
