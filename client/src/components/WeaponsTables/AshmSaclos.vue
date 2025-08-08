@@ -270,6 +270,7 @@ const props = defineProps({
             v-for="weapon in weapons" 
             :key="weapon.id"
             class="data-cell text-center"
+            :class="{ 'text-right': weapon.proximity_fuse_shell_detection === '-' }"
           >
             {{ weapon.proximity_fuse_shell_detection || '-' }}
           </td>
@@ -623,7 +624,7 @@ const props = defineProps({
             :key="weapon.id"
             class="data-cell add-notes-data"
           >
-            {{ weapon.additional_notes || '-' }}
+            {{ weapon.additional_notes }}
           </td>
         </tr>
       </tbody>

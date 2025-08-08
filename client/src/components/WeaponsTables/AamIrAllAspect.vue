@@ -496,6 +496,7 @@ const props = defineProps({
             v-for="weapon in weapons" 
             :key="weapon.id"
             class="data-cell text-center"
+            :class="{ 'text-right': weapon.irccm_type === '-'}"
           >
             {{ weapon.irccm_type || '-' }}
           </td>
@@ -783,7 +784,7 @@ const props = defineProps({
             :key="weapon.id"
             class="data-cell add-notes-data"
           >
-            {{ weapon.additional_notes || '-' }}
+            {{ weapon.additional_notes }}
           </td>
         </tr>
       </tbody>

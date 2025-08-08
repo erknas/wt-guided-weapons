@@ -153,6 +153,10 @@ td:not(.sticky-col) {
 
 .data-cell.text-center {
   text-align: center;
+} 
+
+.data-cell.text-right {
+  text-align: right;
 }
 
 .header-cell-param {

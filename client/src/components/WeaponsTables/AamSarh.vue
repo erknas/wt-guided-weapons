@@ -953,7 +953,7 @@ const props = defineProps({
             :key="weapon.id"
             class="data-cell add-notes-data"
           >
-            {{ weapon.additional_notes || '-' }}
+            {{ weapon.additional_notes }}
           </td>
         </tr>
       </tbody>

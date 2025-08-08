@@ -58,7 +58,6 @@ const props = defineProps({
             v-for="weapon in weapons" 
             :key="weapon.id"
             class="data-cell"
-            :class="{ 'text-center': !weapon.mass_at_end_of_sustainer_burn || weapon.mass_at_end_of_sustainer_burn === '-' }"
           >
             {{ weapon.mass_at_end_of_sustainer_burn || '-' }}
           </td>
@@ -694,7 +693,7 @@ const props = defineProps({
             :key="weapon.id"
             class="data-cell add-notes-data"
           >
-            {{ weapon.additional_notes || '-' }}
+            {{ weapon.additional_notes }}
           </td>
         </tr>
       </tbody>
