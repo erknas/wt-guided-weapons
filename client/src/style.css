@@ -151,6 +151,10 @@ td:not(.sticky-col) {
   position: relative;
 }
 
+.data-cell.text-center {
+  text-align: center;
+}
+
 .header-cell-param {
   border-bottom: 1px solid #bababa;
   background-color: whitesmoke;
@@ -245,10 +249,6 @@ td:not(.sticky-col) {
   text-align: center;
 }
 
-.data-cell.text-center {
-  text-align: center;
-}
-
 th:nth-child(even), td:nth-child(even) {
   background-color: #dbdbdb
 }
@@ -263,4 +263,18 @@ th:nth-child(even), td:nth-child(even) {
 
 .table tr:hover td:not(.no-hover):hover {
   background-color: #74b5ff;
+}
+
+.error-message {
+  color: #dc3545;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  padding: 12px;
+  border-radius: 4px;
+  margin: 10px 0;
+}
+
+.highlighted-weapon {
+  background-color: #ff6666 !important;
+  font-weight: bold;
 }

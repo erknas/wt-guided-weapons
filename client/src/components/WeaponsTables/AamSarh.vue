@@ -1,9 +1,10 @@
 <script setup>
-defineProps({
-  weapons: {
-    type: Array,
-    required: true
-  }
+const props = defineProps({
+	weapons: {
+		type: Array,
+		required: true
+	},
+  highlightedWeapon: String 
 })
 </script>
 
@@ -16,6 +17,8 @@ defineProps({
           <th 
             v-for="weapon in weapons" 
             :key="weapon.id"
+            :data-weapon-name="weapon.name"
+            :class="{'is-highlighted': highlightedWeapon === weapon.name }"
             class="header-cell"
           >
             {{ weapon.name }}

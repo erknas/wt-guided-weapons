@@ -2,37 +2,37 @@
 import { ref, watch } from 'vue';
 import { useSearchApi } from '../composables/useWeaponSearcherApi';
 
-const {
-  query,
-  loading,
-  error,
-  results,
-  clearSearch
-} = useSearchApi()
+const { query, loading, error, results, clearSearch } = useSearchApi()
 const isOpen = ref(false)
+const emit = defineEmits(['weapon-selected'])
 
 const handleInputFocus = () => {
   if (query.value && results.value.length > 0) {
     setTimeout(() => {
       isOpen.value = true
-    }, 50)
+    }, 100)
   }
 }
 
 const handleClickOutside = () => {
   setTimeout(() => {
     isOpen.value = false
-  }, 50)
+  }, 100)
+}
+
+const handleWeaponSelect = (weapon) => {
+  isOpen.value = false
+  emit('weapon-selected', {
+    name: weapon.name,
+    category: weapon.category
+  })
 }
 
 watch(results, (newResults) => {
   const hasResults = Array.isArray(newResults) && newResults.length > 0
   const hasQuery = query.value?.trim?.() !== ''
-  
   isOpen.value = hasResults && hasQuery
-}, { 
-  immediate: false
-})
+}, { immediate: false })
 </script>
 
 <template>
@@ -53,15 +53,14 @@ watch(results, (newResults) => {
     >
       ✕
     </button>
-    <div v-if="error" class="error-message">
-      {{ error }}
-    </div>
+    <div v-if="error" class="error-message">{{ error }}</div>
     <div v-if="isOpen && results.length > 0" class="dropdown-container">
       <div class="search-results">
         <div
-          v-for="weapon in results"
-          :key="weapon.name"
+          v-for="(weapon, index) in results"
+          :key="index"
           class="weapon-item"
+          @click="handleWeaponSelect(weapon)"
         >
           <div class="weapon-info">
             <span class="weapon-name">{{ weapon.name }}</span>
@@ -122,20 +121,6 @@ watch(results, (newResults) => {
   outline: none;
 }
 
-.error-message {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  padding: 10px 15px;
-  background: #ffe6e6;
-  border: 1px solid #ff9999;
-  border-top: none;
-  border-radius: 0 0 8px 8px;
-  color: #cc0000;
-  font-size: 14px;
-}
-
 .dropdown-container {
   position: absolute;
   top: 100%;
@@ -170,7 +155,6 @@ watch(results, (newResults) => {
 .weapon-item {
   padding: 12px 15px;
   cursor: pointer;
-  transition: background-color 0.2s ease;
   border-bottom: 1px solid #f0f0f0;
   display: flex;
   align-items: center;
@@ -199,29 +183,4 @@ watch(results, (newResults) => {
   font-size: 15px;
 }
 
-.weapon-category {
-  color: #666;
-  font-size: 12px;
-  background: #e9ecef;
-  padding: 2px 6px;
-  border-radius: 3px;
-  display: inline-block;
-  width: fit-content;
-}
-
-@media (max-width: 480px) {
-  .search-input-container {
-    width: 90%;
-    left: 5%;
-    transform: none;
-  }
-  
-  .search-results {
-    max-height: 250px;
-  }
-  
-  .weapon-item {
-    padding: 10px 12px;
-  }
-}
 </style>

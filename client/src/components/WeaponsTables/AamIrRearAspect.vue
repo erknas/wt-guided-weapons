@@ -1,9 +1,10 @@
 <script setup>
-defineProps({
+const props = defineProps({
   weapons: {
     type: Array,
     required: true
-  }
+  },
+  highlightedWeapon: String 
 })
 </script>
 
@@ -16,6 +17,8 @@ defineProps({
           <th 
             v-for="weapon in weapons" 
             :key="weapon.id"
+            :data-weapon-name="weapon.name"
+            :class="{'is-highlighted': highlightedWeapon === weapon.name }"
             class="header-cell"
           >
             {{ weapon.name }}
@@ -55,6 +58,7 @@ defineProps({
             v-for="weapon in weapons" 
             :key="weapon.id"
             class="data-cell"
+            :class="{ 'text-center': !weapon.mass_at_end_of_sustainer_burn || weapon.mass_at_end_of_sustainer_burn === '-' }"
           >
             {{ weapon.mass_at_end_of_sustainer_burn || '-' }}
           </td>

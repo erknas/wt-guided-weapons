@@ -1,17 +1,19 @@
 <script setup>
-import { defineAsyncComponent, computed, ref } from 'vue'
+import { defineAsyncComponent, computed, ref, nextTick, watch } from 'vue'
 
 const props = defineProps({
   weapons: {
     type: Array,
     required: true
   },
-  category: String
+  category: String,
+  highlightedWeapon: String
 })
 
 const error = ref(null)
 
 const getTableName = (category) => {
+  console.log("WeaponLoader.vue: getTableName->", "category:", category)
   error.value = null
   return category
     .split('-')
@@ -30,20 +32,44 @@ const currentTable = computed(() => {
     })
   )
 })
+
+const scrollToWeapon = async () => {
+  if (!props.highlightedWeapon) {
+    return
+  }
+
+  await nextTick()
+
+  const weaponCell = document.querySelector(`[data-weapon-name="${props.highlightedWeapon}"]`)
+
+  if (weaponCell) {
+    weaponCell.classList.add('highlighted-weapon')
+
+    weaponCell.scrollIntoView({
+      behavior: 'smooth',
+      block: 'center',
+      inline: 'center'
+    })
+    
+    setTimeout(() => {
+      weaponCell.classList.remove('highlighted-weapon')
+    }, 3000)
+  }
+}
+
+watch([() => props.highlightedWeapon, () => props.category], async () => {
+  if (props.highlightedWeapon) {
+    setTimeout(scrollToWeapon, 100)
+  }
+}, { immediate: true })
 </script>
 
 <template>
   <div v-if="error" class="error-message">{{ error }}</div>
-  <component :is="currentTable" :weapons="weapons" v-else />
+  <component 
+    v-else
+    :is="currentTable" 
+    :weapons="weapons" 
+    :highlighted-weapon="highlightedWeapon" 
+  />
 </template>
-
-<style scoped>
-.error-message {
-  color: #ff4444;
-  padding: 1rem;
-  background: #ffeeee;
-  border: 1px solid #ffcccc;
-  border-radius: 4px;
-  margin: 1rem 0;
-}
-</style>
