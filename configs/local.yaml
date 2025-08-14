@@ -1,0 +1,16 @@
+env: "local"
+urls: "urls.json"
+server:
+  port: ":3000"
+  read_timeout: 5s
+  write_timeout: 10s
+  idle_timeout: 30s
+mongodb:
+  username: "root"
+  password: "password"
+  host: "localhost"
+  port: "27017"
+  db_name: "wt-guided-weapons"
+  coll_name: "weapons"
+  conn_timeout: 5s
+  select_timeout: 10s
