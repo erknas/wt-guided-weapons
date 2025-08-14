@@ -17,7 +17,7 @@ type mockWeaponsAggregator struct {
 	mock.Mock
 }
 
-type mockWeaponsInserter struct {
+type mockWeaponsUpserter struct {
 	mock.Mock
 }
 
@@ -30,7 +30,7 @@ func (m *mockWeaponsAggregator) Aggregate(ctx context.Context) ([]*types.Weapon,
 	return args.Get(0).([]*types.Weapon), args.Error(1)
 }
 
-func (m *mockWeaponsInserter) Insert(ctx context.Context, weapons []*types.Weapon) error {
+func (m *mockWeaponsUpserter) Upsert(ctx context.Context, weapons []*types.Weapon) error {
 	args := m.Called(ctx, weapons)
 	return args.Error(0)
 }
@@ -45,7 +45,7 @@ func (m *mockWeaponsProvider) Search(ctx context.Context, query string) ([]types
 	return args.Get(0).([]types.SearchResult), args.Error(1)
 }
 
-func TestService_InsertWeapons(t *testing.T) {
+func TestService_UpsertWeapons(t *testing.T) {
 	weapons := []*types.Weapon{
 		{Category: "sam-ir", Name: "9M39 Igla"},
 		{Category: "sam-ir", Name: "AIM-9X"},
@@ -55,35 +55,35 @@ func TestService_InsertWeapons(t *testing.T) {
 
 	tests := []struct {
 		name        string
-		mocks       func(*mockWeaponsAggregator, *mockWeaponsInserter)
+		mocks       func(*mockWeaponsAggregator, *mockWeaponsUpserter)
 		ctx         func() context.Context
 		wantErr     bool
 		containsErr string
 		checkErr    func(*testing.T, error)
 	}{
 		{
-			name: "Success",
-			mocks: func(mwa *mockWeaponsAggregator, mwi *mockWeaponsInserter) {
+			name: "success",
+			mocks: func(mwa *mockWeaponsAggregator, mwu *mockWeaponsUpserter) {
 				mwa.On("Aggregate", mock.Anything).Return(weapons, nil)
-				mwi.On("Insert", mock.Anything, weapons).Return(nil)
+				mwu.On("Upsert", mock.Anything, weapons).Return(nil)
 			},
 			wantErr: false,
 		},
 		{
-			name: "Insert error",
-			mocks: func(mwa *mockWeaponsAggregator, mwi *mockWeaponsInserter) {
+			name: "fail Upsert error",
+			mocks: func(mwa *mockWeaponsAggregator, mwu *mockWeaponsUpserter) {
 				mwa.On("Aggregate", mock.Anything).Return(weapons, nil)
-				mwi.On("Insert", mock.Anything, weapons).Return(errors.New("failed to insert documents"))
+				mwu.On("Upsert", mock.Anything, weapons).Return(errors.New("failed to upsert documents"))
 			},
 			wantErr:     true,
-			containsErr: "failed to insert documents",
+			containsErr: "failed to upsert documents",
 			checkErr: func(t *testing.T, err error) {
-				assert.Contains(t, err.Error(), "failed to insert documents")
+				assert.Contains(t, err.Error(), "failed to upsert documents")
 			},
 		},
 		{
-			name: "Aggregate error",
-			mocks: func(mwa *mockWeaponsAggregator, mwi *mockWeaponsInserter) {
+			name: "fail Aggregate error",
+			mocks: func(mwa *mockWeaponsAggregator, mwu *mockWeaponsUpserter) {
 				mwa.On("Aggregate", mock.Anything).Return([]*types.Weapon{}, errors.New("failed to parse table"))
 			},
 			wantErr:     true,
@@ -93,8 +93,8 @@ func TestService_InsertWeapons(t *testing.T) {
 			},
 		},
 		{
-			name: "Aggregate context cancelled",
-			mocks: func(mwa *mockWeaponsAggregator, mwi *mockWeaponsInserter) {
+			name: "fail Aggregate context cancelled",
+			mocks: func(mwa *mockWeaponsAggregator, mwu *mockWeaponsUpserter) {
 				mwa.On("Aggregate", mock.Anything).Return([]*types.Weapon{}, fmt.Errorf("failed to parse table: %w", context.Canceled))
 			},
 			ctx: func() context.Context {
@@ -109,8 +109,8 @@ func TestService_InsertWeapons(t *testing.T) {
 			},
 		},
 		{
-			name: "Aggregate context timeout",
-			mocks: func(mwa *mockWeaponsAggregator, mwi *mockWeaponsInserter) {
+			name: "fail Aggregate context timeout",
+			mocks: func(mwa *mockWeaponsAggregator, mwu *mockWeaponsUpserter) {
 				mwa.On("Aggregate", mock.Anything).Return([]*types.Weapon{}, fmt.Errorf("failed to parse table: %w", context.DeadlineExceeded))
 			},
 			ctx: func() context.Context {
@@ -125,17 +125,52 @@ func TestService_InsertWeapons(t *testing.T) {
 				assert.ErrorIs(t, err, context.DeadlineExceeded)
 			},
 		},
+		{
+			name: "fail Upsert context cancelled",
+			mocks: func(mwa *mockWeaponsAggregator, mwu *mockWeaponsUpserter) {
+				mwa.On("Aggregate", mock.Anything).Return(weapons, nil)
+				mwu.On("Upsert", mock.Anything, mock.Anything).Return(fmt.Errorf("failed to upsert documents: %w", context.Canceled))
+			},
+			ctx: func() context.Context {
+				ctx, cancel := context.WithCancel(context.Background())
+				cancel()
+				return ctx
+			},
+			wantErr:     true,
+			containsErr: "failed to upsert documents",
+			checkErr: func(t *testing.T, err error) {
+				assert.ErrorIs(t, err, context.Canceled)
+			},
+		},
+		{
+			name: "fail Upsert context timeout",
+			mocks: func(mwa *mockWeaponsAggregator, mwu *mockWeaponsUpserter) {
+				mwa.On("Aggregate", mock.Anything).Return(weapons, nil)
+				mwu.On("Upsert", mock.Anything, mock.Anything).Return(fmt.Errorf("failed to upsert documents: %w", context.DeadlineExceeded))
+			},
+			ctx: func() context.Context {
+				ctx, cancel := context.WithTimeout(context.Background(), time.Nanosecond)
+				defer cancel()
+				time.Sleep(time.Millisecond)
+				return ctx
+			},
+			wantErr:     true,
+			containsErr: "failed to upsert documents",
+			checkErr: func(t *testing.T, err error) {
+				assert.ErrorIs(t, err, context.DeadlineExceeded)
+			},
+		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			mockAggregator := new(mockWeaponsAggregator)
-			mockInserter := new(mockWeaponsInserter)
-			tt.mocks(mockAggregator, mockInserter)
+			mockUpserter := new(mockWeaponsUpserter)
+			tt.mocks(mockAggregator, mockUpserter)
 
 			service := &Service{
 				aggregator: mockAggregator,
-				inserter:   mockInserter,
+				upserter:   mockUpserter,
 			}
 
 			ctx := context.Background()
@@ -143,7 +178,7 @@ func TestService_InsertWeapons(t *testing.T) {
 				ctx = tt.ctx()
 			}
 
-			err := service.InsertWeapons(ctx)
+			err := service.UpsertWeapons(ctx)
 
 			if tt.wantErr {
 				require.Error(t, err)
@@ -156,7 +191,7 @@ func TestService_InsertWeapons(t *testing.T) {
 			}
 
 			mockAggregator.AssertExpectations(t)
-			mockInserter.AssertExpectations(t)
+			mockUpserter.AssertExpectations(t)
 		})
 	}
 }
@@ -178,17 +213,17 @@ func TestService_WeaponsByCategory(t *testing.T) {
 		containsErr string
 		checkErr    func(*testing.T, error)
 	}{{
-		name:     "Success WeaponsByCategory",
+		name:     "success",
 		category: "sam-ir",
 		mocks: func(mwp *mockWeaponsProvider) {
 			mwp.On("ByCategory", mock.Anything, "sam-ir").Return(weapons, nil)
 		},
 		wantErr: false,
 	}, {
-		name:     "Fail WeaponsByCategory",
-		category: "samir",
+		name:     "fail ByCategory error",
+		category: "sam-ir",
 		mocks: func(mwp *mockWeaponsProvider) {
-			mwp.On("ByCategory", mock.Anything, "samir").Return([]*types.Weapon{}, errors.New("failed to find documents"))
+			mwp.On("ByCategory", mock.Anything, "sam-ir").Return([]*types.Weapon{}, errors.New("failed to find documents"))
 		},
 		wantErr:     true,
 		containsErr: "failed to find documents",
@@ -196,7 +231,7 @@ func TestService_WeaponsByCategory(t *testing.T) {
 			assert.Contains(t, err.Error(), "failed to find documents")
 		},
 	}, {
-		name:     "Fail WeaponsByCategory context cancelled",
+		name:     "fail ByCategory context cancelled",
 		category: "sam-ir",
 		mocks: func(mwp *mockWeaponsProvider) {
 			mwp.On("ByCategory", mock.Anything, "sam-ir").Return([]*types.Weapon{}, context.Canceled)
@@ -212,7 +247,7 @@ func TestService_WeaponsByCategory(t *testing.T) {
 			assert.ErrorIs(t, err, context.Canceled)
 		},
 	}, {
-		name:     "Fail WeaponsByCateogry context timeout",
+		name:     "fail ByCategory context timeout",
 		category: "sam-ir",
 		mocks: func(mwp *mockWeaponsProvider) {
 			mwp.On("ByCategory", mock.Anything, "sam-ir").Return([]*types.Weapon{}, context.DeadlineExceeded)
@@ -264,7 +299,7 @@ func TestService_WeaponsByCategory(t *testing.T) {
 	}
 }
 
-func TestService_SearchWeapons(t *testing.T) {
+func TestService_SearchWeapon(t *testing.T) {
 	results := []types.SearchResult{
 		{Category: "sam-ir", Name: "AIM-9X"},
 		{Category: "aam-ir-rear-aspect", Name: "AIM-9B"},
@@ -280,14 +315,14 @@ func TestService_SearchWeapons(t *testing.T) {
 		containsErr string
 		checkErr    func(*testing.T, error)
 	}{{
-		name:  "Success SearchWeapon",
+		name:  "success",
 		query: "aim",
 		mocks: func(mwp *mockWeaponsProvider) {
 			mwp.On("Search", mock.Anything, "aim").Return(results, nil)
 		},
 		wantErr: false,
 	}, {
-		name:  "Fail SearchWeapon",
+		name:  "fail Search error",
 		query: "qn",
 		mocks: func(mwp *mockWeaponsProvider) {
 			mwp.On("Search", mock.Anything, "qn").Return([]types.SearchResult{}, errors.New("failed to find documents"))
@@ -298,7 +333,7 @@ func TestService_SearchWeapons(t *testing.T) {
 			assert.Contains(t, err.Error(), "failed to find documents")
 		},
 	}, {
-		name:  "Fail SearchWeapon context cancelled",
+		name:  "fail Search context cancelled",
 		query: "hn",
 		mocks: func(mwp *mockWeaponsProvider) {
 			mwp.On("Search", mock.Anything, "hn").Return([]types.SearchResult{}, context.Canceled)
@@ -314,7 +349,7 @@ func TestService_SearchWeapons(t *testing.T) {
 			assert.ErrorIs(t, err, context.Canceled)
 		},
 	}, {
-		name:  "Fail WeaponsByCateogry context timeout",
+		name:  "fail Search context timeout",
 		query: "aim",
 		mocks: func(mwp *mockWeaponsProvider) {
 			mwp.On("Search", mock.Anything, "aim").Return([]types.SearchResult{}, context.DeadlineExceeded)

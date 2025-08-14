@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"testing"
+	"time"
 
 	"github.com/erknas/wt-guided-weapons/internal/types"
 	"github.com/stretchr/testify/assert"
@@ -44,7 +45,7 @@ func TestParse(t *testing.T) {
 		checkErr func(*testing.T, error)
 	}{
 		{
-			name: "Success Parse",
+			name: "success",
 			mocks: func(mr *mockReader, mm *mockMapper) {
 				mr.On("Read", mock.Anything, "test-url").Return(testData, nil)
 				mm.On("Map", testData, "category", 1).Return(testWeapon, nil)
@@ -52,7 +53,7 @@ func TestParse(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name: "Fail Parse Read error",
+			name: "fail Read error",
 			mocks: func(mr *mockReader, mm *mockMapper) {
 				mr.On("Read", mock.Anything, "test-url").Return([][]string{}, errors.New("failed to create new request"))
 			},
@@ -62,7 +63,43 @@ func TestParse(t *testing.T) {
 			},
 		},
 		{
-			name: "Fail Parse Map error",
+			name: "fail Read error",
+			mocks: func(mr *mockReader, mm *mockMapper) {
+				mr.On("Read", mock.Anything, "test-url").Return([][]string{}, errors.New("failed to make HTTP request"))
+			},
+			wantErr: true,
+			checkErr: func(t *testing.T, err error) {
+				assert.Contains(t, err.Error(), "failed to read CSV")
+			},
+		},
+		{
+			name: "fail Read error",
+			mocks: func(mr *mockReader, mm *mockMapper) {
+				mr.On("Read", mock.Anything, "test-url").Return([][]string{}, errors.New("unexpected status code"))
+			},
+			wantErr: true,
+			checkErr: func(t *testing.T, err error) {
+				assert.Contains(t, err.Error(), "failed to read CSV")
+			},
+		},
+		{
+			name: "fail Read context timeout",
+			mocks: func(mr *mockReader, mm *mockMapper) {
+				mr.On("Read", mock.Anything, "test-url").Return([][]string{}, context.DeadlineExceeded)
+			},
+			ctx: func() context.Context {
+				ctx, cancel := context.WithTimeout(context.Background(), time.Nanosecond)
+				defer cancel()
+				time.Sleep(time.Millisecond)
+				return ctx
+			},
+			wantErr: true,
+			checkErr: func(t *testing.T, err error) {
+				assert.ErrorIs(t, err, context.DeadlineExceeded)
+			},
+		},
+		{
+			name: "fail Map error",
 			mocks: func(mr *mockReader, mm *mockMapper) {
 				mr.On("Read", mock.Anything, "test-url").Return(testData, nil)
 				mm.On("Map", testData, "category", 1).Return(testWeapon, errors.New("invalid data"))

@@ -45,7 +45,7 @@ func TestAggregate(t *testing.T) {
 		checkErr func(*testing.T, error)
 	}{
 		{
-			name: "Success",
+			name: "success",
 			mocks: func(mtp *mockTableParser) {
 				mtp.On("Parse", mock.Anything, "aam-sarh", urls["aam-sarh"]).Return(aamSarh, nil)
 				mtp.On("Parse", mock.Anything, "aam-arh", urls["aam-arh"]).Return(aamArh, nil)
@@ -53,7 +53,7 @@ func TestAggregate(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name: "Parse error",
+			name: "fail Parse error",
 			mocks: func(mtp *mockTableParser) {
 				mtp.On("Parse", mock.Anything, "aam-sarh", urls["aam-sarh"]).Return([]*types.Weapon{}, errors.New("failed to read CSV"))
 				mtp.On("Parse", mock.Anything, "aam-arh", urls["aam-arh"]).Return(aamArh, nil)

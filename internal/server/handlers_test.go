@@ -21,8 +21,9 @@ type mockServicer struct {
 	mock.Mock
 }
 
-func (m *mockServicer) InsertWeapons(ctx context.Context) error {
-	return nil
+func (m *mockServicer) UpsertWeapons(ctx context.Context) error {
+	args := m.Called(ctx)
+	return args.Error(0)
 }
 
 func (m *mockServicer) WeaponsByCategory(ctx context.Context, category string) ([]*types.Weapon, error) {
@@ -36,7 +37,7 @@ func (m *mockServicer) SearchWeapon(ctx context.Context, query string) ([]types.
 }
 
 func TestHandleGetWeaponsByCategory(t *testing.T) {
-	t.Run("Success", func(t *testing.T) {
+	t.Run("success", func(t *testing.T) {
 		mockServicer := new(mockServicer)
 		urls := map[string]string{"gbu-ir": "test-url"}
 
@@ -70,7 +71,7 @@ func TestHandleGetWeaponsByCategory(t *testing.T) {
 		mockServicer.AssertExpectations(t)
 	})
 
-	t.Run("Category does not exist", func(t *testing.T) {
+	t.Run("category does not exist", func(t *testing.T) {
 		mockServicer := new(mockServicer)
 		urls := map[string]string{"gbu-ir": "test-url"}
 
@@ -101,7 +102,7 @@ func TestHandleGetWeaponsByCategory(t *testing.T) {
 }
 
 func TestHandleSearchWeapon(t *testing.T) {
-	t.Run("Success", func(t *testing.T) {
+	t.Run("success", func(t *testing.T) {
 		mockServicer := new(mockServicer)
 
 		server := New(mockServicer, map[string]string{}, zap.NewNop())

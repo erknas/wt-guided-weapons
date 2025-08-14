@@ -18,12 +18,12 @@ func TestRead(t *testing.T) {
 		checkErr func(*testing.T, error)
 	}{
 		{
-			name:    "Success Read",
+			name:    "success",
 			url:     "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=0",
 			wantErr: false,
 		},
 		{
-			name:    "HTTP error",
+			name:    "fail",
 			url:     "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=0dsada343221",
 			wantErr: true,
 			checkErr: func(t *testing.T, err error) {
@@ -31,7 +31,7 @@ func TestRead(t *testing.T) {
 			},
 		},
 		{
-			name: "Context timeout",
+			name: "fail context timeout",
 			url:  "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=0",
 			ctx: func() context.Context {
 				ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond)
@@ -45,7 +45,7 @@ func TestRead(t *testing.T) {
 			},
 		},
 		{
-			name: "Context cancelled",
+			name: "fail context cancelled",
 			url:  "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=0",
 			ctx: func() context.Context {
 				ctx, cancel := context.WithCancel(context.Background())

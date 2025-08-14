@@ -22,10 +22,10 @@ func TestLoad(t *testing.T) {
 		wantLen     int
 	}{
 		{
-			name: "Success with 31 URLs",
+			name: "success",
 			prepareFile: func(t *testing.T) string {
 				filePath := filepath.Join(tmpDir, "success.json")
-				urls := make(map[string]string, 30)
+				urls := make(map[string]string, 31)
 				for i := 0; i < 31; i++ {
 					urls[fmt.Sprintf("cat%d", i)] = fmt.Sprintf("http://example.com/%d", i)
 				}
@@ -38,7 +38,7 @@ func TestLoad(t *testing.T) {
 			wantLen: 31,
 		},
 		{
-			name: "File not exists",
+			name: "file not exists",
 			prepareFile: func(t *testing.T) string {
 				return filepath.Join(tmpDir, "not_exists.json")
 			},
@@ -46,7 +46,7 @@ func TestLoad(t *testing.T) {
 			errContains: "failed to read file",
 		},
 		{
-			name: "Invalid JSON",
+			name: "invalid JSON",
 			prepareFile: func(t *testing.T) string {
 				filePath := filepath.Join(tmpDir, "invalid.json")
 				err := os.WriteFile(filePath, []byte("{invalid}"), 0644)
@@ -57,7 +57,7 @@ func TestLoad(t *testing.T) {
 			errContains: "failed to decode data",
 		},
 		{
-			name: "Empty file",
+			name: "empty file",
 			prepareFile: func(t *testing.T) string {
 				filePath := filepath.Join(tmpDir, "empty.json")
 				err := os.WriteFile(filePath, []byte(""), 0644)

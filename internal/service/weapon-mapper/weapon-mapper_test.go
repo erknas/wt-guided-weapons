@@ -17,19 +17,19 @@ func TestMapper(t *testing.T) {
 		expectedErr error
 	}{
 		{
-			name:        "Succes",
+			name:        "succes",
 			data:        [][]string{{"Category:", "aam-arh", "Name:", "AAM-4"}},
 			category:    "aam-arh",
 			weaponIdx:   2,
 			expectedErr: nil,
 		},
 		{
-			name:        "Invalid data",
+			name:        "fail invalid data",
 			data:        nil,
 			expectedErr: errors.New("invalid data"),
 		},
 		{
-			name:        "Invalid weaponIdx",
+			name:        "fail invalid weaponIdx",
 			data:        [][]string{{"Name:", "AAM-4", "AIM-54A Phoenix"}},
 			category:    "aam-arh",
 			weaponIdx:   200,

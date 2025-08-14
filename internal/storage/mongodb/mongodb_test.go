@@ -2,135 +2,184 @@ package mongodb
 
 import (
 	"context"
-	"fmt"
 	"testing"
 
+	"github.com/erknas/wt-guided-weapons/internal/config"
 	"github.com/erknas/wt-guided-weapons/internal/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	c "github.com/testcontainers/testcontainers-go/modules/mongodb"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/v2/mongo"
-	"go.mongodb.org/mongo-driver/v2/mongo/options"
 )
 
-var notExistentCategories = []string{"", "aam-rear", "aam_ir_rear_aspect", "aam ir all aspect"}
+const configPath = "../../../configs/mongodb-test-config.yaml"
 
-func setupMongo(ctx context.Context) (*mongo.Client, error) {
-	container, err := c.Run(ctx, "mongo:8.0")
-	if err != nil {
-		return nil, err
-	}
-
-	connStr, err := container.ConnectionString(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	return mongo.Connect(options.Client().ApplyURI(connStr))
-}
-
-func TestMongoDB_Insert(t *testing.T) {
+func TestMongoDB_Upsert(t *testing.T) {
 	ctx := context.Background()
 
-	client, err := setupMongo(ctx)
+	cfg := config.MustLoad(configPath)
+
+	db, err := New(ctx, cfg)
 	require.NoError(t, err)
-	defer client.Disconnect(ctx)
+	defer db.Close(ctx)
 
-	coll := client.Database("test").Collection("test_weapons")
+	_, err = db.coll.DeleteMany(ctx, bson.M{})
+	require.NoError(t, err)
 
-	db := &MongoDB{
-		client: client,
-		coll:   coll,
-	}
+	t.Run("insert new weapons", func(t *testing.T) {
+		weapons := []*types.Weapon{
+			{ID: "1a", Name: "AIM-9L", Category: "aam-ir-all-aspect"},
+			{ID: "2b", Name: "AIM-54", Category: "aam-arh"},
+		}
 
-	weapons := []*types.Weapon{
-		{Category: "atgm-ir", Name: "QN502C"},
-		{Category: "atgm-ir", Name: "Spike LR2"},
-		{Category: "atgm-losbr", Name: "ACRA"},
-	}
-
-	t.Run("Success", func(t *testing.T) {
-		err := db.Insert(ctx, weapons)
+		err := db.Upsert(ctx, weapons)
 		require.NoError(t, err)
 
-		count, err := coll.CountDocuments(ctx, bson.M{})
+		count, err := db.coll.CountDocuments(ctx, bson.M{})
 		require.NoError(t, err)
-		assert.Equal(t, len(weapons), int(count))
+		assert.Equal(t, int64(2), count)
 
-		var res types.Weapon
-		err = coll.FindOne(ctx, bson.M{"category": "atgm-losbr"}).Decode(&res)
+		_, err = db.coll.DeleteMany(ctx, bson.M{})
 		require.NoError(t, err)
-		assert.Equal(t, "ACRA", res.Name)
+	})
+
+	t.Run("update weapons", func(t *testing.T) {
+		weapons := []*types.Weapon{
+			{ID: "1", Name: "AIM-9L", Category: "aam-ir-all-aspect", Mass: "280"},
+			{ID: "2", Name: "AIM-54", Category: "aam-arh", MassAtEndOfBoosterBurn: "450"},
+		}
+
+		err := db.Upsert(ctx, weapons)
+		require.NoError(t, err)
+
+		count, err := db.coll.CountDocuments(ctx, bson.M{})
+		require.NoError(t, err)
+		assert.Equal(t, int64(2), count)
+
+		weapons[0].Mass = "270"
+		weapons[1].MassAtEndOfBoosterBurn = "400"
+
+		err = db.Upsert(ctx, weapons)
+		require.NoError(t, err)
+
+		count, err = db.coll.CountDocuments(ctx, bson.M{})
+		require.NoError(t, err)
+		assert.Equal(t, int64(2), count)
+
+		var weapon types.Weapon
+
+		err = db.coll.FindOne(ctx, bson.M{"id": "1"}).Decode(&weapon)
+		require.NoError(t, err)
+		assert.Equal(t, "270", weapon.Mass)
+
+		err = db.coll.FindOne(ctx, bson.M{"id": "2"}).Decode(&weapon)
+		require.NoError(t, err)
+		assert.Equal(t, "400", weapon.MassAtEndOfBoosterBurn)
+
+		_, err = db.coll.DeleteMany(ctx, bson.M{})
+		require.NoError(t, err)
 	})
 }
 
 func TestMongoDB_ByCategory(t *testing.T) {
 	ctx := context.Background()
 
-	client, err := setupMongo(ctx)
+	cfg := config.MustLoad(configPath)
+
+	db, err := New(ctx, cfg)
 	require.NoError(t, err)
-	defer client.Disconnect(ctx)
+	defer db.Close(ctx)
 
-	coll := client.Database("test").Collection("test_weapons")
-
-	_, err = coll.InsertMany(ctx, []interface{}{
-		bson.M{"category": "aam-ir-rear-aspect", "name": "AIM-9B"},
-		bson.M{"category": "aam-ir-rear-aspect", "name": "A-91"},
-		bson.M{"category": "aam-ir-all-aspect", "name": "AIM-9L"},
-		bson.M{"category": "gbu-tv", "name": "GBU-8/B"},
-	})
+	_, err = db.coll.DeleteMany(ctx, bson.M{})
 	require.NoError(t, err)
 
-	db := &MongoDB{
-		client: client,
-		coll:   coll,
-	}
+	t.Run("find weapons by category", func(t *testing.T) {
+		weapons := []*types.Weapon{
+			{ID: "1", Name: "AIM-9L", Category: "aam-ir-all-aspect"},
+			{ID: "2", Name: "AIM-9M", Category: "aam-ir-all-aspect"},
+			{ID: "3", Name: "AAM-3", Category: "aam-ir-all-aspect"},
+			{ID: "4", Name: "AIM-54", Category: "aam-arh"},
+		}
 
-	t.Run("ByCategory", func(t *testing.T) {
-		weapons, err := db.ByCategory(ctx, "aam-ir-rear-aspect")
+		err := db.Upsert(ctx, weapons)
 		require.NoError(t, err)
-		assert.Len(t, weapons, 2)
-		assert.Equal(t, "aam-ir-rear-aspect", weapons[0].Category)
-		assert.Equal(t, "AIM-9B", weapons[0].Name)
-	})
 
-	for _, category := range notExistentCategories {
-		t.Run(fmt.Sprintf("Non-existent category %s returns empty slice of weapons", category), func(t *testing.T) {
-			weapons, err := db.ByCategory(ctx, category)
-			require.NoError(t, err)
-			assert.Empty(t, weapons)
-		})
-	}
+		count, err := db.coll.CountDocuments(ctx, bson.M{})
+		require.NoError(t, err)
+		assert.Equal(t, int64(4), count)
+
+		category := "aam-ir-all-aspect"
+
+		results, err := db.ByCategory(ctx, category)
+		require.NoError(t, err)
+		assert.Equal(t, 3, len(results))
+		assert.Equal(t, weapons[0].Name, results[0].Name)
+		assert.Equal(t, weapons[1].Name, results[1].Name)
+		assert.Equal(t, weapons[2].Name, results[2].Name)
+
+		_, err = db.coll.DeleteMany(ctx, bson.M{})
+		require.NoError(t, err)
+	})
 }
 
-func TestMongodb_Search(t *testing.T) {
+func TestMongoDB_Search(t *testing.T) {
 	ctx := context.Background()
 
-	client, err := setupMongo(ctx)
+	cfg := config.MustLoad(configPath)
+
+	db, err := New(ctx, cfg)
 	require.NoError(t, err)
-	defer client.Disconnect(ctx)
+	defer db.Close(ctx)
 
-	coll := client.Database("test").Collection("test_weapons")
-
-	_, err = coll.InsertMany(ctx, []interface{}{
-		bson.M{"category": "aam-ir-rear-aspect", "name": "AIM-9B"},
-		bson.M{"category": "aam-ir-rear-aspect", "name": "A-91"},
-		bson.M{"category": "aam-ir-all-aspect", "name": "AIM-9L"},
-		bson.M{"category": "gbu-tv", "name": "GBU-8/B"},
-	})
+	_, err = db.coll.DeleteMany(ctx, bson.M{})
 	require.NoError(t, err)
 
-	db := &MongoDB{
-		client: client,
-		coll:   coll,
-	}
+	t.Run("find weapon by name", func(t *testing.T) {
+		weapons := []*types.Weapon{
+			{ID: "1", Name: "AIM-9L", Category: "aam-ir-all-aspect"},
+			{ID: "2", Name: "AIM-9M", Category: "aam-ir-all-aspect"},
+			{ID: "3", Name: "AAM-3", Category: "aam-ir-all-aspect"},
+			{ID: "4", Name: "AIM-54", Category: "aam-arh"},
+		}
 
-	t.Run("Search", func(t *testing.T) {
+		err := db.Upsert(ctx, weapons)
+		require.NoError(t, err)
+
+		count, err := db.coll.CountDocuments(ctx, bson.M{})
+		require.NoError(t, err)
+		assert.Equal(t, int64(4), count)
+
 		query := "aim"
+
 		results, err := db.Search(ctx, query)
 		require.NoError(t, err)
-		assert.NotEmpty(t, results)
-		assert.Len(t, results, 2)
+		assert.Equal(t, 3, len(results))
+
+		_, err = db.coll.DeleteMany(ctx, bson.M{})
+		require.NoError(t, err)
+	})
+
+	t.Run("find weapon by name empty results", func(t *testing.T) {
+		weapons := []*types.Weapon{
+			{ID: "1", Name: "AIM-9L", Category: "aam-ir-all-aspect"},
+			{ID: "2", Name: "AIM-9M", Category: "aam-ir-all-aspect"},
+			{ID: "3", Name: "AAM-3", Category: "aam-ir-all-aspect"},
+			{ID: "4", Name: "AIM-54", Category: "aam-arh"},
+		}
+
+		err := db.Upsert(ctx, weapons)
+		require.NoError(t, err)
+
+		count, err := db.coll.CountDocuments(ctx, bson.M{})
+		require.NoError(t, err)
+		assert.Equal(t, int64(4), count)
+
+		query := "abfa1230"
+
+		results, err := db.Search(ctx, query)
+		require.NoError(t, err)
+		assert.Empty(t, results)
+
+		_, err = db.coll.DeleteMany(ctx, bson.M{})
+		require.NoError(t, err)
 	})
 }
