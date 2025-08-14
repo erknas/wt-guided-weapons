@@ -9,7 +9,7 @@ import (
 
 type Config struct {
 	Env           string `yaml:"env"`
-	FileName      string `yaml:"file_name"`
+	URLs          string `yaml:"urls"`
 	ConfigServer  `yaml:"server"`
 	ConfigMongoDB `yaml:"mongodb"`
 }
@@ -32,11 +32,11 @@ type ConfigMongoDB struct {
 	SelectTimeout  time.Duration `yaml:"select_timeout"`
 }
 
-func Load() *Config {
+func MustLoad(path string) *Config {
 	cfg := new(Config)
 
-	if err := cleanenv.ReadConfig("config.yaml", cfg); err != nil {
-		log.Fatal(err)
+	if err := cleanenv.ReadConfig(path, cfg); err != nil {
+		log.Fatalf("failed to read config: %v", err)
 	}
 
 	return cfg

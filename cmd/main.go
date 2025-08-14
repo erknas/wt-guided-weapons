@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"flag"
 	"log"
 	"os"
 	"os/signal"
@@ -22,7 +23,10 @@ import (
 )
 
 func main() {
-	cfg := config.Load()
+	configPath := flag.String("config", "local.yaml", "path to the config")
+	flag.Parse()
+
+	cfg := config.MustLoad(*configPath)
 
 	logger, err := logger.New(cfg.Env)
 	if err != nil {
@@ -59,7 +63,7 @@ func main() {
 		logger.Info("storage closed")
 	}()
 
-	urls, err := urlsloader.Load(cfg.FileName)
+	urls, err := urlsloader.Load(cfg.URLs)
 	if err != nil {
 		logger.Error("failed to load urls",
 			zap.Error(err),
