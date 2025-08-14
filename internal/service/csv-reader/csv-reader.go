@@ -23,7 +23,7 @@ func (r *HTTPReader) Read(ctx context.Context, url string) ([][]string, error) {
 
 	resp, err := client.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("failed to make HTTP request to table [%s]: %w", url, err)
+		return nil, fmt.Errorf("failed to make HTTP request: %w", err)
 	}
 	defer resp.Body.Close()
 
