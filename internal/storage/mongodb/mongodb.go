@@ -14,6 +14,12 @@ import (
 	"go.uber.org/zap"
 )
 
+const (
+	FieldWeaponID        = "id"
+	FieldWeaponsCategory = "category"
+	FieldWeaponName      = "name"
+)
+
 type MongoDB struct {
 	client *mongo.Client
 	coll   *mongo.Collection
@@ -42,19 +48,38 @@ func New(ctx context.Context, cfg *config.Config) (*MongoDB, error) {
 	}, nil
 }
 
-func (m *MongoDB) Insert(ctx context.Context, weapons []*types.Weapon) error {
+func (m *MongoDB) Upsert(ctx context.Context, weapons []*types.Weapon) error {
 	log := logger.FromContext(ctx, logger.Storage)
 
-	res, err := m.coll.InsertMany(ctx, weapons)
-	if err != nil {
-		log.Error("insert error",
-			zap.Error(err),
-		)
-		return fmt.Errorf("failed to insert documents: %w", err)
+	models := make([]mongo.WriteModel, 0, len(weapons))
+
+	for _, weapon := range weapons {
+		if weapon.ID == "" {
+			weapon.ID = generateWeaponID(weapon)
+		}
+
+		filter := bson.M{FieldWeaponID: weapon.ID}
+
+		model := mongo.NewUpdateOneModel()
+		model.SetFilter(filter)
+		model.SetUpdate(updateWeapon(weapon))
+		model.SetUpsert(true)
+
+		models = append(models, model)
 	}
 
-	log.Debug("Insert complited",
-		zap.Int("total documents inserted", len(res.InsertedIDs)),
+	res, err := m.coll.BulkWrite(ctx, models)
+	if err != nil {
+		log.Error("BulkWrite error",
+			zap.Error(err),
+		)
+		return fmt.Errorf("failed to upsert documents: %w", err)
+	}
+
+	log.Debug("Upsert complited",
+		zap.Int("matched count", int(res.MatchedCount)),
+		zap.Int("upserted count", int(res.UpsertedCount)),
+		zap.Int("modified count", int(res.ModifiedCount)),
 	)
 
 	return nil
@@ -63,11 +88,11 @@ func (m *MongoDB) Insert(ctx context.Context, weapons []*types.Weapon) error {
 func (m *MongoDB) ByCategory(ctx context.Context, category string) ([]*types.Weapon, error) {
 	log := logger.FromContext(ctx, logger.Storage)
 
-	filter := bson.M{"category": category}
+	filter := bson.M{FieldWeaponsCategory: category}
 
 	cursor, err := m.coll.Find(ctx, filter)
 	if err != nil {
-		log.Error("find error",
+		log.Error("Find error",
 			zap.Error(err),
 		)
 		return nil, fmt.Errorf("failed to find documents: %w", err)
@@ -77,21 +102,21 @@ func (m *MongoDB) ByCategory(ctx context.Context, category string) ([]*types.Wea
 	var weapons []*types.Weapon
 
 	if err := cursor.All(ctx, &weapons); err != nil {
-		log.Error("decoding error",
+		log.Error("Decode error",
 			zap.Error(err),
 		)
 		return nil, fmt.Errorf("failed to decode document: %w", err)
 	}
 
 	if err := cursor.Err(); err != nil {
-		log.Error("iteration error",
+		log.Error("Cursor error",
 			zap.Error(err),
 		)
-		return nil, fmt.Errorf("last cursor error: %w", err)
+		return nil, fmt.Errorf("cursor error: %w", err)
 	}
 
 	log.Debug("ByCategory complited",
-		zap.Int("total documents returned", len(weapons)),
+		zap.Int("total documents found", len(weapons)),
 	)
 
 	return weapons, nil
@@ -101,7 +126,7 @@ func (m *MongoDB) Search(ctx context.Context, query string) ([]types.SearchResul
 	log := logger.FromContext(ctx, logger.Storage)
 
 	filter := bson.M{
-		"name": bson.M{
+		FieldWeaponName: bson.M{
 			"$regex":   regexp.QuoteMeta(query),
 			"$options": "i",
 		},
@@ -109,7 +134,7 @@ func (m *MongoDB) Search(ctx context.Context, query string) ([]types.SearchResul
 
 	cursor, err := m.coll.Find(ctx, filter)
 	if err != nil {
-		log.Error("find error",
+		log.Error("Find error",
 			zap.Error(err),
 		)
 		return nil, fmt.Errorf("failed to find documents: %w", err)
@@ -119,21 +144,21 @@ func (m *MongoDB) Search(ctx context.Context, query string) ([]types.SearchResul
 	var results []types.SearchResult
 
 	if err := cursor.All(ctx, &results); err != nil {
-		log.Error("decoding error",
+		log.Error("Decode error",
 			zap.Error(err),
 		)
 		return nil, fmt.Errorf("failed to decode document: %w", err)
 	}
 
 	if err := cursor.Err(); err != nil {
-		log.Error("iteration error",
+		log.Error("Cursor error",
 			zap.Error(err),
 		)
-		return nil, fmt.Errorf("last cursor error: %w", err)
+		return nil, fmt.Errorf("cursor error: %w", err)
 	}
 
 	log.Debug("Search complited",
-		zap.Int("total results", len(results)),
+		zap.Int("total documents found", len(results)),
 	)
 
 	return results, nil

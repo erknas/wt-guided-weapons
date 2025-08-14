@@ -10,17 +10,17 @@ import (
 	"go.uber.org/zap"
 )
 
-func (s *Server) handleInsertWeapons(w http.ResponseWriter, r *http.Request) error {
+func (s *Server) handleUpdateWeapons(w http.ResponseWriter, r *http.Request) error {
 	log := logger.FromContext(r.Context(), logger.Transport)
 
-	if err := s.svc.InsertWeapons(r.Context()); err != nil {
-		log.Error("InsertWeapons failed",
+	if err := s.svc.UpsertWeapons(r.Context()); err != nil {
+		log.Error("UpdateWeapons failed",
 			zap.Error(err),
 		)
 		return err
 	}
 
-	log.Info("InsertWeapons handler complited")
+	log.Info("UpdateWeapons handler complited")
 
 	return api.WriteJSON(w, http.StatusOK, map[string]string{"msg": "OK"})
 }

@@ -9,8 +9,8 @@ import (
 	"go.uber.org/zap"
 )
 
-type WeaponsInserter interface {
-	Insert(ctx context.Context, weapons []*types.Weapon) error
+type WeaponsUpserter interface {
+	Upsert(ctx context.Context, weapons []*types.Weapon) error
 }
 
 type WeaponsProvider interface {
@@ -23,38 +23,38 @@ type WeaponsAggregator interface {
 }
 
 type Service struct {
-	inserter   WeaponsInserter
+	upserter   WeaponsUpserter
 	provider   WeaponsProvider
 	aggregator WeaponsAggregator
 }
 
-func New(inserter WeaponsInserter, provider WeaponsProvider, aggregator WeaponsAggregator) *Service {
+func New(upserter WeaponsUpserter, provider WeaponsProvider, aggregator WeaponsAggregator) *Service {
 	return &Service{
-		inserter:   inserter,
+		upserter:   upserter,
 		provider:   provider,
 		aggregator: aggregator,
 	}
 }
 
-func (s *Service) InsertWeapons(ctx context.Context) error {
+func (s *Service) UpsertWeapons(ctx context.Context) error {
 	log := logger.FromContext(ctx, logger.Service)
 
 	weapons, err := s.aggregator.Aggregate(ctx)
 	if err != nil {
-		log.Error("failed to aggregate weapons",
+		log.Error("Aggregate error",
 			zap.Error(err),
 		)
 		return fmt.Errorf("failed to aggregate weapons: %w", err)
 	}
 
-	if err := s.inserter.Insert(ctx, weapons); err != nil {
-		log.Error("failed to insert weapons",
+	if err := s.upserter.Upsert(ctx, weapons); err != nil {
+		log.Error("Upsert error",
 			zap.Error(err),
 		)
 		return err
 	}
 
-	log.Debug("InsertWeapons complited")
+	log.Debug("UpsertWeapons complited")
 
 	return nil
 }
@@ -64,7 +64,7 @@ func (s *Service) WeaponsByCategory(ctx context.Context, category string) ([]*ty
 
 	weapons, err := s.provider.ByCategory(ctx, category)
 	if err != nil {
-		log.Error("failed to provide weapons",
+		log.Error("ByCategory error",
 			zap.Error(err),
 			zap.String("category", category),
 		)
@@ -84,7 +84,7 @@ func (s *Service) SearchWeapon(ctx context.Context, query string) ([]types.Searc
 
 	results, err := s.provider.Search(ctx, query)
 	if err != nil {
-		log.Error("failed to find weapon",
+		log.Error("Search error",
 			zap.Error(err),
 		)
 		return nil, err
