@@ -83,7 +83,7 @@ func (w *Weapons) Aggregate(ctx context.Context) ([]*types.Weapon, error) {
 
 	for result := range results {
 		if result.err != nil {
-			w.log.Error("failed to parse table",
+			w.log.Error("Parse error",
 				zap.Error(result.err),
 				zap.String("category", result.category),
 			)
@@ -98,7 +98,7 @@ func (w *Weapons) Aggregate(ctx context.Context) ([]*types.Weapon, error) {
 		tables++
 	}
 
-	w.log.Info("tables parsing complited",
+	w.log.Info("Tables parsing complited",
 		zap.Int("total tables", tables),
 		zap.Int("total weapons", len(weapons)),
 		zap.Duration("took time", time.Since(start)),
