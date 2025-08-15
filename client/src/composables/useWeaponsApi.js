@@ -11,6 +11,9 @@ export function useWeaponsApi() {
       const response = await fetch(
         `/api/weapons/${encodeURIComponent(category)}`
       );
+      if (!response.ok) {
+        throw new Error("Network error");
+      }
       const data = await response.json();
       weapons.value = data.weapons;
     } catch (err) {
