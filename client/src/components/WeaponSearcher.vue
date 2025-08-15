@@ -53,7 +53,7 @@ watch(results, (newResults) => {
     >
       ✕
     </button>
-    <div v-if="error" class="error-message">{{ error }}</div>
+    <div v-if="query && error" class="error-message">{{ error }}</div>
     <div v-if="isOpen && results.length > 0" class="dropdown-container">
       <div class="search-results">
         <div
@@ -119,6 +119,17 @@ watch(results, (newResults) => {
 
 .clear-button:focus:not(:focus-visible) {
   outline: none;
+}
+
+.error-message {
+  position: absolute;
+  top: 30px;
+  left: 0;
+  right: 0;
+  background: #dbdbdb;
+  color: black;
+  border: 1px solid gray;
+  border-top: none;
 }
 
 .dropdown-container {

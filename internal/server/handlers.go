@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/erknas/wt-guided-weapons/internal/lib/api"
+	apierrors "github.com/erknas/wt-guided-weapons/internal/lib/api/api-errors"
 	"github.com/erknas/wt-guided-weapons/internal/logger"
 	"github.com/erknas/wt-guided-weapons/internal/types"
 	"github.com/go-chi/chi/v5"
@@ -57,6 +58,13 @@ func (s *Server) handleSeachWeapon(w http.ResponseWriter, r *http.Request) error
 			zap.Error(err),
 		)
 		return err
+	}
+
+	if len(results) == 0 {
+		log.Warn("Empty search results",
+			zap.String("query", query),
+		)
+		return apierrors.EmptySearchResults()
 	}
 
 	log.Info("SearchWeapon handler complited",

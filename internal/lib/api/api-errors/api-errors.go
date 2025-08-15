@@ -24,3 +24,7 @@ func NewApiError(statusCode int, err error) APIError {
 func InvalidCategory(category string) APIError {
 	return NewApiError(http.StatusBadRequest, fmt.Errorf("category %s does not exist", category))
 }
+
+func EmptySearchResults() APIError {
+	return NewApiError(http.StatusBadRequest, fmt.Errorf("nothing found"))
+}

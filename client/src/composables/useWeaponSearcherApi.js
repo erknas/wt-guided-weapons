@@ -12,7 +12,9 @@ export function useSearchApi() {
       `/api/weapons/search/${encodeURIComponent(searchQuery)}`
     );
     if (!response.ok) {
-      throw new Error("Network error");
+      const errorData = await response.json();
+      const errorMessage = errorData.message;
+      throw new Error(errorMessage);
     }
     return await response.json();
   };
@@ -46,8 +48,7 @@ export function useSearchApi() {
       results.value = data.results;
       lastSearchQuery.value = trimmedQuery;
     } catch (err) {
-      error.value = "Search error";
-      console.error("Search error:", err);
+      error.value = err.message;
       results.value = [];
     } finally {
       loading.value = false;
