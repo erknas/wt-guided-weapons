@@ -13,7 +13,6 @@ const props = defineProps({
 const error = ref(null)
 
 const getTableName = (category) => {
-  console.log("WeaponLoader.vue: getTableName->", "category:", category)
   error.value = null
   return category
     .split('-')
