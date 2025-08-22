@@ -12,7 +12,7 @@ export function useWeaponsApi() {
         `/api/weapons/${encodeURIComponent(category)}`
       );
       if (!response.ok) {
-        throw new Error("Network error");
+        throw new Error("Application error");
       }
       const data = await response.json();
       weapons.value = data.weapons;
