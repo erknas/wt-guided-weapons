@@ -17,19 +17,24 @@ import (
 	"go.uber.org/zap"
 )
 
-type Servicer interface {
-	UpsertWeapons(ctx context.Context) error
-	WeaponsByCategory(ctx context.Context, category string) ([]*types.Weapon, error)
-	SearchWeapon(ctx context.Context, query string) ([]types.SearchResult, error)
+type WeaponsServicer interface {
+	UpdateWeapons(ctx context.Context) error
+	GetWeaponsByCategory(ctx context.Context, category string) ([]*types.Weapon, error)
+	SearchWeapons(ctx context.Context, query string) ([]types.SearchResult, error)
+}
+
+type VersionServicer interface {
+	GetVersion(ctx context.Context) (types.LastChange, error)
 }
 
 type Server struct {
-	svc        Servicer
+	weaponSvc  WeaponsServicer
+	versionSvc VersionServicer
 	categories map[string]struct{}
 	log        *zap.Logger
 }
 
-func New(svc Servicer, urls map[string]string, log *zap.Logger) *Server {
+func New(weaponsSvc WeaponsServicer, versionSvc VersionServicer, urls map[string]string, log *zap.Logger) *Server {
 	categories := make(map[string]struct{}, len(urls))
 
 	for category := range urls {
@@ -37,7 +42,8 @@ func New(svc Servicer, urls map[string]string, log *zap.Logger) *Server {
 	}
 
 	return &Server{
-		svc:        svc,
+		weaponSvc:  weaponsSvc,
+		versionSvc: versionSvc,
 		categories: categories,
 		log:        log,
 	}
@@ -95,7 +101,8 @@ func (s *Server) routes(r *chi.Mux) {
 	r.Route("/api", func(r chi.Router) {
 		r.Get("/upsert", makeHTTPFunc(s.handleUpdateWeapons))
 		r.With(logger.MiddlewareCategoryCheck(s.categories)).Get("/weapons/{category}", makeHTTPFunc(s.handleGetWeaponsByCategory))
-		r.Get("/weapons/search/{name}", makeHTTPFunc(s.handleSeachWeapon))
+		r.Get("/weapons/search/{name}", makeHTTPFunc(s.handleSeachWeapons))
+		r.Get("/version", makeHTTPFunc(s.handleGetVersion))
 	})
 
 	r.Handle("/*", http.FileServer(http.Dir("./static")))
