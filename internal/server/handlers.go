@@ -11,11 +11,13 @@ import (
 	"go.uber.org/zap"
 )
 
+const searchQuery = "name"
+
 func (s *Server) handleUpdateWeapons(w http.ResponseWriter, r *http.Request) error {
 	log := logger.FromContext(r.Context(), logger.Transport)
 
-	if err := s.svc.UpsertWeapons(r.Context()); err != nil {
-		log.Error("UpdateWeapons failed",
+	if err := s.weaponSvc.UpdateWeapons(r.Context()); err != nil {
+		log.Error("Service call UpdateWeapons failed",
 			zap.Error(err),
 		)
 		return err
@@ -31,9 +33,9 @@ func (s *Server) handleGetWeaponsByCategory(w http.ResponseWriter, r *http.Reque
 
 	category := chi.URLParam(r, "category")
 
-	weapons, err := s.svc.WeaponsByCategory(r.Context(), category)
+	weapons, err := s.weaponSvc.GetWeaponsByCategory(r.Context(), category)
 	if err != nil {
-		log.Error("WeaponsByCategory failed",
+		log.Error("Service call GetWeaponsByCategory failed",
 			zap.Error(err),
 		)
 		return err
@@ -47,14 +49,14 @@ func (s *Server) handleGetWeaponsByCategory(w http.ResponseWriter, r *http.Reque
 	return api.WriteJSON(w, http.StatusOK, types.Weapons{Weapons: weapons})
 }
 
-func (s *Server) handleSeachWeapon(w http.ResponseWriter, r *http.Request) error {
+func (s *Server) handleSeachWeapons(w http.ResponseWriter, r *http.Request) error {
 	log := logger.FromContext(r.Context(), logger.Transport)
 
-	query := chi.URLParam(r, "name")
+	query := chi.URLParam(r, searchQuery)
 
-	results, err := s.svc.SearchWeapon(r.Context(), query)
+	results, err := s.weaponSvc.SearchWeapons(r.Context(), query)
 	if err != nil {
-		log.Error("SearchWeapon failed",
+		log.Error("Service call SearchWeapons failed",
 			zap.Error(err),
 		)
 		return err
@@ -67,10 +69,26 @@ func (s *Server) handleSeachWeapon(w http.ResponseWriter, r *http.Request) error
 		return apierrors.EmptySearchResults()
 	}
 
-	log.Info("SearchWeapon handler complited",
+	log.Info("SearchWeapons handler complited",
 		zap.String("query", query),
 		zap.Int("total weapons found", len(results)),
 	)
 
-	return api.WriteJSON(w, http.StatusOK, types.Results{Results: results})
+	return api.WriteJSON(w, http.StatusOK, types.SearchResults{Results: results})
+}
+
+func (s *Server) handleGetVersion(w http.ResponseWriter, r *http.Request) error {
+	log := logger.FromContext(r.Context(), logger.Transport)
+
+	version, err := s.versionSvc.GetVersion(r.Context())
+	if err != nil {
+		log.Error("Service call GetVersion failed",
+			zap.Error(err),
+		)
+		return err
+	}
+
+	log.Info("GetVersion complited")
+
+	return api.WriteJSON(w, http.StatusOK, version)
 }
