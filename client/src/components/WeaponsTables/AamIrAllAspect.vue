@@ -611,6 +611,52 @@ const props = defineProps({
             {{ weapon.pid_derivative || '-' }}
           </td>
         </tr>
+        <tr class="orienting-props-row no-hover">
+          <td class="sticky-col orienting-props no-hover">
+            Orienting properties
+          </td>
+          <td :colspan="weapons.length" class="orienting-props-fill no-hover"></td>
+        </tr>
+        <tr>
+          <td class="sticky-col header-cell-param">Orienting phase:</td>
+          <td 
+            v-for="weapon in weapons" 
+            :key="weapon.id"
+            class="data-cell text-center"
+          >
+            {{ weapon.orienting_phase || '-' }}
+          </td>
+        </tr>
+        <tr>
+          <td class="sticky-col header-cell-param">Orienting start delay: [s]</td>
+          <td 
+            v-for="weapon in weapons" 
+            :key="weapon.id"
+            class="data-cell"
+          >
+            {{ weapon.orienting_start_delay || '-' }}
+          </td>
+        </tr>
+        <tr>
+          <td class="sticky-col header-cell-param">Orienting control time: [s]</td>
+          <td 
+            v-for="weapon in weapons" 
+            :key="weapon.id"
+            class="data-cell"
+          >
+            {{ weapon.orienting_control_time || '-' }}
+          </td>
+        </tr>
+        <tr>
+          <td class="sticky-col header-cell-param">Orienting elevation addition: [m]</td>
+          <td 
+            v-for="weapon in weapons" 
+            :key="weapon.id"
+            class="data-cell"
+          >
+            {{ weapon.orienting_elevation_addition || '-' }}
+          </td>
+        </tr>
         <tr class="flight-props-row no-hover">
           <td class="sticky-col flight-props no-hover">
             Flight properties
@@ -791,3 +837,19 @@ const props = defineProps({
     </table>
 </div>
 </template>
+
+<style scoped>
+.orienting-props.sticky-col {
+  display: block;
+  text-align: left;
+  background-color: #e9a252;
+  font-size: large;
+  font-weight: bold;
+  border-bottom: 1px solid #bababa;
+  padding: 5px 2px;
+}
+
+.orienting-props-row .orienting-props-fill{
+  background-color: #e9a252;
+}
+</style>
