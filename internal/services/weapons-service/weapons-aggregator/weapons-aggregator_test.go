@@ -1,4 +1,4 @@
-package aggregator
+package weaponsaggregator
 
 import (
 	"context"
@@ -63,6 +63,17 @@ func TestAggregate(t *testing.T) {
 				assert.Contains(t, err.Error(), "failed to parse table")
 			},
 		},
+		{
+			name: "fail Map error",
+			mocks: func(mtp *mockTableParser) {
+				mtp.On("Parse", mock.Anything, "aam-sarh", urls["aam-sarh"]).Return([]*types.Weapon{}, errors.New("invalid data"))
+				mtp.On("Parse", mock.Anything, "aam-arh", urls["aam-arh"]).Return(aamArh, nil)
+			},
+			wantErr: true,
+			checkErr: func(t *testing.T, err error) {
+				assert.Contains(t, err.Error(), "failed to parse table")
+			},
+		},
 	}
 
 	for _, tt := range tests {
@@ -77,7 +88,7 @@ func TestAggregate(t *testing.T) {
 				ctx = tt.ctx()
 			}
 
-			res, err := aggregator.Aggregate(ctx)
+			res, err := aggregator.AggregateWeapons(ctx)
 
 			if tt.wantErr {
 				require.Error(t, err)

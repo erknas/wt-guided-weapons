@@ -1,26 +1,23 @@
-package weaponparser
+package weaponsparser
 
 import (
 	"context"
 	"fmt"
 
+	csvreader "github.com/erknas/wt-guided-weapons/internal/lib/csv-reader"
 	"github.com/erknas/wt-guided-weapons/internal/types"
 )
-
-type Reader interface {
-	Read(ctx context.Context, url string) ([][]string, error)
-}
 
 type Mapper interface {
 	Map(data [][]string, category string, weaponIdx int) (*types.Weapon, error)
 }
 
 type CSVWeaponParser struct {
-	reader Reader
+	reader csvreader.Reader
 	mapper Mapper
 }
 
-func New(reader Reader, mapper Mapper) *CSVWeaponParser {
+func New(reader csvreader.Reader, mapper Mapper) *CSVWeaponParser {
 	return &CSVWeaponParser{
 		reader: reader,
 		mapper: mapper,

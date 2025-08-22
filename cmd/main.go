@@ -10,15 +10,17 @@ import (
 	"time"
 
 	"github.com/erknas/wt-guided-weapons/internal/config"
+	csvreader "github.com/erknas/wt-guided-weapons/internal/lib/csv-reader"
 	"github.com/erknas/wt-guided-weapons/internal/logger"
 	"github.com/erknas/wt-guided-weapons/internal/server"
-	"github.com/erknas/wt-guided-weapons/internal/service"
-	"github.com/erknas/wt-guided-weapons/internal/service/aggregator"
-	csvreader "github.com/erknas/wt-guided-weapons/internal/service/csv-reader"
-	urlsloader "github.com/erknas/wt-guided-weapons/internal/service/urls-loader"
-	weaponmapper "github.com/erknas/wt-guided-weapons/internal/service/weapon-mapper"
-	weaponparser "github.com/erknas/wt-guided-weapons/internal/service/weapon-parser"
+	versionservice "github.com/erknas/wt-guided-weapons/internal/services/version-service"
+	versionparser "github.com/erknas/wt-guided-weapons/internal/services/version-service/version-parser"
+	weaponsservice "github.com/erknas/wt-guided-weapons/internal/services/weapons-service"
+	weaponmapper "github.com/erknas/wt-guided-weapons/internal/services/weapons-service/weapon-mapper"
+	weaponsparser "github.com/erknas/wt-guided-weapons/internal/services/weapons-service/weapon-parser"
+	weaponsaggregator "github.com/erknas/wt-guided-weapons/internal/services/weapons-service/weapons-aggregator"
 	"github.com/erknas/wt-guided-weapons/internal/storage/mongodb"
+	urlsloader "github.com/erknas/wt-guided-weapons/internal/urls-loader"
 	"go.uber.org/zap"
 )
 
@@ -71,13 +73,16 @@ func main() {
 		os.Exit(1)
 	}
 
-	parser := weaponparser.New(&csvreader.HTTPReader{}, &weaponmapper.WeaponMapper{})
+	reader := csvreader.New()
 
-	aggregator := aggregator.New(urls, parser, logger)
+	versionParser := versionparser.New(reader)
+	versionService := versionservice.New(storage, storage, versionParser)
 
-	service := service.New(storage, storage, aggregator)
+	weaponsParser := weaponsparser.New(reader, &weaponmapper.WeaponMapper{})
+	weaponsAggregator := weaponsaggregator.New(urls, weaponsParser, logger)
+	weaponsService := weaponsservice.New(storage, storage, weaponsAggregator, versionService)
 
-	server := server.New(service, urls, logger)
+	server := server.New(weaponsService, versionService, urls, logger)
 	if err := server.Run(ctx, cfg); err != nil {
 		logger.Error("server failed",
 			zap.Error(err),

@@ -1,4 +1,4 @@
-package aggregator
+package weaponsaggregator
 
 import (
 	"context"
@@ -41,28 +41,28 @@ type parseResult struct {
 
 const numWorkers = 4
 
-func (w *Weapons) Aggregate(ctx context.Context) ([]*types.Weapon, error) {
+func (w *Weapons) AggregateWeapons(ctx context.Context) ([]*types.Weapon, error) {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
-	jobs := make(chan parseJob, len(w.urls))
-	results := make(chan parseResult, len(w.urls))
+	jobsCh := make(chan parseJob, len(w.urls))
+	resultsCh := make(chan parseResult, len(w.urls))
 
-	wg := sync.WaitGroup{}
+	wg := &sync.WaitGroup{}
 
 	start := time.Now()
 	for i := range numWorkers {
 		wg.Add(1)
 		w.log.Debug("starting", zap.Int("worker №", i+1))
-		go w.worker(ctx, jobs, results, &wg)
+		go w.worker(ctx, jobsCh, resultsCh, wg)
 	}
 
 	go func() {
-		defer close(jobs)
+		defer close(jobsCh)
 
 		for category, url := range w.urls {
 			select {
-			case jobs <- parseJob{category: category, url: url}:
+			case jobsCh <- parseJob{category: category, url: url}:
 				w.log.Debug("sending job",
 					zap.String("table", fmt.Sprintf("%s | %s", category, url)),
 				)
@@ -75,17 +75,18 @@ func (w *Weapons) Aggregate(ctx context.Context) ([]*types.Weapon, error) {
 
 	go func() {
 		wg.Wait()
-		close(results)
+		close(resultsCh)
 	}()
 
 	var weapons []*types.Weapon
 	tables := 0
 
-	for result := range results {
+	for result := range resultsCh {
 		if result.err != nil {
-			w.log.Error("Parse error",
+			w.log.Error("Parse weapon error",
 				zap.Error(result.err),
 				zap.String("category", result.category),
+				zap.Int("total tables", tables),
 			)
 			cancel()
 			return nil, fmt.Errorf("failed to parse table: %w", result.err)
@@ -94,6 +95,7 @@ func (w *Weapons) Aggregate(ctx context.Context) ([]*types.Weapon, error) {
 		w.log.Info("table successfully parsed",
 			zap.String("category", result.category),
 		)
+
 		weapons = append(weapons, result.weapons...)
 		tables++
 	}
@@ -107,13 +109,13 @@ func (w *Weapons) Aggregate(ctx context.Context) ([]*types.Weapon, error) {
 	return weapons, nil
 }
 
-func (w *Weapons) worker(ctx context.Context, jobs <-chan parseJob, results chan<- parseResult, wg *sync.WaitGroup) {
+func (w *Weapons) worker(ctx context.Context, jobsCh <-chan parseJob, resultsCh chan<- parseResult, wg *sync.WaitGroup) {
 	defer wg.Done()
 
-	for job := range jobs {
+	for job := range jobsCh {
 		weapons, err := w.parser.Parse(ctx, job.category, job.url)
 		select {
-		case results <- parseResult{
+		case resultsCh <- parseResult{
 			weapons:  weapons,
 			category: job.category,
 			err:      err,

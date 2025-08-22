@@ -1,4 +1,4 @@
-package weaponparser
+package weaponsparser
 
 import (
 	"context"
