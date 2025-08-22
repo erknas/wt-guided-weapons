@@ -1,7 +1,6 @@
 export const WEAPONS_CATEGORIES = [
   { value: "aam-ir-rear-aspect", label: "AAM (IR rear-aspect)" },
   { value: "aam-ir-all-aspect", label: "AAM (IR all-aspect)" },
-  { value: "aam-ir-heli", label: "AAM (IR heli)" },
   { value: "aam-sarh", label: "AAM (SARH)" },
   { value: "aam-arh", label: "AAM (ARH)" },
   { value: "aam-manual", label: "AAM (Manual)" },
