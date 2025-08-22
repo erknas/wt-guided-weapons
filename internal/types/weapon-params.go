@@ -1,14 +1,5 @@
 package types
 
-type SearchResult struct {
-	Name     string `json:"name"`
-	Category string `json:"category"`
-}
-
-type Results struct {
-	Results []SearchResult `json:"results"`
-}
-
 type Weapons struct {
 	Weapons []*Weapon `json:"weapons"`
 }
