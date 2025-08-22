@@ -13,7 +13,7 @@ import (
 
 const configPath = "../../../configs/mongodb-test-config.yaml"
 
-func TestMongoDB_Upsert(t *testing.T) {
+func TestMongoDB_UpsertWeapons(t *testing.T) {
 	ctx := context.Background()
 
 	cfg := config.MustLoad(configPath)
@@ -31,7 +31,7 @@ func TestMongoDB_Upsert(t *testing.T) {
 			{ID: "2b", Name: "AIM-54", Category: "aam-arh"},
 		}
 
-		err := db.Upsert(ctx, weapons)
+		err := db.UpsertWeapons(ctx, weapons)
 		require.NoError(t, err)
 
 		count, err := db.coll.CountDocuments(ctx, bson.M{})
@@ -48,7 +48,7 @@ func TestMongoDB_Upsert(t *testing.T) {
 			{ID: "2", Name: "AIM-54", Category: "aam-arh", MassAtEndOfBoosterBurn: "450"},
 		}
 
-		err := db.Upsert(ctx, weapons)
+		err := db.UpsertWeapons(ctx, weapons)
 		require.NoError(t, err)
 
 		count, err := db.coll.CountDocuments(ctx, bson.M{})
@@ -58,7 +58,7 @@ func TestMongoDB_Upsert(t *testing.T) {
 		weapons[0].Mass = "270"
 		weapons[1].MassAtEndOfBoosterBurn = "400"
 
-		err = db.Upsert(ctx, weapons)
+		err = db.UpsertWeapons(ctx, weapons)
 		require.NoError(t, err)
 
 		count, err = db.coll.CountDocuments(ctx, bson.M{})
@@ -80,7 +80,7 @@ func TestMongoDB_Upsert(t *testing.T) {
 	})
 }
 
-func TestMongoDB_ByCategory(t *testing.T) {
+func TestMongoDB_WeaponsByCategory(t *testing.T) {
 	ctx := context.Background()
 
 	cfg := config.MustLoad(configPath)
@@ -100,7 +100,7 @@ func TestMongoDB_ByCategory(t *testing.T) {
 			{ID: "4", Name: "AIM-54", Category: "aam-arh"},
 		}
 
-		err := db.Upsert(ctx, weapons)
+		err := db.UpsertWeapons(ctx, weapons)
 		require.NoError(t, err)
 
 		count, err := db.coll.CountDocuments(ctx, bson.M{})
@@ -109,7 +109,7 @@ func TestMongoDB_ByCategory(t *testing.T) {
 
 		category := "aam-ir-all-aspect"
 
-		results, err := db.ByCategory(ctx, category)
+		results, err := db.WeaponsByCategory(ctx, category)
 		require.NoError(t, err)
 		assert.Equal(t, 3, len(results))
 		assert.Equal(t, weapons[0].Name, results[0].Name)
@@ -121,7 +121,7 @@ func TestMongoDB_ByCategory(t *testing.T) {
 	})
 }
 
-func TestMongoDB_Search(t *testing.T) {
+func TestMongoDB_WeaponsByName(t *testing.T) {
 	ctx := context.Background()
 
 	cfg := config.MustLoad(configPath)
@@ -133,7 +133,7 @@ func TestMongoDB_Search(t *testing.T) {
 	_, err = db.coll.DeleteMany(ctx, bson.M{})
 	require.NoError(t, err)
 
-	t.Run("find weapon by name", func(t *testing.T) {
+	t.Run("find weapons by name", func(t *testing.T) {
 		weapons := []*types.Weapon{
 			{ID: "1", Name: "AIM-9L", Category: "aam-ir-all-aspect"},
 			{ID: "2", Name: "AIM-9M", Category: "aam-ir-all-aspect"},
@@ -141,7 +141,7 @@ func TestMongoDB_Search(t *testing.T) {
 			{ID: "4", Name: "AIM-54", Category: "aam-arh"},
 		}
 
-		err := db.Upsert(ctx, weapons)
+		err := db.UpsertWeapons(ctx, weapons)
 		require.NoError(t, err)
 
 		count, err := db.coll.CountDocuments(ctx, bson.M{})
@@ -150,7 +150,7 @@ func TestMongoDB_Search(t *testing.T) {
 
 		query := "aim"
 
-		results, err := db.Search(ctx, query)
+		results, err := db.WeaponsByName(ctx, query)
 		require.NoError(t, err)
 		assert.Equal(t, 3, len(results))
 
@@ -158,7 +158,7 @@ func TestMongoDB_Search(t *testing.T) {
 		require.NoError(t, err)
 	})
 
-	t.Run("find weapon by name empty results", func(t *testing.T) {
+	t.Run("find weapons by name empty results", func(t *testing.T) {
 		weapons := []*types.Weapon{
 			{ID: "1", Name: "AIM-9L", Category: "aam-ir-all-aspect"},
 			{ID: "2", Name: "AIM-9M", Category: "aam-ir-all-aspect"},
@@ -166,7 +166,7 @@ func TestMongoDB_Search(t *testing.T) {
 			{ID: "4", Name: "AIM-54", Category: "aam-arh"},
 		}
 
-		err := db.Upsert(ctx, weapons)
+		err := db.UpsertWeapons(ctx, weapons)
 		require.NoError(t, err)
 
 		count, err := db.coll.CountDocuments(ctx, bson.M{})
@@ -175,9 +175,72 @@ func TestMongoDB_Search(t *testing.T) {
 
 		query := "abfa1230"
 
-		results, err := db.Search(ctx, query)
+		results, err := db.WeaponsByName(ctx, query)
 		require.NoError(t, err)
 		assert.Empty(t, results)
+
+		_, err = db.coll.DeleteMany(ctx, bson.M{})
+		require.NoError(t, err)
+	})
+}
+
+func TestMongoDB_Version(t *testing.T) {
+	ctx := context.Background()
+
+	cfg := config.MustLoad(configPath)
+
+	db, err := New(ctx, cfg)
+	require.NoError(t, err)
+	defer db.Close(ctx)
+
+	_, err = db.coll.DeleteMany(ctx, bson.M{})
+	require.NoError(t, err)
+
+	t.Run("get version", func(t *testing.T) {
+		version := types.VersionInfo{Version: "2.46.0.114"}
+
+		err := db.UpsertVersion(ctx, version)
+		require.NoError(t, err)
+
+		results, err := db.Version(ctx)
+		require.NoError(t, err)
+		assert.NotEmpty(t, results)
+
+		_, err = db.coll.DeleteMany(ctx, bson.M{})
+		require.NoError(t, err)
+	})
+
+	t.Run("version not found", func(t *testing.T) {
+		results, err := db.Version(ctx)
+		require.Error(t, err)
+		assert.Empty(t, results)
+		assert.Contains(t, err.Error(), "version not found")
+	})
+}
+
+func TestMongoDB_UpsertVersion(t *testing.T) {
+	ctx := context.Background()
+
+	cfg := config.MustLoad(configPath)
+
+	db, err := New(ctx, cfg)
+	require.NoError(t, err)
+	defer db.Close(ctx)
+
+	_, err = db.coll.DeleteMany(ctx, bson.M{})
+	require.NoError(t, err)
+
+	t.Run("insert version", func(t *testing.T) {
+		version := types.VersionInfo{Version: "2.46.0.114"}
+
+		err := db.UpsertVersion(ctx, version)
+		require.NoError(t, err)
+
+		results, err := db.Version(ctx)
+		require.NoError(t, err)
+		assert.NotEmpty(t, results)
+
+		assert.Equal(t, results.Version, version)
 
 		_, err = db.coll.DeleteMany(ctx, bson.M{})
 		require.NoError(t, err)
