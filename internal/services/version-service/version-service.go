@@ -18,27 +18,34 @@ type VersionProvider interface {
 }
 
 type VersionParser interface {
-	Parse(ctx context.Context) (types.VersionInfo, error)
+	Parse(ctx context.Context, url string) (types.VersionInfo, error)
 }
 
 type VersionService struct {
 	versionUpdater  VersionUpserter
 	versionParser   VersionParser
 	versionProvider VersionProvider
+	url             string
 }
 
-func New(versionUpserter VersionUpserter, versionProvider VersionProvider, versionParser VersionParser) *VersionService {
+func New(
+	versionUpserter VersionUpserter,
+	versionProvider VersionProvider,
+	versionParser VersionParser,
+	url string,
+) *VersionService {
 	return &VersionService{
 		versionUpdater:  versionUpserter,
 		versionParser:   versionParser,
 		versionProvider: versionProvider,
+		url:             url,
 	}
 }
 
 func (s *VersionService) UpdateVersion(ctx context.Context) error {
 	log := logger.FromContext(ctx, logger.Service)
 
-	version, err := s.versionParser.Parse(ctx)
+	version, err := s.versionParser.Parse(ctx, s.url)
 	if err != nil {
 		log.Error("Parse version failed",
 			zap.Error(err),

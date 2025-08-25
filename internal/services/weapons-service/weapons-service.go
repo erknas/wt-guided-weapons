@@ -33,7 +33,12 @@ type WeaponsService struct {
 	versionUpdater    VersionUpdater
 }
 
-func New(weaponsUpserter WeaponsUpserter, weaponsProvider WeaponsProvider, weaponsAggregator WeaponsAggregator, versionUpdater VersionUpdater) *WeaponsService {
+func New(
+	weaponsUpserter WeaponsUpserter,
+	weaponsProvider WeaponsProvider,
+	weaponsAggregator WeaponsAggregator,
+	versionUpdater VersionUpdater,
+) *WeaponsService {
 	return &WeaponsService{
 		weaponsUpserter:   weaponsUpserter,
 		weaponsProvider:   weaponsProvider,

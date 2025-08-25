@@ -73,10 +73,14 @@ func main() {
 		os.Exit(1)
 	}
 
+	logger.Info("urls loaded",
+		zap.Int("total", len(urls)),
+	)
+
 	reader := csvreader.New()
 
 	versionParser := versionparser.New(reader)
-	versionService := versionservice.New(storage, storage, versionParser)
+	versionService := versionservice.New(storage, storage, versionParser, urls["version"])
 
 	weaponsParser := weaponsparser.New(reader, &weaponmapper.WeaponMapper{})
 	weaponsAggregator := weaponsaggregator.New(urls, weaponsParser, logger)

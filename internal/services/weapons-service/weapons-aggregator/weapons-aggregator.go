@@ -61,6 +61,9 @@ func (w *Weapons) AggregateWeapons(ctx context.Context) ([]*types.Weapon, error)
 		defer close(jobsCh)
 
 		for category, url := range w.urls {
+			if category == "version" {
+				continue
+			}
 			select {
 			case jobsCh <- parseJob{category: category, url: url}:
 				w.log.Debug("sending job",

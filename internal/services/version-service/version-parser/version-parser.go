@@ -9,8 +9,6 @@ import (
 	"github.com/erknas/wt-guided-weapons/internal/types"
 )
 
-const vUrl = "https://docs.google.com/spreadsheets/d/1SsOpw9LAKOs0V5FBnv1VqAlu3OssmX7DJaaVAUREw78/export?format=csv&gid=1624345539"
-
 type CSVVersionParser struct {
 	reader csvreader.Reader
 }
@@ -21,8 +19,8 @@ func New(reader csvreader.Reader) *CSVVersionParser {
 	}
 }
 
-func (p *CSVVersionParser) Parse(ctx context.Context) (types.VersionInfo, error) {
-	data, err := p.reader.Read(ctx, vUrl)
+func (p *CSVVersionParser) Parse(ctx context.Context, url string) (types.VersionInfo, error) {
+	data, err := p.reader.Read(ctx, url)
 	if err != nil {
 		return types.VersionInfo{}, fmt.Errorf("failed to read CSV: %w", err)
 	}
