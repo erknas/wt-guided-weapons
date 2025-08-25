@@ -33,8 +33,8 @@ func (m *mockVersionProvider) Version(ctx context.Context) (types.LastChange, er
 	return args.Get(0).(types.LastChange), args.Error(1)
 }
 
-func (m *mockVersionParser) Parse(ctx context.Context) (types.VersionInfo, error) {
-	args := m.Called(ctx)
+func (m *mockVersionParser) Parse(ctx context.Context, url string) (types.VersionInfo, error) {
+	args := m.Called(ctx, url)
 	return args.Get(0).(types.VersionInfo), args.Error(1)
 }
 
@@ -50,7 +50,7 @@ func TestVersionService_UpdateVersion(t *testing.T) {
 		{
 			name: "success",
 			mocks: func(mvp *mockVersionParser, mvu *mockVersionUpserter) {
-				mvp.On("Parse", mock.Anything).Return(version, nil)
+				mvp.On("Parse", mock.Anything, mock.Anything).Return(version, nil)
 				mvu.On("UpsertVersion", mock.Anything, version).Return(nil)
 			},
 			wantErr: false,
@@ -58,7 +58,7 @@ func TestVersionService_UpdateVersion(t *testing.T) {
 		{
 			name: "fail Parse error",
 			mocks: func(mvp *mockVersionParser, mvu *mockVersionUpserter) {
-				mvp.On("Parse", mock.Anything).Return(types.VersionInfo{}, errors.New("failed to read CSV"))
+				mvp.On("Parse", mock.Anything, mock.Anything).Return(types.VersionInfo{}, errors.New("failed to read CSV"))
 			},
 			wantErr:     true,
 			containsErr: "failed to parse version",
@@ -66,7 +66,7 @@ func TestVersionService_UpdateVersion(t *testing.T) {
 		{
 			name: "fail UpsertVersion error",
 			mocks: func(mvp *mockVersionParser, mvu *mockVersionUpserter) {
-				mvp.On("Parse", mock.Anything).Return(version, nil)
+				mvp.On("Parse", mock.Anything, mock.Anything).Return(version, nil)
 				mvu.On("UpsertVersion", mock.Anything, version).Return(errors.New("failed to update document"))
 			},
 			wantErr:     true,
@@ -80,7 +80,7 @@ func TestVersionService_UpdateVersion(t *testing.T) {
 			mvu := new(mockVersionUpserter)
 			tt.mocks(mvp, mvu)
 
-			service := New(mvu, nil, mvp)
+			service := New(mvu, nil, mvp, "test-url")
 
 			ctx := context.Background()
 
@@ -139,7 +139,7 @@ func TestVersionService_GetVersion(t *testing.T) {
 			mvp := new(mockVersionProvider)
 			tt.mocks(mvp)
 
-			service := New(&mockVersionUpserter{}, mvp, &mockVersionParser{})
+			service := New(&mockVersionUpserter{}, mvp, &mockVersionParser{}, "test-url")
 
 			ctx := context.Background()
 
