@@ -90,5 +90,5 @@ func (s *Server) handleGetVersion(w http.ResponseWriter, r *http.Request) error 
 
 	log.Info("GetVersion complited")
 
-	return api.WriteJSON(w, http.StatusOK, version)
+	return api.WriteJSON(w, http.StatusOK, types.VersionInfo{Version: version.Version.Version})
 }
