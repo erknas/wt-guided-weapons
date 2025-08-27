@@ -14,6 +14,7 @@ import (
 	"github.com/erknas/wt-guided-weapons/internal/logger"
 	"github.com/erknas/wt-guided-weapons/internal/server"
 	versionservice "github.com/erknas/wt-guided-weapons/internal/services/version-service"
+	"github.com/erknas/wt-guided-weapons/internal/services/version-service/observer"
 	versionparser "github.com/erknas/wt-guided-weapons/internal/services/version-service/version-parser"
 	weaponsservice "github.com/erknas/wt-guided-weapons/internal/services/weapons-service"
 	weaponmapper "github.com/erknas/wt-guided-weapons/internal/services/weapons-service/weapon-mapper"
@@ -36,59 +37,65 @@ func main() {
 	}
 	defer logger.Sync()
 
-	logger.Info("config loaded",
+	logger.Info("Config loaded",
 		zap.Any("cfg", cfg),
 	)
 
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer cancel()
 
-	storage, err := mongodb.New(ctx, cfg)
+	mongodb, err := mongodb.New(ctx, cfg)
 	if err != nil {
-		logger.Error("failed to init storage",
+		logger.Error("Failed to initialze mongodb",
 			zap.Error(err),
 		)
 		os.Exit(1)
 	}
 
-	logger.Info("storage init")
+	logger.Info("Mongodb initialized")
 
 	defer func() {
 		closeCtx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 		defer cancel()
 
-		if err := storage.Close(closeCtx); err != nil {
+		if err := mongodb.Close(closeCtx); err != nil {
 			logger.Warn("failed to disconnect from storage",
 				zap.Error(err),
 			)
 		}
-		logger.Info("storage closed")
+		logger.Info("mognodb closed")
 	}()
 
 	urls, err := urlsloader.Load(cfg.URLs)
 	if err != nil {
-		logger.Error("failed to load urls",
+		logger.Error("Failed to load urls",
 			zap.Error(err),
 		)
 		os.Exit(1)
 	}
 
-	logger.Info("urls loaded",
-		zap.Int("total", len(urls)),
-	)
-
 	reader := csvreader.New()
 
 	versionParser := versionparser.New(reader)
-	versionService := versionservice.New(storage, storage, versionParser, urls["version"])
+	versionService := versionservice.New(mongodb, mongodb, versionParser, urls["version"])
 
 	weaponsParser := weaponsparser.New(reader, &weaponmapper.WeaponMapper{})
 	weaponsAggregator := weaponsaggregator.New(urls, weaponsParser, logger)
-	weaponsService := weaponsservice.New(storage, storage, weaponsAggregator, versionService)
+	weaponsService := weaponsservice.New(mongodb, mongodb, weaponsAggregator, versionService)
+
+	if err := weaponsService.UpdateWeapons(ctx); err != nil {
+		logger.Error("Failed to insert initial data",
+			zap.Error(err),
+		)
+		os.Exit(1)
+	}
+
+	observer := observer.New(versionService, versionParser, weaponsService, logger, urls["version"])
+	go observer.Observe(ctx)
 
 	server := server.New(weaponsService, versionService, urls, logger)
 	if err := server.Run(ctx, cfg); err != nil {
-		logger.Error("server failed",
+		logger.Error("Server error",
 			zap.Error(err),
 		)
 		os.Exit(1)
