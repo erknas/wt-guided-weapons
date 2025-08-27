@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/erknas/wt-guided-weapons/internal/lib/api"
 	apierrors "github.com/erknas/wt-guided-weapons/internal/lib/api/api-errors"
 	"github.com/erknas/wt-guided-weapons/internal/logger"
 	"github.com/erknas/wt-guided-weapons/internal/types"
@@ -89,7 +90,7 @@ func TestHandleGetWeaponsByCategory(t *testing.T) {
 		server := New(mockWeaponsServicer, mockVersionServicer, urls, zap.NewNop())
 
 		r := chi.NewRouter()
-		r.With(logger.MiddlewareCategoryCheck(server.categories)).Get("/", makeHTTPFunc(server.handleGetWeaponsByCategory))
+		r.With(logger.MiddlewareCategoryCheck(server.categories)).Get("/", api.MakeHTTPFunc(server.handleGetWeaponsByCategory))
 
 		rr := httptest.NewRecorder()
 		req, err := http.NewRequest(http.MethodGet, "", nil)
