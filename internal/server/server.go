@@ -10,7 +10,6 @@ import (
 
 	"github.com/erknas/wt-guided-weapons/internal/config"
 	"github.com/erknas/wt-guided-weapons/internal/lib/api"
-	apierrors "github.com/erknas/wt-guided-weapons/internal/lib/api/api-errors"
 	"github.com/erknas/wt-guided-weapons/internal/logger"
 	"github.com/erknas/wt-guided-weapons/internal/types"
 	"github.com/go-chi/chi/v5"
@@ -28,13 +27,18 @@ type VersionServicer interface {
 }
 
 type Server struct {
-	weaponSvc  WeaponsServicer
-	versionSvc VersionServicer
+	weapons    WeaponsServicer
+	version    VersionServicer
 	categories map[string]struct{}
 	log        *zap.Logger
 }
 
-func New(weaponsSvc WeaponsServicer, versionSvc VersionServicer, urls map[string]string, log *zap.Logger) *Server {
+func New(
+	weapons WeaponsServicer,
+	version VersionServicer,
+	urls map[string]string,
+	log *zap.Logger,
+) *Server {
 	categories := make(map[string]struct{}, len(urls))
 
 	for category := range urls {
@@ -42,8 +46,8 @@ func New(weaponsSvc WeaponsServicer, versionSvc VersionServicer, urls map[string
 	}
 
 	return &Server{
-		weaponSvc:  weaponsSvc,
-		versionSvc: versionSvc,
+		weapons:    weapons,
+		version:    version,
 		categories: categories,
 		log:        log,
 	}
@@ -74,7 +78,7 @@ func (s *Server) Run(ctx context.Context, cfg *config.Config) error {
 		errCh <- nil
 	}()
 
-	s.log.Info("starting server", zap.String("port", cfg.ConfigServer.Port))
+	s.log.Info("Starting server", zap.String("port", cfg.ConfigServer.Port))
 
 	select {
 	case <-quitCh:
@@ -84,7 +88,7 @@ func (s *Server) Run(ctx context.Context, cfg *config.Config) error {
 		if err := srv.Shutdown(shutdownCtx); err != nil {
 			return err
 		}
-		s.log.Info("server shutdown")
+		s.log.Info("Server shutdown")
 	case err := <-errCh:
 		if err != nil {
 			return err
@@ -99,32 +103,11 @@ func (s *Server) routes(r *chi.Mux) {
 	r.Use(logger.MiddlewareLogger(s.log))
 
 	r.Route("/api", func(r chi.Router) {
-		r.Get("/upsert", makeHTTPFunc(s.handleUpdateWeapons))
-		r.With(logger.MiddlewareCategoryCheck(s.categories)).Get("/weapons/{category}", makeHTTPFunc(s.handleGetWeaponsByCategory))
-		r.Get("/weapons/search/{name}", makeHTTPFunc(s.handleSeachWeapons))
-		r.Get("/version", makeHTTPFunc(s.handleGetVersion))
+		r.Get("/update", api.MakeHTTPFunc(s.handleUpdateWeapons))
+		r.With(logger.MiddlewareCategoryCheck(s.categories)).Get("/weapons/{category}", api.MakeHTTPFunc(s.handleGetWeaponsByCategory))
+		r.Get("/weapons/search/{name}", api.MakeHTTPFunc(s.handleSeachWeapons))
+		r.Get("/version", api.MakeHTTPFunc(s.handleGetVersion))
 	})
 
 	r.Handle("/*", http.FileServer(http.Dir("./static")))
-}
-
-type httpFunc func(w http.ResponseWriter, r *http.Request) error
-
-func makeHTTPFunc(fn httpFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		ctx, cancel := context.WithTimeout(r.Context(), time.Second*10)
-		defer cancel()
-
-		if err := fn(w, r.WithContext(ctx)); err != nil {
-			if apiErr, ok := err.(apierrors.APIError); ok {
-				api.WriteJSON(w, apiErr.StatusCode, apiErr)
-			} else {
-				errResp := map[string]any{
-					"status_code": http.StatusInternalServerError,
-					"msg":         "internal sever error",
-				}
-				api.WriteJSON(w, http.StatusInternalServerError, errResp)
-			}
-		}
-	}
 }
