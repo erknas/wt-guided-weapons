@@ -27,52 +27,52 @@ type VersionUpdater interface {
 }
 
 type WeaponsService struct {
-	weaponsUpserter   WeaponsUpserter
-	weaponsProvider   WeaponsProvider
-	weaponsAggregator WeaponsAggregator
-	versionUpdater    VersionUpdater
+	upserter   WeaponsUpserter
+	provider   WeaponsProvider
+	aggregator WeaponsAggregator
+	updater    VersionUpdater
 }
 
 func New(
-	weaponsUpserter WeaponsUpserter,
-	weaponsProvider WeaponsProvider,
-	weaponsAggregator WeaponsAggregator,
-	versionUpdater VersionUpdater,
+	upserter WeaponsUpserter,
+	provider WeaponsProvider,
+	aggregator WeaponsAggregator,
+	updater VersionUpdater,
 ) *WeaponsService {
 	return &WeaponsService{
-		weaponsUpserter:   weaponsUpserter,
-		weaponsProvider:   weaponsProvider,
-		weaponsAggregator: weaponsAggregator,
-		versionUpdater:    versionUpdater,
+		upserter:   upserter,
+		provider:   provider,
+		aggregator: aggregator,
+		updater:    updater,
 	}
 }
 
 func (s *WeaponsService) UpdateWeapons(ctx context.Context) error {
 	log := logger.FromContext(ctx, logger.Service)
 
-	weapons, err := s.weaponsAggregator.AggregateWeapons(ctx)
+	weapons, err := s.aggregator.AggregateWeapons(ctx)
 	if err != nil {
-		log.Error("AggregateWeapons failed",
+		log.Error("AggregateWeapons error",
 			zap.Error(err),
 		)
 		return fmt.Errorf("failed to aggregate weapons: %w", err)
 	}
 
-	if err := s.weaponsUpserter.UpsertWeapons(ctx, weapons); err != nil {
-		log.Error("DB call UpsertWeapons failed",
+	if err := s.upserter.UpsertWeapons(ctx, weapons); err != nil {
+		log.Error("UpsertWeapons error",
 			zap.Error(err),
 		)
 		return err
 	}
 
-	if err := s.versionUpdater.UpdateVersion(ctx); err != nil {
-		log.Error("Service call UpdateVersion failed",
+	if err := s.updater.UpdateVersion(ctx); err != nil {
+		log.Error("UpdateVersion error",
 			zap.Error(err),
 		)
 		return err
 	}
 
-	log.Debug("Service UpdateWeapons complited")
+	log.Debug("UpdateWeapons complited")
 
 	return nil
 }
@@ -80,16 +80,16 @@ func (s *WeaponsService) UpdateWeapons(ctx context.Context) error {
 func (s *WeaponsService) GetWeaponsByCategory(ctx context.Context, category string) ([]*types.Weapon, error) {
 	log := logger.FromContext(ctx, logger.Service)
 
-	weapons, err := s.weaponsProvider.WeaponsByCategory(ctx, category)
+	weapons, err := s.provider.WeaponsByCategory(ctx, category)
 	if err != nil {
-		log.Error("DB call WeaponsByCategory failed",
+		log.Error("WeaponsByCategory error",
 			zap.Error(err),
 			zap.String("category", category),
 		)
 		return nil, err
 	}
 
-	log.Debug("Service GetWeaponsByCategory complited",
+	log.Debug("GetWeaponsByCategory complited",
 		zap.String("category", category),
 		zap.Int("total weapons", len(weapons)),
 	)
@@ -100,15 +100,15 @@ func (s *WeaponsService) GetWeaponsByCategory(ctx context.Context, category stri
 func (s *WeaponsService) SearchWeapons(ctx context.Context, query string) ([]types.SearchResult, error) {
 	log := logger.FromContext(ctx, logger.Service)
 
-	results, err := s.weaponsProvider.WeaponsByName(ctx, query)
+	results, err := s.provider.WeaponsByName(ctx, query)
 	if err != nil {
-		log.Error("DB call WeaponsByName failed",
+		log.Error("WeaponsByName error",
 			zap.Error(err),
 		)
 		return nil, err
 	}
 
-	log.Debug("Service SearchWeapons complited",
+	log.Debug("SearchWeapons complited",
 		zap.String("query", query),
 		zap.Int("total overlaps", len(results)),
 	)

@@ -70,7 +70,7 @@ func (w *Weapons) AggregateWeapons(ctx context.Context) ([]*types.Weapon, error)
 					zap.String("table", fmt.Sprintf("%s | %s", category, url)),
 				)
 			case <-ctx.Done():
-				w.log.Error("context cancelled on sending job")
+				w.log.Error("Context cancelled on sending job")
 				return
 			}
 		}
@@ -95,7 +95,7 @@ func (w *Weapons) AggregateWeapons(ctx context.Context) ([]*types.Weapon, error)
 			return nil, fmt.Errorf("failed to parse table: %w", result.err)
 		}
 
-		w.log.Info("table successfully parsed",
+		w.log.Info("Table successfully parsed",
 			zap.String("category", result.category),
 		)
 
@@ -124,7 +124,7 @@ func (w *Weapons) worker(ctx context.Context, jobsCh <-chan parseJob, resultsCh 
 			err:      err,
 		}:
 		case <-ctx.Done():
-			w.log.Error("context cancelled on sending results")
+			w.log.Error("Context cancelled on sending results")
 			return
 		}
 	}

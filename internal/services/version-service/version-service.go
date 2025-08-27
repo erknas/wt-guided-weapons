@@ -22,45 +22,45 @@ type VersionParser interface {
 }
 
 type VersionService struct {
-	versionUpdater  VersionUpserter
-	versionParser   VersionParser
-	versionProvider VersionProvider
-	url             string
+	upserter VersionUpserter
+	provider VersionProvider
+	parser   VersionParser
+	url      string
 }
 
 func New(
-	versionUpserter VersionUpserter,
-	versionProvider VersionProvider,
-	versionParser VersionParser,
+	upserter VersionUpserter,
+	provider VersionProvider,
+	parser VersionParser,
 	url string,
 ) *VersionService {
 	return &VersionService{
-		versionUpdater:  versionUpserter,
-		versionParser:   versionParser,
-		versionProvider: versionProvider,
-		url:             url,
+		upserter: upserter,
+		parser:   parser,
+		provider: provider,
+		url:      url,
 	}
 }
 
 func (s *VersionService) UpdateVersion(ctx context.Context) error {
 	log := logger.FromContext(ctx, logger.Service)
 
-	version, err := s.versionParser.Parse(ctx, s.url)
+	version, err := s.parser.Parse(ctx, s.url)
 	if err != nil {
-		log.Error("Parse version failed",
+		log.Error("Parse error",
 			zap.Error(err),
 		)
 		return fmt.Errorf("failed to parse version: %w", err)
 	}
 
-	if err := s.versionUpdater.UpsertVersion(ctx, version); err != nil {
-		log.Error("DB call UpsertVersion failed",
+	if err := s.upserter.UpsertVersion(ctx, version); err != nil {
+		log.Error("UpsertVersion error",
 			zap.Error(err),
 		)
 		return fmt.Errorf("failed to update version: %w", err)
 	}
 
-	log.Debug("Service UpdateVersion complited",
+	log.Debug("UpdateVersion complited",
 		zap.String("new version", version.Version),
 	)
 
@@ -70,15 +70,15 @@ func (s *VersionService) UpdateVersion(ctx context.Context) error {
 func (s *VersionService) GetVersion(ctx context.Context) (types.LastChange, error) {
 	log := logger.FromContext(ctx, logger.Service)
 
-	version, err := s.versionProvider.Version(ctx)
+	version, err := s.provider.Version(ctx)
 	if err != nil {
-		log.Error("DB call Version failed",
+		log.Error("Version error",
 			zap.Error(err),
 		)
 		return types.LastChange{}, fmt.Errorf("failed to get version: %w", err)
 	}
 
-	log.Debug("Service GetVersion complited",
+	log.Debug("GetVersion complited",
 		zap.Any("version", version),
 	)
 

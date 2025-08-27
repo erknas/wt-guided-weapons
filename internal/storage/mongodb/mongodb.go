@@ -213,7 +213,7 @@ func (m *MongoDB) UpsertVersion(ctx context.Context, version types.VersionInfo) 
 		return fmt.Errorf("failed to update document: %w", err)
 	}
 
-	log.Debug("UpsetVersion complited",
+	log.Debug("UpsertVersion complited",
 		zap.Int("matched count", int(res.MatchedCount)),
 		zap.Int("upserted count", int(res.UpsertedCount)),
 		zap.Int("modified count", int(res.ModifiedCount)),

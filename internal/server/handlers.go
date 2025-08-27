@@ -16,8 +16,8 @@ const searchQuery = "name"
 func (s *Server) handleUpdateWeapons(w http.ResponseWriter, r *http.Request) error {
 	log := logger.FromContext(r.Context(), logger.Transport)
 
-	if err := s.weaponSvc.UpdateWeapons(r.Context()); err != nil {
-		log.Error("Service call UpdateWeapons failed",
+	if err := s.weapons.UpdateWeapons(r.Context()); err != nil {
+		log.Error("UpdateWeapons error",
 			zap.Error(err),
 		)
 		return err
@@ -33,9 +33,9 @@ func (s *Server) handleGetWeaponsByCategory(w http.ResponseWriter, r *http.Reque
 
 	category := chi.URLParam(r, "category")
 
-	weapons, err := s.weaponSvc.GetWeaponsByCategory(r.Context(), category)
+	weapons, err := s.weapons.GetWeaponsByCategory(r.Context(), category)
 	if err != nil {
-		log.Error("Service call GetWeaponsByCategory failed",
+		log.Error("GetWeaponsByCategory error",
 			zap.Error(err),
 		)
 		return err
@@ -54,9 +54,9 @@ func (s *Server) handleSeachWeapons(w http.ResponseWriter, r *http.Request) erro
 
 	query := chi.URLParam(r, searchQuery)
 
-	results, err := s.weaponSvc.SearchWeapons(r.Context(), query)
+	results, err := s.weapons.SearchWeapons(r.Context(), query)
 	if err != nil {
-		log.Error("Service call SearchWeapons failed",
+		log.Error("SearchWeapons error",
 			zap.Error(err),
 		)
 		return err
@@ -80,9 +80,9 @@ func (s *Server) handleSeachWeapons(w http.ResponseWriter, r *http.Request) erro
 func (s *Server) handleGetVersion(w http.ResponseWriter, r *http.Request) error {
 	log := logger.FromContext(r.Context(), logger.Transport)
 
-	version, err := s.versionSvc.GetVersion(r.Context())
+	version, err := s.version.GetVersion(r.Context())
 	if err != nil {
-		log.Error("Service call GetVersion failed",
+		log.Error("GetVersion error",
 			zap.Error(err),
 		)
 		return err
