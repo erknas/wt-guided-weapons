@@ -193,9 +193,9 @@ func TestWeaponsService_UpdateWeapons(t *testing.T) {
 			tt.mocks(mockWeaponsAggregator, mockWeaponsUpserter, mockVersionUpdater)
 
 			service := &WeaponsService{
-				weaponsAggregator: mockWeaponsAggregator,
-				weaponsUpserter:   mockWeaponsUpserter,
-				versionUpdater:    mockVersionUpdater,
+				aggregator: mockWeaponsAggregator,
+				upserter:   mockWeaponsUpserter,
+				updater:    mockVersionUpdater,
 			}
 
 			ctx := context.Background()
@@ -297,7 +297,7 @@ func TestWeaponsService_GetWeaponsByCategory(t *testing.T) {
 			tt.mocks(mockProvider)
 
 			service := &WeaponsService{
-				weaponsProvider: mockProvider,
+				provider: mockProvider,
 			}
 
 			ctx := context.Background()
@@ -399,7 +399,7 @@ func TestWeaponsService_SearchWeapons(t *testing.T) {
 			tt.mocks(mockProvider)
 
 			service := &WeaponsService{
-				weaponsProvider: mockProvider,
+				provider: mockProvider,
 			}
 
 			ctx := context.Background()
