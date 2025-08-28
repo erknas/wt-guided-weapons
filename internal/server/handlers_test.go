@@ -177,7 +177,7 @@ func TestHandleGetVersion(t *testing.T) {
 		assert.Equal(t, rr.Result().StatusCode, http.StatusOK)
 
 		var res types.LastChange
-		err = json.NewDecoder(rr.Result().Body).Decode(&res)
+		err = json.NewDecoder(rr.Result().Body).Decode(&res.Version)
 		require.NoError(t, err)
 		assert.Equal(t, lastChange, res)
 
