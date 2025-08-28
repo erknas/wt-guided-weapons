@@ -9,7 +9,7 @@ import (
 	"go.uber.org/zap"
 )
 
-const period = time.Second * 30
+const period = time.Minute * 30
 
 type version struct {
 	version string
@@ -131,6 +131,7 @@ func (o *ChangeObserver) checkVersionChange(ctx context.Context) error {
 			o.log.Error("UpdateWeapons error",
 				zap.Error(err),
 			)
+			return fmt.Errorf("failed to update weapons")
 		}
 		o.log.Info("Weapons updated",
 			zap.String("version changed", fmt.Sprintf("%s -> %s", currVersion.version, newVerison.version)),
