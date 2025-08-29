@@ -59,11 +59,11 @@ func main() {
 		defer cancel()
 
 		if err := mongodb.Close(closeCtx); err != nil {
-			logger.Warn("failed to disconnect from storage",
+			logger.Warn("Failed to disconnect from mongodb",
 				zap.Error(err),
 			)
 		}
-		logger.Info("mognodb closed")
+		logger.Info("Mognodb closed")
 	}()
 
 	urls, err := urlsloader.Load(cfg.URLs)
@@ -82,13 +82,6 @@ func main() {
 	weaponsParser := weaponsparser.New(reader, &weaponmapper.WeaponMapper{})
 	weaponsAggregator := weaponsaggregator.New(urls, weaponsParser, logger)
 	weaponsService := weaponsservice.New(mongodb, mongodb, weaponsAggregator, versionService)
-
-	if err := weaponsService.UpdateWeapons(ctx); err != nil {
-		logger.Error("Failed to insert initial data",
-			zap.Error(err),
-		)
-		os.Exit(1)
-	}
 
 	observer := observer.New(versionService, versionParser, weaponsService, logger, urls["version"])
 	go observer.Observe(ctx)
