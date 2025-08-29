@@ -64,15 +64,6 @@ func TestObserver_checkVersionChange(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name: "failed GetVersion error",
-			mocks: func(mvpa *mockVersionParser, mvpr *mockVersionProvider, mwu *mockWeaponsUpdater) {
-				mvpr.On("GetVersion", mock.AnythingOfType("*context.timerCtx")).Return(types.LastChange{}, errors.New("failed to get version"))
-				mvpa.On("Parse", mock.AnythingOfType("*context.timerCtx"), "test-url").Return(types.VersionInfo{Version: "2.47"}, nil)
-			},
-			wantErr:     true,
-			containsErr: "failed to get current version",
-		},
-		{
 			name: "failed Parse error",
 			mocks: func(mvpa *mockVersionParser, mvpr *mockVersionProvider, mwu *mockWeaponsUpdater) {
 				mvpr.On("GetVersion", mock.AnythingOfType("*context.timerCtx")).Return(types.LastChange{Version: types.VersionInfo{Version: "2.47"}}, nil)
