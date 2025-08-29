@@ -2,9 +2,11 @@ package versionservice
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/erknas/wt-guided-weapons/internal/logger"
+	"github.com/erknas/wt-guided-weapons/internal/storage/mongodb"
 	"github.com/erknas/wt-guided-weapons/internal/types"
 	"go.uber.org/zap"
 )
@@ -72,6 +74,12 @@ func (s *VersionService) GetVersion(ctx context.Context) (types.LastChange, erro
 
 	version, err := s.provider.Version(ctx)
 	if err != nil {
+		if errors.Is(err, mongodb.ErrNoVersion) {
+			log.Warn("No version",
+				zap.Error(err),
+			)
+			return types.LastChange{}, mongodb.ErrNoVersion
+		}
 		log.Error("Version error",
 			zap.Error(err),
 		)

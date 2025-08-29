@@ -24,6 +24,8 @@ const (
 	CurrentVersion       = "current_version"
 )
 
+var ErrNoVersion = errors.New("version not found")
+
 type MongoDB struct {
 	client *mongo.Client
 	coll   *mongo.Collection
@@ -179,10 +181,10 @@ func (m *MongoDB) Version(ctx context.Context) (types.LastChange, error) {
 	err := m.coll.FindOne(ctx, filter).Decode(&version)
 	if err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
-			log.Error("Version not found",
+			log.Warn("Version not found",
 				zap.Error(err),
 			)
-			return types.LastChange{}, fmt.Errorf("version not found: %w", err)
+			return types.LastChange{}, ErrNoVersion
 		}
 		log.Error("Decode error",
 			zap.Error(err),
