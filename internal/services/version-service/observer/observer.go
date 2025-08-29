@@ -2,9 +2,12 @@ package observer
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"sync"
 	"time"
 
+	"github.com/erknas/wt-guided-weapons/internal/storage/mongodb"
 	"github.com/erknas/wt-guided-weapons/internal/types"
 	"go.uber.org/zap"
 )
@@ -29,13 +32,11 @@ type WeaponsUpdater interface {
 }
 
 type ChangeObserver struct {
-	provider      VersionProvider
-	parser        VersionParser
-	updater       WeaponsUpdater
-	log           *zap.Logger
-	url           string
-	currVersionCh chan version
-	newVersionCh  chan version
+	provider VersionProvider
+	parser   VersionParser
+	updater  WeaponsUpdater
+	log      *zap.Logger
+	url      string
 }
 
 func New(
@@ -46,17 +47,26 @@ func New(
 	url string,
 ) *ChangeObserver {
 	return &ChangeObserver{
-		provider:      provider,
-		parser:        parser,
-		updater:       updater,
-		log:           log,
-		url:           url,
-		currVersionCh: make(chan version, 1),
-		newVersionCh:  make(chan version, 1),
+		provider: provider,
+		parser:   parser,
+		updater:  updater,
+		log:      log,
+		url:      url,
 	}
 }
 
 func (o *ChangeObserver) Observe(ctx context.Context) {
+	_, err := o.provider.GetVersion(ctx)
+	if err != nil && errors.Is(err, mongodb.ErrNoVersion) {
+		o.log.Info("Inserting initial data")
+		err := o.updater.UpdateWeapons(ctx)
+		if err != nil {
+			o.log.Error("Failed to insert initial data",
+				zap.Error(err),
+			)
+		}
+	}
+
 	ticker := time.NewTicker(period)
 	defer ticker.Stop()
 
@@ -77,41 +87,31 @@ func (o *ChangeObserver) checkVersionChange(ctx context.Context) error {
 	ctx, cancel := context.WithTimeout(ctx, time.Second*10)
 	defer cancel()
 
-	go func() {
-		currVersion, err := o.provider.GetVersion(ctx)
-		select {
-		case o.currVersionCh <- version{version: currVersion.Version.Version, err: err}:
-		case <-ctx.Done():
-		}
-	}()
-
-	go func() {
-		newVersion, err := o.parser.Parse(ctx, o.url)
-		select {
-		case o.newVersionCh <- version{version: newVersion.Version, err: err}:
-		case <-ctx.Done():
-		}
-	}()
-
 	var currVersion, newVerison version
 
-	for i := 0; i < 2; i++ {
-		select {
-		case currVersion = <-o.currVersionCh:
-		case newVerison = <-o.newVersionCh:
-		case <-ctx.Done():
-			o.log.Warn("context done while receiving data",
-				zap.Error(ctx.Err()),
-			)
-			return ctx.Err()
-		}
-	}
+	wg := &sync.WaitGroup{}
+
+	wg.Add(2)
+	go func() {
+		defer wg.Done()
+
+		ver, err := o.provider.GetVersion(ctx)
+		currVersion = version{version: ver.Version.Version, err: err}
+	}()
+
+	go func() {
+		defer wg.Done()
+
+		ver, err := o.parser.Parse(ctx, o.url)
+		newVerison = version{version: ver.Version, err: err}
+	}()
+
+	wg.Wait()
 
 	if currVersion.err != nil {
-		o.log.Error("GetVersion error",
+		o.log.Warn("GetVersion error",
 			zap.Error(currVersion.err),
 		)
-		return fmt.Errorf("failed to get current version: %w", currVersion.err)
 	}
 
 	if newVerison.err != nil {
