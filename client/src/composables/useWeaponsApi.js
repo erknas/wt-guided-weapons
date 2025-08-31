@@ -30,3 +30,70 @@ export function useWeaponsApi() {
     fetchWeaponsByCategory,
   };
 }
+
+export function useUpdateWeaponsApi() {
+  const loading = ref(false);
+  const error = ref(null);
+
+  const updateAPI = async () => {
+    const response = await fetch(`/api/update`);
+    if (!response.ok) {
+      const errorData = await response.json();
+      const errorMessage = errorData.message;
+      throw new Error(errorMessage);
+    }
+
+    return response;
+  };
+
+  const update = async () => {
+    loading.value = true;
+    error.value = "";
+
+    try {
+      await updateAPI();
+    } catch (err) {
+      error.value = err.message;
+    } finally {
+      loading.value = false;
+    }
+  };
+
+  return {
+    loading,
+    error,
+    update,
+  };
+}
+
+export function useGetVersionApi() {
+  const versionInfo = ref("");
+  const error = ref(null);
+
+  const versionAPI = async () => {
+    const response = await fetch(`/api/version`);
+    if (!response.ok) {
+      const errorData = await response.json();
+      const errorMessage = errorData.message;
+      throw new Error(errorMessage);
+    }
+    return await response.json();
+  };
+
+  const getVersion = async () => {
+    error.value = "";
+
+    try {
+      const data = await versionAPI();
+      versionInfo.value = data.version;
+    } catch (err) {
+      error.value = err.message;
+    }
+  };
+
+  return {
+    versionInfo,
+    error,
+    getVersion,
+  };
+}

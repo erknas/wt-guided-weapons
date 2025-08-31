@@ -4,6 +4,7 @@ import { useWeaponsApi } from '../composables/useWeaponsApi';
 import CategorySelector from '../components/CategorySelector.vue';
 import WeaponsLoader from '../components/WeaponsLoader.vue';
 import WeaponSearcher from '../components/WeaponSearcher.vue';
+import UpdateButton  from '../components/UpdateButton.vue';
 
 const selectedCategory = ref('aam-ir-rear-aspect')
 const selectedWeaponName = ref(null)
@@ -45,5 +46,7 @@ watch(selectedCategory, async (newCategory) => {
 			:category="selectedCategory"
 			:highlighted-weapon="selectedWeaponName"
 		/>
+
+		<UpdateButton />
 	</div>
 </template>
