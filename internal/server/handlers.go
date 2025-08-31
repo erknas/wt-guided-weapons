@@ -20,12 +20,12 @@ func (s *Server) handleUpdateWeapons(w http.ResponseWriter, r *http.Request) err
 		log.Error("UpdateWeapons error",
 			zap.Error(err),
 		)
-		return err
+		return apierrors.FailUpdateWeapons()
 	}
 
 	log.Info("UpdateWeapons handler complited")
 
-	return api.WriteJSON(w, http.StatusOK, map[string]string{"msg": "OK"})
+	return api.WriteJSON(w, http.StatusOK, nil)
 }
 
 func (s *Server) handleGetWeaponsByCategory(w http.ResponseWriter, r *http.Request) error {

@@ -28,3 +28,7 @@ func InvalidCategory(category string) APIError {
 func EmptySearchResults() APIError {
 	return NewApiError(http.StatusBadRequest, fmt.Errorf("nothing found"))
 }
+
+func FailUpdateWeapons() APIError {
+	return NewApiError(http.StatusInternalServerError, fmt.Errorf("failed to update weapons"))
+}
