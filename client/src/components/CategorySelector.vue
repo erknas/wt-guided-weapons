@@ -69,7 +69,7 @@ onUnmounted(() => {
 .selector-container {
 	position: fixed;
 	top: 1px;
-	left: 1px;
+	left: 5px;
 	z-index: 100;
 	text-align: left;
 	min-width: 200px;
