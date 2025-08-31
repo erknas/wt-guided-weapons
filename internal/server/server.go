@@ -108,6 +108,4 @@ func (s *Server) routes(r *chi.Mux) {
 		r.Get("/weapons/search/{name}", api.MakeHTTPFunc(s.handleSeachWeapons))
 		r.Get("/version", api.MakeHTTPFunc(s.handleGetVersion))
 	})
-
-	r.Handle("/*", http.FileServer(http.Dir("./static")))
 }
