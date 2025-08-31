@@ -74,7 +74,7 @@ func (o *ChangeObserver) Observe(ctx context.Context) {
 		select {
 		case <-ticker.C:
 			if err := o.checkVersionChange(ctx); err != nil {
-				o.log.Error("checkVersionChage error",
+				o.log.Error("checkVersionChange error",
 					zap.Error(err),
 				)
 			}
