@@ -36,7 +36,9 @@ export function useUpdateWeaponsApi() {
   const error = ref(null);
 
   const updateAPI = async () => {
-    const response = await fetch(`/api/update`);
+    const response = await fetch(`/api/update`, {
+      method: "PUT",
+    });
     if (!response.ok) {
       const errorData = await response.json();
       const errorMessage = errorData.message;

@@ -103,7 +103,7 @@ func (s *Server) routes(r *chi.Mux) {
 	r.Use(logger.MiddlewareLogger(s.log))
 
 	r.Route("/api", func(r chi.Router) {
-		r.Get("/update", api.MakeHTTPFunc(s.handleUpdateWeapons))
+		r.Put("/update", api.MakeHTTPFunc(s.handleUpdateWeapons))
 		r.With(logger.MiddlewareCategoryCheck(s.categories)).Get("/weapons/{category}", api.MakeHTTPFunc(s.handleGetWeaponsByCategory))
 		r.Get("/weapons/search/{name}", api.MakeHTTPFunc(s.handleSeachWeapons))
 		r.Get("/version", api.MakeHTTPFunc(s.handleGetVersion))
