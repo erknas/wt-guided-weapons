@@ -3,7 +3,7 @@ version: "3.8"
 services:
   mongodb:
     image: ${MONGO_IMAGE}
-    container_name: ${MONGO_CONTAINER_NAME}
+    container_name: app_mongodb
     environment:
       - MONGO_INITDB_ROOT_USERNAME=${MONGO_USERNAME}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
@@ -11,6 +11,41 @@ services:
       - ${MONGO_PORT}
     volumes:
       - mongodb_data:/data/db
+    networks:
+      - app_network
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: app_backend
+    ports:
+      - ${BACKEND_PORT}:${BACKEND_PORT}
+    depends_on:
+      - mongodb
+    volumes:
+      - ./backend:/app
+    networks:
+      - app_network
+
+  frontend:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: app_frontend
+    ports:
+      - ${FRONTEND_PORT}:${FRONTEND_PORT}
+    depends_on:
+      - backend
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+    networks:
+      - app_network
 
 volumes:
   mongodb_data:
+
+networks:
+  app_network:
+    driver: bridge

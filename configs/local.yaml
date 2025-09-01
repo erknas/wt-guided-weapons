@@ -8,7 +8,7 @@ server:
 mongodb:
   username: "root"
   password: "password"
-  host: "localhost"
+  host: "mongodb"
   port: "27017"
   db_name: "wt-guided-weapons"
   coll_name: "weapons"
